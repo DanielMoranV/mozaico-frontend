@@ -106,6 +106,16 @@ const menuItems = [
     to: '/usuarios'
   },
   {
+    title: 'Categorías',
+    icon: 'mdi-shape',
+    to: '/categorias'
+  },
+  {
+    title: 'Productos',
+    icon: 'mdi-food-apple',
+    to: '/productos'
+  },
+  {
     title: 'Mesas',
     icon: 'mdi-table-chair',
     to: '/mesas'

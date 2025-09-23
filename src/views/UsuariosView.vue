@@ -13,6 +13,8 @@
       @ver-usuario="verUsuario"
       @editar-usuario="editarUsuario"
       @confirmar-eliminar="confirmarEliminar"
+      @activar-usuario="activarUsuario"
+      @desactivar-usuario="desactivarUsuario"
     />
 
     <UsuarioEditDialog
@@ -109,6 +111,7 @@ const formulario = reactive<UsuarioRequestDTO>({
 // Confirmación de eliminación
 const confirmarDialog = ref(false);
 const usuarioAEliminar = ref<UsuarioResponseDTO | null>(null);
+const usuarioIdActual = ref<number | null>(null);
 
 // Snackbar
 const snackbar = reactive({
@@ -138,6 +141,7 @@ const abrirDialogoCrear = () => {
 };
 
 const editarUsuario = (usuario: UsuarioResponseDTO) => {
+  usuarioIdActual.value = usuario.idUsuario;
   formulario.nombre = usuario.nombre;
   formulario.username = usuario.username;
   formulario.email = usuario.email;
@@ -153,14 +157,10 @@ const editarUsuario = (usuario: UsuarioResponseDTO) => {
 const guardarUsuario = async () => {
   let resultado;
 
-  if (dialogo.editando) {
-    const usuario = store.usuarios.find(
-      (u: UsuarioResponseDTO) =>
-        u.username === formulario.username || u.email === formulario.email
-    );
-    if (usuario) {
-      resultado = await store.actualizarUsuario(usuario.idUsuario, formulario);
-    }
+  if (dialogo.editando && usuarioIdActual.value) {
+    const payload: Partial<UsuarioRequestDTO> = { ...formulario };
+    delete payload.password;
+    resultado = await store.actualizarUsuario(usuarioIdActual.value, payload as UsuarioRequestDTO);
   } else {
     resultado = await store.crearUsuario(formulario);
   }
@@ -198,6 +198,24 @@ const eliminarUsuario = async () => {
   usuarioAEliminar.value = null;
 };
 
+const activarUsuario = async (id: number) => {
+  const resultado = await store.activarUsuario(id);
+  if (resultado.success) {
+    mostrarSnackbar("Usuario activado exitosamente", "success");
+  } else {
+    mostrarSnackbar(resultado.error || "Error al activar usuario", "error");
+  }
+};
+
+const desactivarUsuario = async (id: number) => {
+  const resultado = await store.desactivarUsuario(id);
+  if (resultado.success) {
+    mostrarSnackbar("Usuario desactivado exitosamente", "success");
+  } else {
+    mostrarSnackbar(resultado.error || "Error al desactivar usuario", "error");
+  }
+};
+
 const verUsuario = (usuario: UsuarioResponseDTO) => {
   // TODO: Implementar vista detallada del usuario
   mostrarSnackbar(`Ver detalles de ${usuario.nombre} - Próximamente`, "info");
@@ -205,6 +223,7 @@ const verUsuario = (usuario: UsuarioResponseDTO) => {
 
 const cerrarDialogo = () => {
   dialogo.mostrar = false;
+  usuarioIdActual.value = null;
   limpiarFormulario();
 };
 

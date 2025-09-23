@@ -109,8 +109,16 @@ export const useUsuarioStore = defineStore("usuario", () => {
         return { success: false, error: response.message };
       }
     } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.message || "Error al crear usuario";
+      const errorData = err.response?.data;
+      let errorMessage = errorData?.message || "Error al crear usuario";
+
+      if (errorData?.errors) {
+        const errorDetails = Object.entries(errorData.errors)
+          .map(([field, message]) => `${field}: ${message}`)
+          .join(", ");
+        errorMessage = `${errorMessage}: ${errorDetails}`;
+      }
+
       setError(errorMessage);
       console.error("Error creating usuario:", err);
       return { success: false, error: errorMessage };
@@ -125,7 +133,11 @@ export const useUsuarioStore = defineStore("usuario", () => {
       setLoading(true);
       clearError();
 
+      console.log("Actualizar usuario:", id, usuario);
+
       const response = await UsuarioService.actualizarUsuario(id, usuario);
+
+      console.log("Actualizar response:", response);
 
       if (response.status === "SUCCESS") {
         const index = usuarios.value.findIndex(
@@ -140,8 +152,16 @@ export const useUsuarioStore = defineStore("usuario", () => {
         return { success: false, error: response.message };
       }
     } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.message || "Error al actualizar usuario";
+      const errorData = err.response?.data;
+      let errorMessage = errorData?.message || "Error al actualizar usuario";
+
+      if (errorData?.errors) {
+        const errorDetails = Object.entries(errorData.errors)
+          .map(([field, message]) => `${field}: ${message}`)
+          .join(", ");
+        errorMessage = `${errorMessage}: ${errorDetails}`;
+      }
+
       setError(errorMessage);
       console.error("Error updating usuario:", err);
       return { success: false, error: errorMessage };
@@ -184,7 +204,9 @@ export const useUsuarioStore = defineStore("usuario", () => {
       setLoading(true);
       clearError();
 
-      const response = await UsuarioService.buscarUsuarios(busquedaParams.value);
+      const response = await UsuarioService.buscarUsuarios(
+        busquedaParams.value
+      );
 
       console.log("Busqueda response:", response);
 
@@ -200,6 +222,66 @@ export const useUsuarioStore = defineStore("usuario", () => {
         err.response?.data?.message || "Error en la búsqueda";
       setError(errorMessage);
       console.error("Error searching usuarios:", err);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Activar usuario
+  const activarUsuario = async (id: number) => {
+    try {
+      setLoading(true);
+      clearError();
+
+      const response = await UsuarioService.activarUsuario(id);
+
+      if (response.status === "SUCCESS") {
+        const index = usuarios.value.findIndex((u) => u.idUsuario === id);
+        if (index !== -1) {
+          usuarios.value[index] = response.data;
+        }
+        return { success: true, data: response.data };
+      } else {
+        setError(response.message);
+        return { success: false, error: response.message };
+      }
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.message || "Error al activar usuario";
+      setError(errorMessage);
+      console.error("Error activating usuario:", err);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Desactivar usuario
+  const desactivarUsuario = async (id: number) => {
+    try {
+      setLoading(true);
+      clearError();
+
+      const response = await UsuarioService.desactivarUsuario(id);
+
+      console.log("Desactivar response:", response);
+
+      if (response.status === "SUCCESS") {
+        const index = usuarios.value.findIndex((u) => u.idUsuario === id);
+        if (index !== -1) {
+          usuarios.value[index] = response.data;
+        }
+        return { success: true, data: response.data };
+      } else {
+        setError(response.message);
+        return { success: false, error: response.message };
+      }
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.message || "Error al desactivar usuario";
+      setError(errorMessage);
+      console.error("Error deactivating usuario:", err);
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
@@ -240,6 +322,8 @@ export const useUsuarioStore = defineStore("usuario", () => {
     actualizarUsuario,
     eliminarUsuario,
     buscarUsuarios,
+    activarUsuario,
+    desactivarUsuario,
     setBusquedaParams, // Export setBusquedaParams
     clearUsuarioActual,
     clearUsuarios,

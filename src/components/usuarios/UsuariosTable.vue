@@ -58,6 +58,12 @@
         >
           <v-icon>mdi-delete</v-icon>
         </v-btn>
+
+        <UsuarioEstadoMenu
+          :usuario="item"
+          @activar="$emit('activar-usuario', item.idUsuario)"
+          @desactivar="$emit('desactivar-usuario', item.idUsuario)"
+        />
       </template>
     </v-data-table>
   </v-card>
@@ -65,6 +71,7 @@
 
 <script setup lang="ts">
 import type { UsuarioResponseDTO } from "@/types";
+import UsuarioEstadoMenu from "./UsuarioEstadoMenu.vue";
 
 defineProps({
   usuarios: {
@@ -90,6 +97,8 @@ const emit = defineEmits([
   'ver-usuario',
   'editar-usuario',
   'confirmar-eliminar',
+  'activar-usuario',
+  'desactivar-usuario',
 ]);
 
 const getTipoUsuarioColor = (tipo: string) => {

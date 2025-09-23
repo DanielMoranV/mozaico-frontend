@@ -8,6 +8,8 @@ import InventarioView from '../views/InventarioView.vue';
 import ReportesView from '../views/ReportesView.vue';
 import ClientesView from '../views/ClientesView.vue';
 import ConfiguracionView from '../views/ConfiguracionView.vue';
+import CategoriasView from '../views/CategoriasView.vue';
+import ProductosView from '../views/ProductosView.vue';
 
 const routes = [
   {
@@ -19,6 +21,16 @@ const routes = [
     path: '/usuarios',
     name: 'Usuarios',
     component: UsuariosView,
+  },
+  {
+    path: '/categorias',
+    name: 'Categorias',
+    component: CategoriasView,
+  },
+  {
+    path: '/productos',
+    name: 'Productos',
+    component: ProductosView,
   },
   {
     path: '/mesas',
