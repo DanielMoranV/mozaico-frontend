@@ -1,31 +1,24 @@
 <template>
-  <v-row class="mb-6">
-    <v-col cols="12">
-      <div class="d-flex align-center justify-space-between mb-4">
-        <div class="d-flex align-center">
-          <v-icon size="32" class="me-3" color="primary"
-            >mdi-account-group</v-icon
-          >
-          <div>
-            <h1 class="text-h4 font-weight-bold">Gestión de Usuarios</h1>
-            <p class="text-body-2 text-medium-emphasis">
-              Administrar usuarios del sistema
-            </p>
-          </div>
-        </div>
-        <v-btn color="primary" @click="$emit('crear-usuario')">
-          <v-icon class="me-2">mdi-plus</v-icon>
-          Nuevo Usuario
-        </v-btn>
-      </div>
-    </v-col>
-  </v-row>
+  <v-card-title class="d-flex align-center justify-space-between">
+    <span>Gestión de Usuarios</span>
+    <div>
+      <v-btn icon @click="emit('toggle-filters')">
+        <v-icon>{{ showFilters ? 'mdi-filter-off' : 'mdi-filter' }}</v-icon>
+      </v-btn>
+      <v-btn color="primary" @click="emit('crear-usuario')" class="ms-4">
+        <v-icon left>mdi-plus</v-icon>
+        Nuevo Usuario
+      </v-btn>
+    </div>
+  </v-card-title>
 </template>
 
 <script setup lang="ts">
-const emit = defineEmits(['crear-usuario']);
-</script>
+import { defineProps, defineEmits } from 'vue';
 
-<style scoped>
-/* Add any specific styles for the header here if needed */
-</style>
+defineProps<{
+  showFilters: boolean
+}>();
+
+const emit = defineEmits(['crear-usuario', 'toggle-filters']);
+</script>

@@ -1,217 +1,63 @@
 <template>
   <v-container fluid>
     <v-card>
-      <v-card-title class="d-flex align-center justify-space-between">
-        <span>Gestión de Productos ({{ store.totalProductos }})</span>
-        <v-btn color="primary" @click="abrirDialogoCrear">
-          <v-icon left>mdi-plus</v-icon>
-          Nuevo Producto
-        </v-btn>
-      </v-card-title>
+      <ProductosHeader
+        :show-filters="showFilters"
+        @crear-producto="abrirDialogoCrear"
+        @toggle-filters="showFilters = !showFilters"
+      />
+
       <v-card-text>
-        <v-data-table
-          :headers="headers"
-          :items="store.productos"
+        <v-text-field
+          v-model="searchTerm"
+          label="Búsqueda Global"
+          placeholder="Buscar en nombre, descripción, código de barras..."
+          prepend-inner-icon="mdi-magnify"
+          variant="outlined"
+          density="compact"
+          clearable
+          hide-details
+          class="mb-4"
+          @keyup.enter="realizarBusqueda"
+        />
+
+        <ProductosFilters
+          v-model="searchCriteria"
+          :show="showFilters"
+          @buscar="realizarBusqueda"
+          @limpiar="limpiarBusqueda"
+        />
+
+        <ProductosTable
+          :productos="store.productos"
           :loading="store.loading"
-          loading-text="Cargando productos..."
-          no-data-text="No se encontraron productos"
-          items-per-page="10"
-          class="elevation-0"
-        >
-          <template v-slot:item.categoria.nombre="{ item }">
-            {{ item.categoria.nombre }}
-          </template>
-          <template v-slot:item.estado="{ item }">
-            <v-chip :color="getEstadoColor(item.estado)" size="small" variant="tonal">
-              {{ item.estado }}
-            </v-chip>
-          </template>
-          <template v-slot:item.disponible="{ item }">
-            <v-icon :color="item.disponible ? 'success' : 'error'">
-              {{ item.disponible ? 'mdi-check-circle' : 'mdi-close-circle' }}
-            </v-icon>
-          </template>
-          <template v-slot:item.requierePreparacion="{ item }">
-            <v-icon :color="item.requierePreparacion ? 'success' : 'error'">
-              {{ item.requierePreparacion ? 'mdi-check-circle' : 'mdi-close-circle' }}
-            </v-icon>
-          </template>
-          <template v-slot:item.esAlcoholico="{ item }">
-            <v-icon :color="item.esAlcoholico ? 'success' : 'error'">
-              {{ item.esAlcoholico ? 'mdi-check-circle' : 'mdi-close-circle' }}
-            </v-icon>
-          </template>
-          <template v-slot:item.actions="{ item }">
-            <v-btn icon size="small" variant="text" @click="editarProducto(item)">
-              <v-icon>mdi-pencil</v-icon>
-            </v-btn>
-            <v-btn icon size="small" variant="text" color="error" @click="confirmarEliminar(item)">
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
-            <v-menu offset-y>
-              <template v-slot:activator="{ props }">
-                <v-btn icon size="small" variant="text" v-bind="props">
-                  <v-icon>mdi-dots-vertical</v-icon>
-                </v-btn>
-              </template>
-              <v-list dense>
-                <v-list-item v-if="item.estado !== 'ACTIVO'" @click="activarProducto(item.idProducto)">
-                  <v-list-item-title>Activar</v-list-item-title>
-                </v-list-item>
-                <v-list-item v-if="item.estado === 'ACTIVO'" @click="desactivarProducto(item.idProducto)">
-                  <v-list-item-title>Desactivar</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </template>
-        </v-data-table>
+          :headers="headers"
+          @editar-producto="editarProducto"
+          @confirmar-eliminar="confirmarEliminar"
+          @activar-producto="activarProducto"
+          @desactivar-producto="desactivarProducto"
+        />
       </v-card-text>
     </v-card>
 
-    <v-dialog v-model="dialogo.mostrar" max-width="600px" persistent>
-      <v-card>
-        <v-card-title>
-          <span class="text-h5">{{ dialogo.editando ? 'Editar Producto' : 'Nuevo Producto' }}</span>
-        </v-card-title>
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="formulario.nombre"
-                  label="Nombre *"
-                  variant="outlined"
-                  :rules="[reglasValidacion.requerido as any]"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model.number="formulario.precio"
-                  label="Precio *"
-                  variant="outlined"
-                  type="number"
-                  :rules="[reglasValidacion.requerido as any, reglasValidacion.numeroPositivo as any]"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-textarea
-                  v-model="formulario.descripcion"
-                  label="Descripción"
-                  variant="outlined"
-                ></v-textarea>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-select
-                  v-model="formulario.idCategoria"
-                  :items="categoriaStore.categorias"
-                  item-title="nombre"
-                  item-value="idCategoria"
-                  label="Categoría *"
-                  variant="outlined"
-                  :rules="[reglasValidacion.requerido as any]"
-                ></v-select>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model.number="formulario.tiempoPreparacion"
-                  label="Tiempo de Preparación (min)"
-                  variant="outlined"
-                  type="number"
-                  :rules="[reglasValidacion.numeroPositivoOpcional as any]"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-switch
-                  v-model="formulario.disponible"
-                  label="Disponible"
-                  color="primary"
-                  inset
-                ></v-switch>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-switch
-                  v-model="formulario.requierePreparacion"
-                  label="Requiere Preparación"
-                  color="primary"
-                  inset
-                ></v-switch>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-switch
-                  v-model="formulario.esAlcoholico"
-                  label="Es Alcohólico"
-                  color="primary"
-                  inset
-                ></v-switch>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  v-model="formulario.imagenUrl"
-                  label="URL de Imagen"
-                  variant="outlined"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  v-model="formulario.ingredientes"
-                  label="Ingredientes"
-                  variant="outlined"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model.number="formulario.calorias"
-                  label="Calorías"
-                  variant="outlined"
-                  type="number"
-                  :rules="[reglasValidacion.numeroPositivoOpcional as any]"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="formulario.codigoBarras"
-                  label="Código de Barras"
-                  variant="outlined"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="formulario.marca"
-                  label="Marca"
-                  variant="outlined"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="formulario.presentacion"
-                  label="Presentación"
-                  variant="outlined"
-                ></v-text-field>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="grey" variant="text" @click="cerrarDialogo">Cancelar</v-btn>
-          <v-btn color="primary" variant="flat" @click="guardarProducto" :loading="store.loading">Guardar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <ProductoEditDialog
+      :mostrar="dialogo.mostrar"
+      @update:mostrar="dialogo.mostrar = $event"
+      :editando="dialogo.editando"
+      :formulario="formulario"
+      :loading="store.loading"
+      :reglas-validacion="reglasValidacion"
+      @guardar-producto="guardarProducto"
+      @subir-imagen="manejarSubidaImagen"
+    />
 
-    <v-dialog v-model="confirmarDialog" max-width="500px">
-      <v-card>
-        <v-card-title class="text-h5">Confirmar Eliminación</v-card-title>
-        <v-card-text>
-          ¿Está seguro de que desea eliminar el producto "{{ productoAEliminar?.nombre }}"?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="grey" variant="text" @click="confirmarDialog = false">Cancelar</v-btn>
-          <v-btn color="error" variant="flat" @click="eliminarProductoConfirmado" :loading="store.loading">Eliminar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <ProductoDeleteConfirmDialog
+      :mostrar="confirmarDialog"
+      @update:mostrar="confirmarDialog = $event"
+      :producto-a-eliminar="productoAEliminar"
+      :loading="store.loading"
+      @eliminar-confirmado="eliminarProductoConfirmado"
+    />
 
     <v-snackbar v-model="snackbar.mostrar" :color="snackbar.color" :timeout="3000">
       {{ snackbar.mensaje }}
@@ -226,13 +72,19 @@
 import { ref, onMounted, reactive } from 'vue';
 import { useProductoStore } from '@/stores/productoStore';
 import { useCategoriaStore } from '@/stores/categoriaStore';
-import type { ProductoRequestDTO, ProductoResponseDTO, ProductoUpdateDTO, EstadoProducto } from '@/types/producto';
+import type { ProductoRequestDTO, ProductoResponseDTO, ProductoUpdateDTO, EstadoProducto, ProductoSearchCriteria } from '@/types/producto';
+import ProductosHeader from '@/components/productos/ProductosHeader.vue';
+import ProductosFilters from '@/components/productos/ProductosFilters.vue';
+import ProductosTable from '@/components/productos/ProductosTable.vue';
+import ProductoEditDialog from '@/components/productos/ProductoEditDialog.vue';
+import ProductoDeleteConfirmDialog from '@/components/productos/ProductoDeleteConfirmDialog.vue';
 
 const store = useProductoStore();
 const categoriaStore = useCategoriaStore();
 
 const headers = [
   { title: 'ID', key: 'idProducto', sortable: true },
+  { title: 'Imagen', key: 'imagenUrl', sortable: false },
   { title: 'Nombre', key: 'nombre', sortable: true },
   { title: 'Categoría', key: 'categoria.nombre', sortable: true },
   { title: 'Precio', key: 'precio', sortable: true },
@@ -243,6 +95,17 @@ const headers = [
   { title: 'Acciones', key: 'actions', sortable: false },
 ];
 
+const showFilters = ref(false);
+const searchTerm = ref('');
+
+const searchCriteria = reactive<Omit<ProductoSearchCriteria, 'searchTerm'>>({
+  nombre: '',
+  idCategoria: undefined,
+  disponible: undefined,
+  estado: undefined,
+  logic: 'AND',
+});
+
 const dialogo = reactive({
   mostrar: false,
   editando: false,
@@ -250,7 +113,7 @@ const dialogo = reactive({
 
 const formulario = reactive<ProductoRequestDTO>({
   nombre: '',
-  descripcion: '',
+  descripcion: undefined,
   precio: 0,
   idCategoria: 0,
   tiempoPreparacion: undefined,
@@ -285,15 +148,10 @@ const reglasValidacion = {
   },
 };
 
-const getEstadoColor = (estado: EstadoProducto) => {
-  switch (estado) {
-    case 'ACTIVO':
-      return 'success';
-    case 'INACTIVO':
-      return 'warning';
-    default:
-      return 'grey';
-  }
+const mostrarSnackbar = (mensaje: string, color: string) => {
+  snackbar.mensaje = mensaje;
+  snackbar.color = color;
+  snackbar.mostrar = true;
 };
 
 const cargarProductos = async () => {
@@ -301,6 +159,31 @@ const cargarProductos = async () => {
   if (store.error) {
     mostrarSnackbar(store.error, 'error');
   }
+};
+
+const realizarBusqueda = async () => {
+  const criteriaToSend: ProductoSearchCriteria = {
+    ...searchCriteria,
+    searchTerm: searchTerm.value || undefined,
+  };
+  store.setBusquedaParams(criteriaToSend);
+  await store.buscarProductos();
+  if (store.error) {
+    mostrarSnackbar(store.error, 'error');
+  }
+};
+
+const limpiarBusqueda = async () => {
+  searchTerm.value = '';
+  Object.assign(searchCriteria, {
+    nombre: '',
+    idCategoria: undefined,
+    disponible: undefined,
+    estado: undefined,
+    logic: 'AND',
+  });
+  store.setBusquedaParams({});
+  await store.buscarProductos();
 };
 
 const abrirDialogoCrear = () => {
@@ -311,21 +194,23 @@ const abrirDialogoCrear = () => {
 
 const editarProducto = (producto: ProductoResponseDTO) => {
   productoIdActual.value = producto.idProducto;
-  formulario.nombre = producto.nombre;
-  formulario.descripcion = producto.descripcion;
-  formulario.precio = producto.precio;
-  formulario.idCategoria = producto.categoria.idCategoria;
-  formulario.tiempoPreparacion = producto.tiempoPreparacion;
-  formulario.disponible = producto.disponible;
-  formulario.imagenUrl = producto.imagenUrl;
-  formulario.ingredientes = producto.ingredientes;
-  formulario.calorias = producto.calorias;
-  formulario.codigoBarras = producto.codigoBarras;
-  formulario.marca = producto.marca;
-  formulario.presentacion = producto.presentacion;
-  formulario.requierePreparacion = producto.requierePreparacion;
-  formulario.esAlcoholico = producto.esAlcoholico;
-  formulario.estado = producto.estado;
+  Object.assign(formulario, {
+    nombre: producto.nombre,
+    descripcion: producto.descripcion,
+    precio: producto.precio,
+    idCategoria: producto.categoria.idCategoria,
+    tiempoPreparacion: producto.tiempoPreparacion,
+    disponible: producto.disponible,
+    imagenUrl: producto.imagenUrl,
+    ingredientes: producto.ingredientes,
+    calorias: producto.calorias,
+    codigoBarras: producto.codigoBarras,
+    marca: producto.marca,
+    presentacion: producto.presentacion,
+    requierePreparacion: producto.requierePreparacion,
+    esAlcoholico: producto.esAlcoholico,
+    estado: producto.estado,
+  });
   dialogo.editando = true;
   dialogo.mostrar = true;
 };
@@ -334,7 +219,6 @@ const guardarProducto = async () => {
   let resultado;
   if (dialogo.editando && productoIdActual.value) {
     const payload: ProductoUpdateDTO = { ...formulario };
-    // No es necesario eliminar el estado si se permite actualizarlo
     resultado = await store.actualizarProducto(productoIdActual.value, payload);
   } else {
     resultado = await store.crearProducto(formulario);
@@ -346,6 +230,7 @@ const guardarProducto = async () => {
       'success'
     );
     cerrarDialogo();
+    await cargarProductos();
   } else {
     mostrarSnackbar(resultado?.error || 'Error al guardar producto', 'error');
   }
@@ -361,6 +246,7 @@ const eliminarProductoConfirmado = async () => {
     const resultado = await store.eliminarProducto(productoAEliminar.value.idProducto);
     if (resultado.success) {
       mostrarSnackbar('Producto eliminado exitosamente', 'success');
+      await cargarProductos();
     } else {
       mostrarSnackbar(resultado.error || 'Error al eliminar producto', 'error');
     }
@@ -394,31 +280,45 @@ const cerrarDialogo = () => {
 };
 
 const limpiarFormulario = () => {
-  formulario.nombre = '';
-  formulario.descripcion = '';
-  formulario.precio = 0;
-  formulario.idCategoria = 0;
-  formulario.tiempoPreparacion = undefined;
-  formulario.disponible = true;
-  formulario.imagenUrl = undefined;
-  formulario.ingredientes = undefined;
-  formulario.calorias = undefined;
-  formulario.codigoBarras = undefined;
-  formulario.marca = undefined;
-  formulario.presentacion = undefined;
-  formulario.requierePreparacion = false;
-  formulario.esAlcoholico = false;
-  formulario.estado = 'ACTIVO';
+  Object.assign(formulario, {
+    nombre: '',
+    descripcion: undefined,
+    precio: 0,
+    idCategoria: 0,
+    tiempoPreparacion: undefined,
+    disponible: true,
+    imagenUrl: undefined,
+    ingredientes: undefined,
+    calorias: undefined,
+    codigoBarras: undefined,
+    marca: undefined,
+    presentacion: undefined,
+    requierePreparacion: false,
+    esAlcoholico: false,
+    estado: 'ACTIVO',
+  });
 };
 
-const mostrarSnackbar = (mensaje: string, color: string) => {
-  snackbar.mensaje = mensaje;
-  snackbar.color = color;
-  snackbar.mostrar = true;
+const manejarSubidaImagen = async (evento: Event) => {
+  const target = evento.target as HTMLInputElement;
+  const file = target.files?.[0];
+
+  if (!file || !productoIdActual.value) {
+    return;
+  }
+
+  const resultado = await store.uploadProductImage(productoIdActual.value, file);
+
+  if (resultado?.success && resultado.data) {
+    formulario.imagenUrl = resultado.data.imagenUrl; // Actualizar la URL en el formulario
+    mostrarSnackbar('Imagen subida exitosamente', 'success');
+  } else {
+    mostrarSnackbar(resultado?.error || 'Error al subir la imagen', 'error');
+  }
 };
 
 onMounted(() => {
-  cargarProductos();
+  realizarBusqueda();
   categoriaStore.fetchCategorias(); // Cargar categorías para el select
 });
 </script>

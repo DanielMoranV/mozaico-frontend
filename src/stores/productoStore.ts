@@ -273,6 +273,41 @@ export const useProductoStore = defineStore("producto", () => {
     }
   };
 
+  const uploadProductImage = async (id: number, imageFile: File) => {
+    try {
+      setLoading(true);
+      clearError();
+      const response = await ProductoService.uploadProductImage(id, imageFile);
+      if (response.status === "SUCCESS") {
+        const index = productos.value.findIndex((p) => p.idProducto === id);
+        if (index !== -1) {
+          productos.value[index] = response.data;
+        }
+        if (productoActual.value?.idProducto === id) {
+          productoActual.value = response.data;
+        }
+        return { success: true, data: response.data };
+      } else {
+        setError(response.message);
+        return { success: false, error: response.message };
+      }
+    } catch (err: any) {
+      const errorData = err.response?.data;
+      let errorMessage = errorData?.message || "Error al subir la imagen";
+      if (errorData?.errors) {
+        const errorDetails = Object.entries(errorData.errors)
+          .map(([field, message]) => `${field}: ${message}`)
+          .join(", ");
+        errorMessage = `${errorMessage}: ${errorDetails}`;
+      }
+      setError(errorMessage);
+      console.error("Error uploading image:", err);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const setBusquedaParams = (params: ProductoSearchCriteria) => {
     busquedaParams.value = { ...busquedaParams.value, ...params };
   };
@@ -304,6 +339,7 @@ export const useProductoStore = defineStore("producto", () => {
     buscarProductos,
     activarProducto,
     desactivarProducto,
+    uploadProductImage,
     setBusquedaParams,
     clearProductoActual,
     clearProductos,

@@ -1,21 +1,47 @@
 <template>
   <v-container fluid>
-    <UsuariosHeader @crear-usuario="abrirDialogoCrear" />
+    <v-card>
+      <UsuariosHeader
+        :show-filters="showFilters"
+        @crear-usuario="abrirDialogoCrear"
+        @toggle-filters="showFilters = !showFilters"
+      />
 
-    <UsuariosFilters />
+      <v-card-text>
+        <v-text-field
+          v-model="searchTerm"
+          label="Búsqueda Global"
+          placeholder="Buscar en nombre, username, email, documento..."
+          prepend-inner-icon="mdi-magnify"
+          variant="outlined"
+          density="compact"
+          clearable
+          hide-details
+          class="mb-4"
+          @keyup.enter="realizarBusqueda"
+        />
 
-    <UsuariosTable
-      :usuarios="store.usuarios"
-      :loading="store.loading"
-      :totalUsuarios="store.totalUsuarios"
-      :headers="headers"
-      @cargar-usuarios="cargarUsuarios"
-      @ver-usuario="verUsuario"
-      @editar-usuario="editarUsuario"
-      @confirmar-eliminar="confirmarEliminar"
-      @activar-usuario="activarUsuario"
-      @desactivar-usuario="desactivarUsuario"
-    />
+        <UsuariosFilters
+          v-model="searchCriteria"
+          :show="showFilters"
+          @buscar="realizarBusqueda"
+          @limpiar="limpiarBusqueda"
+        />
+
+        <UsuariosTable
+          :usuarios="store.usuarios"
+          :loading="store.loading"
+          :totalUsuarios="store.totalUsuarios"
+          :headers="headers"
+          @cargar-usuarios="cargarUsuarios"
+          @ver-usuario="verUsuario"
+          @editar-usuario="editarUsuario"
+          @confirmar-eliminar="confirmarEliminar"
+          @activar-usuario="activarUsuario"
+          @desactivar-usuario="desactivarUsuario"
+        />
+      </v-card-text>
+    </v-card>
 
     <UsuarioEditDialog
       :mostrar="dialogo.mostrar"
@@ -34,7 +60,7 @@
       @update:mostrar="confirmarDialog = $event"
       :usuarioAEliminar="usuarioAEliminar"
       :loading="store.loading"
-      @eliminar-confirmado="eliminarUsuario"
+      @eliminar-confirmado="eliminarUsuarioConfirmado"
     />
 
     <!-- Snackbar para notificaciones -->
@@ -57,7 +83,7 @@
 import { ref, onMounted, reactive } from "vue";
 import { useUsuarioStore } from "@/stores/usuarioStore";
 import { TipoUsuario, TipoDocumentoIdentidad } from "@/types";
-import type { UsuarioResponseDTO, UsuarioRequestDTO } from "@/types";
+import type { UsuarioResponseDTO, UsuarioRequestDTO, UsuarioSearchParams } from "@/types";
 import UsuariosFilters from "@/components/usuarios/UsuariosFilters.vue";
 import UsuariosTable from "@/components/usuarios/UsuariosTable.vue";
 import UsuarioEditDialog from "@/components/usuarios/UsuarioEditDialog.vue";
@@ -77,6 +103,20 @@ const headers = [
   { title: "Fecha Creación", key: "fechaCreacion", sortable: true },
   { title: "Acciones", key: "actions", sortable: false },
 ];
+
+const showFilters = ref(false);
+const searchTerm = ref("");
+
+const searchCriteria = reactive<Omit<UsuarioSearchParams, 'searchTerm'>>({
+  nombre: "",
+  username: "",
+  email: "",
+  tipoUsuario: undefined,
+  estado: undefined,
+  tipoDocumentoIdentidad: undefined,
+  numeroDocumento: "",
+  logic: "AND",
+});
 
 // Items para selects
 const tiposUsuarioItems = Object.values(TipoUsuario).map((tipo) => ({
@@ -128,10 +168,38 @@ const reglasValidacion = {
 
 // Métodos
 const cargarUsuarios = async () => {
-  await store.buscarUsuarios(); // Use the store's buscarUsuarios directly
+  await store.fetchUsuarios();
   if (store.error) {
     mostrarSnackbar(store.error, "error");
   }
+};
+
+const realizarBusqueda = async () => {
+  const criteriaToSend: UsuarioSearchParams = {
+    ...searchCriteria,
+    searchTerm: searchTerm.value || undefined,
+  };
+  store.setBusquedaParams(criteriaToSend);
+  await store.buscarUsuarios();
+  if (store.error) {
+    mostrarSnackbar(store.error, "error");
+  }
+};
+
+const limpiarBusqueda = async () => {
+  searchTerm.value = "";
+  Object.assign(searchCriteria, {
+    nombre: "",
+    username: "",
+    email: "",
+    tipoUsuario: undefined,
+    estado: undefined,
+    tipoDocumentoIdentidad: undefined,
+    numeroDocumento: "",
+    logic: "AND",
+  });
+  store.setBusquedaParams({});
+  await store.buscarUsuarios();
 };
 
 const abrirDialogoCrear = () => {
@@ -173,6 +241,7 @@ const guardarUsuario = async () => {
       "success"
     );
     cerrarDialogo();
+    await cargarUsuarios();
   } else {
     mostrarSnackbar(resultado?.error || "Error al guardar usuario", "error");
   }
@@ -183,13 +252,14 @@ const confirmarEliminar = (usuario: UsuarioResponseDTO) => {
   confirmarDialog.value = true;
 };
 
-const eliminarUsuario = async () => {
+const eliminarUsuarioConfirmado = async () => {
   if (usuarioAEliminar.value) {
     const resultado = await store.eliminarUsuario(
       usuarioAEliminar.value.idUsuario
     );
     if (resultado.success) {
       mostrarSnackbar("Usuario eliminado exitosamente", "success");
+      await cargarUsuarios();
     } else {
       mostrarSnackbar(resultado.error || "Error al eliminar usuario", "error");
     }
@@ -245,7 +315,7 @@ const mostrarSnackbar = (mensaje: string, color: string) => {
 
 // Cargar usuarios al montar el componente
 onMounted(() => {
-  store.buscarUsuarios(); // Initial load using the store's search
+  realizarBusqueda();
 });
 </script>
 

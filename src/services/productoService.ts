@@ -50,9 +50,10 @@ export class ProductoService {
   }
 
   static async buscarProductos(criteria: ProductoSearchCriteria): Promise<ApiResponse<ProductoResponseDTO[]>> {
+    const validCriteria = criteria || {}; // Defensive check
     const searchParams = new URLSearchParams();
 
-    Object.entries(criteria).forEach(([key, value]) => {
+    Object.entries(validCriteria).forEach(([key, value]) => {
       if (value !== undefined && value !== '' && value !== null) {
         searchParams.append(key, String(value));
       }
@@ -74,6 +75,22 @@ export class ProductoService {
   static async desactivarProducto(id: number): Promise<ApiResponse<ProductoResponseDTO>> {
     const response = await apiClient.patch<ApiResponse<ProductoResponseDTO>>(
       `${this.BASE_PATH}/${id}/desactivar`
+    );
+    return response.data;
+  }
+
+  static async uploadProductImage(id: number, imageFile: File): Promise<ApiResponse<ProductoResponseDTO>> {
+    const formData = new FormData();
+    formData.append('file', imageFile);
+
+    const response = await apiClient.post<ApiResponse<ProductoResponseDTO>>(
+      `${this.BASE_PATH}/${id}/image`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
     );
     return response.data;
   }

@@ -10,6 +10,11 @@ import ClientesView from '../views/ClientesView.vue';
 import ConfiguracionView from '../views/ConfiguracionView.vue';
 import CategoriasView from '../views/CategoriasView.vue';
 import ProductosView from '../views/ProductosView.vue';
+import ComprasView from '../views/ComprasView.vue';
+import MetodosPagoView from '../views/MetodosPagoView.vue';
+import PagosView from '../views/PagosView.vue';
+import ProveedoresView from '../views/ProveedoresView.vue';
+import ReservasView from '../views/ReservasView.vue';
 
 const routes = [
   {
@@ -31,6 +36,31 @@ const routes = [
     path: '/productos',
     name: 'Productos',
     component: ProductosView,
+  },
+  {
+    path: '/compras',
+    name: 'Compras',
+    component: ComprasView,
+  },
+  {
+    path: '/metodos-pago',
+    name: 'MetodosPago',
+    component: MetodosPagoView,
+  },
+  {
+    path: '/pagos',
+    name: 'Pagos',
+    component: PagosView,
+  },
+  {
+    path: '/proveedores',
+    name: 'Proveedores',
+    component: ProveedoresView,
+  },
+  {
+    path: '/reservas',
+    name: 'Reservas',
+    component: ReservasView,
   },
   {
     path: '/mesas',
