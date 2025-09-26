@@ -96,12 +96,12 @@
 
 <script setup lang="ts">
 import { defineProps, defineEmits } from "vue";
-import type { Pedido } from "@/types/pedido";
+import type { PedidoResponseDTO } from "@/types/pedido";
 import { EstadoPedido, TipoServicio } from "@/types/enums";
 import PedidoDetalles from "./PedidoDetalles.vue"; // Import the new component
 
 const props = defineProps<{
-  pedidos: Pedido[];
+  pedidos: PedidoResponseDTO[];
   loading: boolean;
   headers: any[];
   selectedPedidoId: number | null;

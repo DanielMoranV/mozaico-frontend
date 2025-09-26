@@ -3,8 +3,8 @@ import { ref, computed } from "vue";
 import { PedidoService } from "@/services/pedidoService";
 import type { ApiResponse } from "@/types";
 import type {
-  Pedido,
   PedidoRequestDTO,
+  PedidoResponseDTO,
   PedidoUpdateDTO,
   PedidoSearchParams,
 } from "@/types/pedido";
@@ -16,8 +16,8 @@ import type {
 
 export const usePedidoStore = defineStore("pedido", () => {
   // State
-  const pedidos = ref<Pedido[]>([]);
-  const pedidoActual = ref<Pedido | null>(null);
+  const pedidos = ref<PedidoResponseDTO[]>([]);
+  const pedidoActual = ref<PedidoResponseDTO | null>(null);
   const selectedPedidoDetalles = ref<DetallePedido[]>([]); // New state for details
   const busquedaParams = ref<PedidoSearchParams>({});
   const loading = ref(false);
@@ -125,7 +125,7 @@ export const usePedidoStore = defineStore("pedido", () => {
 
   const fetchPedidoActivoPorMesa = async (
     idMesa: number
-  ): Promise<Pedido | null> => {
+  ): Promise<PedidoResponseDTO | null> => {
     try {
       setLoading(true);
       clearError();
@@ -169,7 +169,7 @@ export const usePedidoStore = defineStore("pedido", () => {
     try {
       setLoading(true);
       clearError();
-      let response: ApiResponse<Pedido>;
+      let response: ApiResponse<PedidoResponseDTO>;
 
       if (idPedidoExistente) {
         // Actualizar pedido existente
@@ -257,10 +257,10 @@ export const usePedidoStore = defineStore("pedido", () => {
         const pedido = pedidos.value[pedidoIndex];
         if (pedidoIndex !== -1 && pedido?.detalles) {
           const detalleIndex = pedido.detalles.findIndex(
-            (d) => d.idDetallePedido === idDetallePedido
+            (d) => d.idDetalle === idDetallePedido
           );
           if (detalleIndex !== -1) {
-            pedido.detalles[detalleIndex] = response.data;
+            pedido.detalles[detalleIndex] = response.data as any;
           }
         }
         return { success: true, data: response.data };

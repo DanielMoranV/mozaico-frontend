@@ -79,7 +79,7 @@ import { ref, onMounted, reactive } from "vue";
 import { usePedidoStore } from "@/stores/pedidoStore";
 import { EstadoPedido, TipoServicio } from "@/types/enums"; // Import EstadoPedido and TipoServicio as values
 import type {
-  Pedido,
+  PedidoResponseDTO,
   PedidoRequestDTO,
   PedidoUpdateDTO,
   PedidoSearchParams,
@@ -137,7 +137,7 @@ const formulario = reactive<PedidoRequestDTO>({
 
 const pedidoIdActual = ref<number | null>(null);
 const confirmarDialog = ref(false);
-const pedidoAEliminar = ref<Pedido | null>(null);
+const pedidoAEliminar = ref<PedidoResponseDTO | null>(null);
 
 const snackbar = reactive({
   mostrar: false,
@@ -183,7 +183,7 @@ const abrirDialogoCrear = () => {
   dialogo.mostrar = true;
 };
 
-const editarPedido = (pedido: Pedido) => {
+const editarPedido = (pedido: PedidoResponseDTO) => {
   pedidoIdActual.value = pedido.idPedido;
   Object.assign(formulario, {
     idCliente: pedido.cliente?.idCliente,
@@ -222,7 +222,7 @@ const guardarPedido = async () => {
   }
 };
 
-const confirmarEliminar = (pedido: Pedido) => {
+const confirmarEliminar = (pedido: PedidoResponseDTO) => {
   pedidoAEliminar.value = pedido;
   confirmarDialog.value = true;
 };
@@ -283,7 +283,7 @@ const mostrarSnackbar = (mensaje: string, color: string) => {
   snackbar.mostrar = true;
 };
 
-const toggleExpand = (pedido: Pedido | null) => {
+const toggleExpand = (pedido: PedidoResponseDTO | null) => {
   console.log("Toggling expand for pedido:", pedido);
   if (pedido && selectedPedidoId.value !== pedido.idPedido) {
     selectedPedidoId.value = pedido.idPedido;

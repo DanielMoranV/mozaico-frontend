@@ -62,7 +62,7 @@ export class PedidoService {
     return response.data;
   }
 
-  static async buscarPedidos(criteria: PedidoSearchParams): Promise<ApiResponse<Pedido[]>> {
+  static async buscarPedidos(criteria: PedidoSearchParams): Promise<ApiResponse<PedidoResponseDTO[]>> {
     const validCriteria = criteria || {};
     const searchParams = new URLSearchParams();
 
@@ -72,7 +72,7 @@ export class PedidoService {
       }
     });
 
-    const response = await apiClient.get<ApiResponse<Pedido[]>>(
+    const response = await apiClient.get<ApiResponse<PedidoResponseDTO[]>>(
       `${this.BASE_PATH}/buscar?${searchParams.toString()}`
     );
     return response.data;
@@ -87,8 +87,8 @@ export class PedidoService {
 
   // Nuevos métodos para la funcionalidad POS
 
-  static async obtenerPedidoActivoPorMesa(idMesa: number): Promise<ApiResponse<Pedido>> {
-    const response = await apiClient.get<ApiResponse<Pedido>>(
+  static async obtenerPedidoActivoPorMesa(idMesa: number): Promise<ApiResponse<PedidoResponseDTO>> {
+    const response = await apiClient.get<ApiResponse<PedidoResponseDTO>>(
       `${this.BASE_PATH}/mesa/${idMesa}/activo`
     );
     return response.data;
@@ -97,8 +97,8 @@ export class PedidoService {
   static async crearPedidoConDetalles(
     pedidoData: PedidoRequestDTO,
     detallesData: DetallePedidoRequestDTO[]
-  ): Promise<ApiResponse<Pedido>> {
-    const response = await apiClient.post<ApiResponse<Pedido>>(
+  ): Promise<ApiResponse<PedidoResponseDTO>> {
+    const response = await apiClient.post<ApiResponse<PedidoResponseDTO>>(
       `${this.BASE_PATH}/con-detalles`,
       { pedido: pedidoData, detalles: detallesData }
     );
@@ -109,8 +109,8 @@ export class PedidoService {
     idPedido: number,
     pedidoData: PedidoRequestDTO,
     detallesData: DetallePedidoRequestDTO[]
-  ): Promise<ApiResponse<Pedido>> {
-    const response = await apiClient.put<ApiResponse<Pedido>>(
+  ): Promise<ApiResponse<PedidoResponseDTO>> {
+    const response = await apiClient.put<ApiResponse<PedidoResponseDTO>>(
       `${this.BASE_PATH}/${idPedido}/con-detalles`,
       { pedido: pedidoData, detalles: detallesData }
     );
@@ -120,8 +120,8 @@ export class PedidoService {
   static async agregarDetalleAPedido(
     idPedido: number,
     detalle: DetallePedidoRequestDTO
-  ): Promise<ApiResponse<Pedido>> {
-    const response = await apiClient.post<ApiResponse<Pedido>>(
+  ): Promise<ApiResponse<PedidoResponseDTO>> {
+    const response = await apiClient.post<ApiResponse<PedidoResponseDTO>>(
       `${this.BASE_PATH}/${idPedido}/detalles`,
       detalle
     );
@@ -154,8 +154,8 @@ export class PedidoService {
     idPedido: number,
     metodoPago: string,
     clienteId?: number
-  ): Promise<ApiResponse<Pedido>> {
-    const response = await apiClient.post<ApiResponse<Pedido>>(
+  ): Promise<ApiResponse<PedidoResponseDTO>> {
+    const response = await apiClient.post<ApiResponse<PedidoResponseDTO>>(
       `${this.BASE_PATH}/${idPedido}/finalizar`,
       { metodoPago, clienteId }
     );
