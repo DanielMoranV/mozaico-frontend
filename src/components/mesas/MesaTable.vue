@@ -42,7 +42,8 @@
 
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue';
-import type { Mesa, EstadoMesa } from '@/types/mesa';
+import type { Mesa } from '@/types/mesa';
+import { EstadoMesa } from '@/types/mesa';
 
 const props = defineProps<{
   mesas: Mesa[];

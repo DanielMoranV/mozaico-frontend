@@ -8,9 +8,17 @@
     items-per-page="10"
     class="elevation-0"
     show-expand
-    :expanded="[selectedPedidoId]"
+    :expanded="selectedPedidoId ? [selectedPedidoId] : []"
     item-value="idPedido"
-    @update:expanded="(expanded) => emit('toggle-expand', expanded.length > 0 ? pedidos.find(p => p.idPedido === expanded[0]) : null)"
+    @update:expanded="
+      (expanded) =>
+        emit(
+          'toggle-expand',
+          expanded.length > 0
+            ? pedidos.find((p) => p.idPedido === expanded[0])
+            : null
+        )
+    "
   >
     <template v-slot:item.estado="{ item }">
       <v-chip :color="getEstadoColor(item.estado)" size="small" variant="tonal">
@@ -18,27 +26,44 @@
       </v-chip>
     </template>
     <template v-slot:item.tipoServicio="{ item }">
-      <v-chip :color="getTipoServicioColor(item.tipoServicio)" size="small" variant="tonal">
+      <v-chip
+        :color="getTipoServicioColor(item.tipoServicio)"
+        size="small"
+        variant="tonal"
+      >
         {{ item.tipoServicio }}
       </v-chip>
     </template>
     <template v-slot:item.cliente.nombre="{ item }">
-      {{ item.cliente ? item.cliente.nombre + ' ' + item.cliente.apellido : 'N/A' }}
+      {{
+        item.cliente ? item.cliente.nombre + " " + item.cliente.apellido : "N/A"
+      }}
     </template>
     <template v-slot:item.mesa.numeroMesa="{ item }">
-      {{ item.mesa ? item.mesa.numeroMesa : 'N/A' }}
+      {{ item.mesa ? item.mesa.numeroMesa : "N/A" }}
     </template>
     <template v-slot:item.empleado.nombre="{ item }">
-      {{ item.empleado ? item.empleado.nombre : 'N/A' }}
+      {{ item.empleado ? item.empleado.nombre : "N/A" }}
     </template>
     <template v-slot:item.total="{ item }">
       {{ formatCurrency(item.total) }}
     </template>
     <template v-slot:item.actions="{ item }">
-      <v-btn icon size="small" variant="text" @click="emit('editar-pedido', item)">
+      <v-btn
+        icon
+        size="small"
+        variant="text"
+        @click="emit('editar-pedido', item)"
+      >
         <v-icon>mdi-pencil</v-icon>
       </v-btn>
-      <v-btn icon size="small" variant="text" color="error" @click="emit('confirmar-eliminar', item)">
+      <v-btn
+        icon
+        size="small"
+        variant="text"
+        color="error"
+        @click="emit('confirmar-eliminar', item)"
+      >
         <v-icon>mdi-delete</v-icon>
       </v-btn>
       <v-menu offset-y>
@@ -70,59 +95,65 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
-import type { Pedido, EstadoPedido, TipoServicio } from '@/types/pedido';
-import PedidoDetalles from './PedidoDetalles.vue'; // Import the new component
+import { defineProps, defineEmits } from "vue";
+import type { Pedido } from "@/types/pedido";
+import { EstadoPedido, TipoServicio } from "@/types/enums";
+import PedidoDetalles from "./PedidoDetalles.vue"; // Import the new component
 
 const props = defineProps<{
   pedidos: Pedido[];
   loading: boolean;
   headers: any[];
-  selectedPedidoId: number | null; // New prop
+  selectedPedidoId: number | null;
 }>();
 
 const emit = defineEmits([
-  'editar-pedido',
-  'confirmar-eliminar',
-  'cambiar-estado',
-  'toggle-expand', // New emit
+  "editar-pedido",
+  "confirmar-eliminar",
+  "cambiar-estado",
+  "toggle-expand", // New emit
 ]);
 
 const getEstadoColor = (estado: EstadoPedido) => {
   switch (estado) {
-    case 'PENDIENTE':
-      return 'orange';
-    case 'EN_PREPARACION':
-      return 'blue';
-    case 'LISTO':
-      return 'light-green';
-    case 'ENTREGADO':
-      return 'success';
-    case 'CANCELADO':
-      return 'error';
+    case EstadoPedido.PENDIENTE:
+      return "orange";
+    case EstadoPedido.EN_PREPARACION:
+      return "blue";
+    case EstadoPedido.LISTO:
+      return "light-green";
+    case EstadoPedido.ENTREGADO:
+      return "success";
+    case EstadoPedido.CANCELADO:
+      return "error";
     default:
-      return 'grey';
+      return "grey";
   }
 };
 
 const getTipoServicioColor = (tipo: TipoServicio) => {
   switch (tipo) {
-    case 'MESA':
-      return 'purple';
-    case 'LLEVAR':
-      return 'teal';
-    case 'DELIVERY':
-      return 'indigo';
+    case TipoServicio.MESA:
+      return "purple";
+    case TipoServicio.LLEVAR:
+      return "teal";
+    case TipoServicio.DELIVERY:
+      return "indigo";
     default:
-      return 'grey';
+      return "grey";
   }
 };
 
 const estadosDisponibles = (estadoActual: EstadoPedido) => {
-  return Object.values(EstadoPedido).filter(estado => estado !== estadoActual);
+  return Object.values(EstadoPedido).filter(
+    (estado) => estado !== estadoActual
+  );
 };
 
 const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(value);
+  return new Intl.NumberFormat("es-PE", {
+    style: "currency",
+    currency: "PEN",
+  }).format(value);
 };
 </script>

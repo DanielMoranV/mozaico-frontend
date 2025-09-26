@@ -3,7 +3,8 @@ export const TipoUsuario = {
   MESERO: "MESERO",
   COCINERO: "COCINERO",
   CAJERO: "CAJERO",
-  GERENETE: "GERENTE",
+  GERENTE: "GERENTE",
+  CLIENTE: "CLIENTE",
 } as const;
 
 export type TipoUsuario = (typeof TipoUsuario)[keyof typeof TipoUsuario];

@@ -24,11 +24,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="detalle in store.selectedPedidoDetalles" :key="detalle.idDetalle">
+          <tr v-for="detalle in store.selectedPedidoDetalles" :key="detalle.idDetallePedido">
             <td>{{ detalle.producto?.nombre || 'N/A' }}</td>
             <td>{{ detalle.cantidad }}</td>
             <td>{{ formatCurrency(detalle.precioUnitario) }}</td>
-            <td>{{ formatCurrency(detalle.subtotal) }}</td>
+            <td>{{ formatCurrency(detalle.cantidad * detalle.precioUnitario) }}</td>
             <td>{{ detalle.observaciones || '-' }}</td>
             <td>
               <v-chip :color="getEstadoColor(detalle.estado)" size="small" variant="tonal">
@@ -43,9 +43,8 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, onMounted, watch } from 'vue';
+import { defineProps, watch } from 'vue';
 import { usePedidoStore } from '@/stores/pedidoStore';
-import { EstadoDetallePedido } from '@/types/enums';
 
 const props = defineProps<{
   pedidoId: number;
@@ -53,7 +52,7 @@ const props = defineProps<{
 
 const store = usePedidoStore();
 
-const getEstadoColor = (estado: EstadoDetallePedido) => {
+const getEstadoColor = (estado: string) => {
   switch (estado) {
     case 'PENDIENTE':
       return 'orange';
@@ -63,6 +62,8 @@ const getEstadoColor = (estado: EstadoDetallePedido) => {
       return 'light-green';
     case 'ENTREGADO':
       return 'success';
+    case 'CANCELADO':
+      return 'error';
     default:
       return 'grey';
   }

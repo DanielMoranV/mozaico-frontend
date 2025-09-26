@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { PagoService } from '@/services/pagoService';
-import type { ApiResponse } from '@/types';
 import type {
   PagoResponseDTO,
   PagoRequestDTO,

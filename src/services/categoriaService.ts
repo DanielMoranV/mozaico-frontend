@@ -8,7 +8,7 @@ import type {
 } from '@/types/categoria';
 
 export class CategoriaService {
-  private static readonly BASE_PATH = '/categorias';
+  private static readonly BASE_PATH = '/categorias'; // Coincide con /api/v1/categorias usando VITE_API_BASE_URL
 
   static async crearCategoria(data: CategoriaRequestDTO): Promise<ApiResponse<CategoriaResponseDTO>> {
     const response = await apiClient.post<ApiResponse<CategoriaResponseDTO>>(

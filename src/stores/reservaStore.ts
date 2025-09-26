@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { ReservaService } from '@/services/reservaService';
-import type { ApiResponse } from '@/types';
 import type {
   ReservaResponseDTO,
   ReservaRequestDTO,

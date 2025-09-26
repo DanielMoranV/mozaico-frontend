@@ -11,3 +11,4 @@ export * from './metodoPago';
 export * from './pago';
 export * from './proveedor';
 export * from './reserva';
+export * from './report';

@@ -8,7 +8,7 @@
     items-per-page="10"
     class="elevation-0"
     show-expand
-    :expanded="[selectedCompraId]"
+    :expanded="selectedCompraId ? [selectedCompraId] : []"
     item-value="idCompra"
     @update:expanded="(expanded) => emit('toggle-expand', expanded.length > 0 ? compras.find(c => c.idCompra === expanded[0]) : null)"
   >

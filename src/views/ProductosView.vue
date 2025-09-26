@@ -72,7 +72,7 @@
 import { ref, onMounted, reactive } from 'vue';
 import { useProductoStore } from '@/stores/productoStore';
 import { useCategoriaStore } from '@/stores/categoriaStore';
-import type { ProductoRequestDTO, ProductoResponseDTO, ProductoUpdateDTO, EstadoProducto, ProductoSearchCriteria } from '@/types/producto';
+import type { ProductoRequestDTO, ProductoResponseDTO, ProductoUpdateDTO, ProductoSearchCriteria } from '@/types/producto';
 import ProductosHeader from '@/components/productos/ProductosHeader.vue';
 import ProductosFilters from '@/components/productos/ProductosFilters.vue';
 import ProductosTable from '@/components/productos/ProductosTable.vue';
@@ -167,7 +167,7 @@ const realizarBusqueda = async () => {
     searchTerm: searchTerm.value || undefined,
   };
   store.setBusquedaParams(criteriaToSend);
-  await store.buscarProductos();
+  await store.buscarProductos(criteriaToSend);
   if (store.error) {
     mostrarSnackbar(store.error, 'error');
   }
@@ -182,8 +182,9 @@ const limpiarBusqueda = async () => {
     estado: undefined,
     logic: 'AND',
   });
-  store.setBusquedaParams({});
-  await store.buscarProductos();
+  const criteriosVacios: ProductoSearchCriteria = {};
+  store.setBusquedaParams(criteriosVacios);
+  await store.buscarProductos(criteriosVacios);
 };
 
 const abrirDialogoCrear = () => {

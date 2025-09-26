@@ -26,9 +26,9 @@
             <v-col cols="12">
               <v-text-field
                 v-model="form.email"
-                label="Email *"
+                label="Email"
                 variant="outlined"
-                :rules="[reglasValidacion.requerido, reglasValidacion.email]"
+                :rules="[reglasValidacion.email]"
               ></v-text-field>
             </v-col>
             <v-col cols="12" md="6">
@@ -37,6 +37,29 @@
                 label="Teléfono"
                 variant="outlined"
               ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="form.fechaNacimiento"
+                label="Fecha de Nacimiento"
+                type="date"
+                variant="outlined"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12">
+              <v-text-field
+                v-model="form.direccion"
+                label="Dirección"
+                variant="outlined"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12">
+              <v-textarea
+                v-model="form.preferenciasAlimentarias"
+                label="Preferencias Alimentarias"
+                variant="outlined"
+                rows="3"
+              ></v-textarea>
             </v-col>
           </v-row>
         </v-container>

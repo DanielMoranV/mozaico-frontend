@@ -41,10 +41,10 @@
 
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue';
-import type { Cliente } from '@/types/cliente';
+import type { ClienteResponseDTO } from '@/types/cliente';
 
 defineProps<{
-  clientes: Cliente[];
+  clientes: ClienteResponseDTO[];
   loading: boolean;
   headers: any[];
 }>();

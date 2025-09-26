@@ -70,7 +70,7 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue';
 import { useClienteStore } from '@/stores/clienteStore';
-import type { Cliente, ClienteRequestDTO, ClienteUpdateDTO, ClienteSearchCriteria } from '@/types/cliente';
+import type { ClienteResponseDTO, ClienteRequestDTO, ClienteUpdateDTO, ClienteSearchCriteria } from '@/types/cliente';
 import ClientesHeader from '@/components/clientes/ClientesHeader.vue';
 import ClientesFilters from '@/components/clientes/ClientesFilters.vue';
 import ClientesTable from '@/components/clientes/ClientesTable.vue';
@@ -85,6 +85,7 @@ const headers = [
   { title: 'Apellido', key: 'apellido', sortable: true },
   { title: 'Email', key: 'email', sortable: true },
   { title: 'Teléfono', key: 'telefono', sortable: true },
+  { title: 'Puntos Fidelidad', key: 'puntosFidelidad', sortable: true },
   { title: 'Activo', key: 'activo', sortable: true },
   { title: 'Acciones', key: 'actions', sortable: false },
 ];
@@ -111,11 +112,14 @@ const formulario = reactive<ClienteRequestDTO>({
   apellido: '',
   email: '',
   telefono: '',
+  fechaNacimiento: '',
+  direccion: '',
+  preferenciasAlimentarias: '',
 });
 
 const clienteIdActual = ref<number | null>(null);
 const confirmarDialog = ref(false);
-const clienteAEliminar = ref<Cliente | null>(null);
+const clienteAEliminar = ref<ClienteResponseDTO | null>(null);
 
 const snackbar = reactive({
   mostrar: false,
@@ -125,7 +129,7 @@ const snackbar = reactive({
 
 const reglasValidacion = {
   requerido: (v: any) => !!v || 'Este campo es requerido',
-  email: (v: string) => /.+@.+\..+/.test(v) || 'Debe ser un email válido',
+  email: (v: string) => !v || /.+@.+\..+/.test(v) || 'Debe ser un email válido',
 };
 
 const cargarClientes = async () => {
@@ -140,8 +144,7 @@ const realizarBusqueda = async () => {
     ...searchCriteria,
     searchTerm: searchTerm.value || undefined,
   };
-  store.setBusquedaParams(criteriaToSend);
-  await store.buscarClientes();
+  await store.buscarClientes(criteriaToSend);
   if (store.error) {
     mostrarSnackbar(store.error, 'error');
   }
@@ -157,8 +160,7 @@ const limpiarBusqueda = async () => {
     activo: undefined,
     logic: 'AND',
   });
-  store.setBusquedaParams({});
-  await store.buscarClientes();
+  await store.fetchClientes();
 };
 
 const abrirDialogoCrear = () => {
@@ -167,13 +169,16 @@ const abrirDialogoCrear = () => {
   dialogo.mostrar = true;
 };
 
-const editarCliente = (cliente: Cliente) => {
+const editarCliente = (cliente: ClienteResponseDTO) => {
   clienteIdActual.value = cliente.idCliente;
   Object.assign(formulario, {
     nombre: cliente.nombre,
     apellido: cliente.apellido,
-    email: cliente.email,
+    email: cliente.email ?? '',
     telefono: cliente.telefono ?? '',
+    fechaNacimiento: cliente.fechaNacimiento ?? '',
+    direccion: cliente.direccion ?? '',
+    preferenciasAlimentarias: cliente.preferenciasAlimentarias ?? '',
   });
   dialogo.editando = true;
   dialogo.mostrar = true;
@@ -200,7 +205,7 @@ const guardarCliente = async () => {
   }
 };
 
-const confirmarEliminar = (cliente: Cliente) => {
+const confirmarEliminar = (cliente: ClienteResponseDTO) => {
   clienteAEliminar.value = cliente;
   confirmarDialog.value = true;
 };
@@ -249,6 +254,9 @@ const limpiarFormulario = () => {
     apellido: '',
     email: '',
     telefono: '',
+    fechaNacimiento: '',
+    direccion: '',
+    preferenciasAlimentarias: '',
   });
 };
 

@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { ProveedorService } from '@/services/proveedorService';
-import type { ApiResponse } from '@/types';
 import type {
   ProveedorResponseDTO,
   ProveedorRequestDTO,

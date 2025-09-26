@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { MesaService } from '@/services/mesaService';
-import type { ApiResponse } from '@/types';
 import type {
   Mesa,
   MesaRequestDTO,

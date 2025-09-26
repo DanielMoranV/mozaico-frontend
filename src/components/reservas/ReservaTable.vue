@@ -51,7 +51,8 @@
 
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue';
-import type { ReservaResponseDTO, EstadoReserva } from '@/types/reserva';
+import type { ReservaResponseDTO } from '@/types/reserva';
+import { EstadoReserva } from '@/types/reserva';
 
 const props = defineProps<{
   reservas: ReservaResponseDTO[];

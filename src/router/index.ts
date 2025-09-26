@@ -78,6 +78,11 @@ const routes = [
     component: PedidosView,
   },
   {
+    path: '/pos',
+    name: 'Pos',
+    component: () => import('../views/PosView.vue'),
+  },
+  {
     path: '/inventario',
     name: 'Inventario',
     component: InventarioView,

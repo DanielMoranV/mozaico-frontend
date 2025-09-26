@@ -10,7 +10,7 @@ import type {
 } from '@/types/producto';
 
 export class ProductoService {
-  private static readonly BASE_PATH = '/productos';
+  private static readonly BASE_PATH = '/productos'; // Coincide con /api/v1/productos usando VITE_API_BASE_URL
 
   static async crearProducto(data: ProductoRequestDTO): Promise<ApiResponse<ProductoResponseDTO>> {
     const response = await apiClient.post<ApiResponse<ProductoResponseDTO>>(

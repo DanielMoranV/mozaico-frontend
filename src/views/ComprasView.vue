@@ -71,7 +71,11 @@
 import { ref, onMounted, reactive } from 'vue';
 import { useCompraStore } from '@/stores/compraStore';
 import type { CompraResponseDTO, CompraRequestDTO, CompraSearchParams } from '@/types/compra';
-import { EstadoCompra } from '@/types/enums'; // Import EstadoCompra as a value
+
+// Tipo para el formulario que permite idProveedor = 0 como valor inicial
+interface CompraFormulario extends Omit<CompraRequestDTO, 'idProveedor'> {
+  idProveedor: number; // Permite 0 como valor inicial para el formulario
+}
 import CompraHeader from '@/components/compras/CompraHeader.vue';
 import CompraFilters from '@/components/compras/CompraFilters.vue';
 import CompraTable from '@/components/compras/CompraTable.vue';
@@ -107,10 +111,10 @@ const dialogo = reactive({
   editando: false,
 });
 
-const formulario = reactive<CompraRequestDTO>({
-  idProveedor: 0,
-  fechaCompra: new Date().toISOString().split('T')[0],
-  estado: EstadoCompra.PENDIENTE,
+const formulario = reactive<CompraFormulario>({
+  idProveedor: 0, // Será seleccionado por el usuario en el formulario
+  fechaCompra: new Date().toISOString().substring(0, 10),
+  estado: 'PENDIENTE' as const,
   detalles: [],
 });
 
@@ -177,6 +181,12 @@ const editarCompra = (compra: CompraResponseDTO) => {
 };
 
 const guardarCompra = async () => {
+  // Validar que se haya seleccionado un proveedor
+  if (formulario.idProveedor === 0) {
+    mostrarSnackbar('Debe seleccionar un proveedor', 'error');
+    return;
+  }
+
   let resultado;
   if (dialogo.editando && compraIdActual.value) {
     const payload: CompraRequestDTO = { ...formulario };
@@ -234,9 +244,9 @@ const cerrarDialogo = () => {
 
 const limpiarFormulario = () => {
   Object.assign(formulario, {
-    idProveedor: 0,
-    fechaCompra: new Date().toISOString().split('T')[0],
-    estado: EstadoCompra.PENDIENTE,
+    idProveedor: 0, // Será seleccionado por el usuario en el formulario
+    fechaCompra: new Date().toISOString().substring(0, 10),
+    estado: 'PENDIENTE' as const,
     detalles: [],
   });
 };

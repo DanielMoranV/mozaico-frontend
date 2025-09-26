@@ -104,7 +104,7 @@
 <script setup lang="ts">
 import { defineProps, defineEmits, computed, ref, onMounted } from 'vue';
 import { EstadoCompra } from '@/types/enums';
-import type { CompraRequestDTO, DetalleCompraRequestDTO } from '@/types/compra';
+import type { CompraRequestDTO } from '@/types/compra';
 import { useProveedorStore } from '@/stores/proveedorStore';
 import { useProductoStore } from '@/stores/productoStore';
 

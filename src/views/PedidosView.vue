@@ -59,54 +59,65 @@
       @eliminar-confirmado="eliminarPedidoConfirmado"
     />
 
-    <v-snackbar v-model="snackbar.mostrar" :color="snackbar.color" :timeout="3000">
+    <v-snackbar
+      v-model="snackbar.mostrar"
+      :color="snackbar.color"
+      :timeout="3000"
+    >
       {{ snackbar.mensaje }}
       <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="snackbar.mostrar = false">Cerrar</v-btn>
+        <v-btn color="white" variant="text" @click="snackbar.mostrar = false"
+          >Cerrar</v-btn
+        >
       </template>
     </v-snackbar>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue';
-import { usePedidoStore } from '@/stores/pedidoStore';
-import { EstadoPedido, TipoServicio } from '@/types/enums'; // Import EstadoPedido and TipoServicio as values
-import type { Pedido, PedidoRequestDTO, PedidoUpdateDTO, PedidoSearchParams } from '@/types/pedido';
-import PedidoHeader from '@/components/pedidos/PedidoHeader.vue';
-import PedidoFilters from '@/components/pedidos/PedidoFilters.vue';
-import PedidoTable from '@/components/pedidos/PedidoTable.vue';
-import PedidoEditDialog from '@/components/pedidos/PedidoEditDialog.vue';
-import PedidoDeleteConfirmDialog from '@/components/pedidos/PedidoDeleteConfirmDialog.vue';
+import { ref, onMounted, reactive } from "vue";
+import { usePedidoStore } from "@/stores/pedidoStore";
+import { EstadoPedido, TipoServicio } from "@/types/enums"; // Import EstadoPedido and TipoServicio as values
+import type {
+  Pedido,
+  PedidoRequestDTO,
+  PedidoUpdateDTO,
+  PedidoSearchParams,
+} from "@/types/pedido";
+import PedidoHeader from "@/components/pedidos/PedidoHeader.vue";
+import PedidoFilters from "@/components/pedidos/PedidoFilters.vue";
+import PedidoTable from "@/components/pedidos/PedidoTable.vue";
+import PedidoEditDialog from "@/components/pedidos/PedidoEditDialog.vue";
+import PedidoDeleteConfirmDialog from "@/components/pedidos/PedidoDeleteConfirmDialog.vue";
 
 const store = usePedidoStore();
 
 const headers = [
-  { title: 'ID', key: 'idPedido', sortable: true },
-  { title: '', key: 'data-table-expand', width: '40px' }, // Expand icon column
-  { title: 'Cliente', key: 'cliente.nombre', sortable: true },
-  { title: 'Mesa', key: 'mesa.numeroMesa', sortable: true },
-  { title: 'Empleado', key: 'empleado.nombre', sortable: true },
-  { title: 'Fecha', key: 'fechaPedido', sortable: true },
-  { title: 'Estado', key: 'estado', sortable: true },
-  { title: 'Tipo Servicio', key: 'tipoServicio', sortable: true },
-  { title: 'Total', key: 'total', sortable: true },
-  { title: 'Acciones', key: 'actions', sortable: false },
+  { title: "ID", key: "idPedido", sortable: true },
+  { title: "", key: "data-table-expand", width: "40px" }, // Expand icon column
+  { title: "Cliente", key: "cliente.nombre", sortable: true },
+  { title: "Mesa", key: "mesa.numeroMesa", sortable: true },
+  { title: "Empleado", key: "empleado.nombre", sortable: true },
+  { title: "Fecha", key: "fechaPedido", sortable: true },
+  { title: "Estado", key: "estado", sortable: true },
+  { title: "Tipo Servicio", key: "tipoServicio", sortable: true },
+  { title: "Total", key: "total", sortable: true },
+  { title: "Acciones", key: "actions", sortable: false },
 ];
 
 const showFilters = ref(false);
-const searchTerm = ref('');
+const searchTerm = ref("");
 const selectedPedidoId = ref<number | null>(null); // New ref for expanded row
 
-const searchCriteria = reactive<Omit<PedidoSearchParams, 'searchTerm'>>({
+const searchCriteria = reactive<Omit<PedidoSearchParams, "searchTerm">>({
   idCliente: undefined,
   idMesa: undefined,
   idEmpleado: undefined,
   fechaPedidoDesde: undefined,
-    fechaPedidoHasta: undefined,
+  fechaPedidoHasta: undefined,
   estado: undefined,
   tipoServicio: undefined,
-  logic: 'AND',
+  logic: "AND",
 });
 
 const dialogo = reactive({
@@ -118,10 +129,10 @@ const formulario = reactive<PedidoRequestDTO>({
   idCliente: undefined,
   idMesa: undefined,
   idEmpleado: undefined,
-  estado: EstadoPedido.PENDIENTE,
-  tipoServicio: undefined,
+  tipoServicio: TipoServicio.MESA,
   observaciones: undefined,
   direccionDelivery: undefined,
+  detalles: [],
 });
 
 const pedidoIdActual = ref<number | null>(null);
@@ -130,12 +141,12 @@ const pedidoAEliminar = ref<Pedido | null>(null);
 
 const snackbar = reactive({
   mostrar: false,
-  mensaje: '',
-  color: 'success',
+  mensaje: "",
+  color: "success",
 });
 
 const reglasValidacion = {
-  requerido: (v: any) => !!v || 'Este campo es requerido',
+  requerido: (v: any) => !!v || "Este campo es requerido",
 };
 
 const realizarBusqueda = async () => {
@@ -146,12 +157,12 @@ const realizarBusqueda = async () => {
   store.setBusquedaParams(criteriaToSend);
   await store.buscarPedidos();
   if (store.error) {
-    mostrarSnackbar(store.error, 'error');
+    mostrarSnackbar(store.error, "error");
   }
 };
 
 const limpiarBusqueda = async () => {
-  searchTerm.value = '';
+  searchTerm.value = "";
   Object.assign(searchCriteria, {
     idCliente: undefined,
     idMesa: undefined,
@@ -160,7 +171,7 @@ const limpiarBusqueda = async () => {
     fechaPedidoHasta: undefined,
     estado: undefined,
     tipoServicio: undefined,
-    logic: 'AND',
+    logic: "AND",
   });
   store.setBusquedaParams({});
   await store.buscarPedidos();
@@ -199,13 +210,15 @@ const guardarPedido = async () => {
 
   if (resultado?.success) {
     mostrarSnackbar(
-      dialogo.editando ? 'Pedido actualizado exitosamente' : 'Pedido creado exitosamente',
-      'success'
+      dialogo.editando
+        ? "Pedido actualizado exitosamente"
+        : "Pedido creado exitosamente",
+      "success"
     );
     cerrarDialogo();
     await realizarBusqueda();
   } else {
-    mostrarSnackbar(resultado?.error || 'Error al guardar pedido', 'error');
+    mostrarSnackbar(resultado?.error || "Error al guardar pedido", "error");
   }
 };
 
@@ -216,12 +229,14 @@ const confirmarEliminar = (pedido: Pedido) => {
 
 const eliminarPedidoConfirmado = async () => {
   if (pedidoAEliminar.value) {
-    const resultado = await store.eliminarPedido(pedidoAEliminar.value.idPedido);
+    const resultado = await store.eliminarPedido(
+      pedidoAEliminar.value.idPedido
+    );
     if (resultado.success) {
-      mostrarSnackbar('Pedido eliminado exitosamente', 'success');
+      mostrarSnackbar("Pedido eliminado exitosamente", "success");
       await realizarBusqueda();
     } else {
-      mostrarSnackbar(resultado.error || 'Error al eliminar pedido', 'error');
+      mostrarSnackbar(resultado.error || "Error al eliminar pedido", "error");
     }
   }
   confirmarDialog.value = false;
@@ -231,10 +246,16 @@ const eliminarPedidoConfirmado = async () => {
 const cambiarEstadoPedido = async (id: number, nuevoEstado: EstadoPedido) => {
   const resultado = await store.cambiarEstadoPedido(id, nuevoEstado);
   if (resultado.success) {
-    mostrarSnackbar(`Estado de pedido ${id} cambiado a ${nuevoEstado} exitosamente`, 'success');
+    mostrarSnackbar(
+      `Estado de pedido ${id} cambiado a ${nuevoEstado} exitosamente`,
+      "success"
+    );
     await realizarBusqueda();
   } else {
-    mostrarSnackbar(resultado.error || 'Error al cambiar estado de pedido', 'error');
+    mostrarSnackbar(
+      resultado.error || "Error al cambiar estado de pedido",
+      "error"
+    );
   }
 };
 
@@ -249,10 +270,10 @@ const limpiarFormulario = () => {
     idCliente: undefined,
     idMesa: undefined,
     idEmpleado: undefined,
-    estado: EstadoPedido.PENDIENTE,
-    tipoServicio: undefined,
+    tipoServicio: TipoServicio.MESA,
     observaciones: undefined,
     direccionDelivery: undefined,
+    detalles: [],
   });
 };
 
@@ -262,12 +283,12 @@ const mostrarSnackbar = (mensaje: string, color: string) => {
   snackbar.mostrar = true;
 };
 
-const toggleExpand = async (pedido: Pedido) => {
-  if (selectedPedidoId.value === pedido.idPedido) {
-    selectedPedidoId.value = null;
-  } else {
+const toggleExpand = (pedido: Pedido | null) => {
+  console.log("Toggling expand for pedido:", pedido);
+  if (pedido && selectedPedidoId.value !== pedido.idPedido) {
     selectedPedidoId.value = pedido.idPedido;
-    await store.fetchSelectedPedidoDetalles(pedido.idPedido);
+  } else {
+    selectedPedidoId.value = null;
   }
 };
 

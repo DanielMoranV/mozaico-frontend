@@ -18,7 +18,6 @@
 import { defineProps } from 'vue';
 
 const props = defineProps<{
-  menuId: number;
   productos: Array<{
     idProducto: number;
     nombre: string;

@@ -8,7 +8,7 @@
     items-per-page="10"
     class="elevation-0"
     show-expand
-    :expanded="[selectedMenuId]"
+    :expanded="selectedMenuId ? [selectedMenuId] : []"
     item-value="idMenu"
     @update:expanded="(expanded) => emit('toggle-expand', expanded.length > 0 ? menus.find(m => m.idMenu === expanded[0]) : null)"
   >

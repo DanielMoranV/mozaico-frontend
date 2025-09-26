@@ -1,18 +1,17 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { ClienteService } from '@/services/clienteService';
-import type { ApiResponse } from '@/types';
 import type {
-  Cliente,
   ClienteRequestDTO,
+  ClienteResponseDTO,
   ClienteUpdateDTO,
   ClienteSearchCriteria,
 } from '@/types/cliente';
 
 export const useClienteStore = defineStore('cliente', () => {
   // State
-  const clientes = ref<Cliente[]>([]);
-  const clienteActual = ref<Cliente | null>(null);
+  const clientes = ref<ClienteResponseDTO[]>([]);
+  const clienteActual = ref<ClienteResponseDTO | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
 
@@ -140,7 +139,6 @@ export const useClienteStore = defineStore('cliente', () => {
       if (response.status === 'SUCCESS') {
         const index = clientes.value.findIndex((c) => c.idCliente === id);
         if (index !== -1) {
-          clientes.value[index].activo = true;
           clientes.value[index] = response.data;
         }
         return { success: true, data: response.data };
@@ -164,7 +162,6 @@ export const useClienteStore = defineStore('cliente', () => {
       if (response.status === 'SUCCESS') {
         const index = clientes.value.findIndex((c) => c.idCliente === id);
         if (index !== -1) {
-          clientes.value[index].activo = false;
           clientes.value[index] = response.data;
         }
         return { success: true, data: response.data };

@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, onMounted, watch } from 'vue';
+import { defineProps, watch } from 'vue';
 import { useCompraStore } from '@/stores/compraStore';
 
 const props = defineProps<{

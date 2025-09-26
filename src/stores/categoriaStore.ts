@@ -2,9 +2,6 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { CategoriaService } from "@/services/categoriaService";
 import type {
-  ApiResponse,
-} from "@/types";
-import type {
   CategoriaRequestDTO,
   CategoriaResponseDTO,
 } from "@/types/categoria";

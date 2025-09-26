@@ -1,25 +1,25 @@
-import { EstadoUsuario } from './enums';
-
 export interface Cliente {
   idCliente: number;
   nombre: string;
   apellido: string;
-  email: string;
+  email?: string;
   telefono?: string;
-  direccion?: string;
   fechaNacimiento?: string;
+  direccion?: string;
+  preferenciasAlimentarias?: string;
+  puntosFidelidad: number;
+  fechaRegistro: string;
   activo: boolean;
-  fechaCreacion: string;
-  fechaActualizacion: string;
 }
 
 export interface ClienteRequestDTO {
   nombre: string;
   apellido: string;
-  email: string;
+  email?: string;
   telefono?: string;
-  direccion?: string;
   fechaNacimiento?: string;
+  direccion?: string;
+  preferenciasAlimentarias?: string;
 }
 
 export interface ClienteUpdateDTO {
@@ -27,9 +27,23 @@ export interface ClienteUpdateDTO {
   apellido?: string;
   email?: string;
   telefono?: string;
-  direccion?: string;
   fechaNacimiento?: string;
-  activo?: boolean;
+  direccion?: string;
+  preferenciasAlimentarias?: string;
+}
+
+export interface ClienteResponseDTO {
+  idCliente: number;
+  nombre: string;
+  apellido: string;
+  email?: string;
+  telefono?: string;
+  fechaNacimiento?: string;
+  direccion?: string;
+  preferenciasAlimentarias?: string;
+  puntosFidelidad: number;
+  fechaRegistro: string;
+  activo: boolean;
 }
 
 export interface ClienteSearchCriteria {
@@ -39,5 +53,5 @@ export interface ClienteSearchCriteria {
   telefono?: string;
   activo?: boolean;
   searchTerm?: string;
-  logic?: 'AND' | 'OR';
+  logic?: "AND" | "OR";
 }

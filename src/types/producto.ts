@@ -1,6 +1,8 @@
-import { CategoriaResponseDTO } from './categoria';
+// Tipos de producto con estructura según especificación del backend
 
 export type EstadoProducto = 'ACTIVO' | 'INACTIVO';
+
+export type Producto = ProductoResponseDTO;
 
 export interface ProductoRequestDTO {
   nombre: string;
@@ -43,7 +45,10 @@ export interface ProductoResponseDTO {
   nombre: string;
   descripcion?: string;
   precio: number;
-  categoria: CategoriaResponseDTO;
+  categoria: {
+    idCategoria: number;
+    nombre: string;
+  };
   tiempoPreparacion?: number;
   disponible: boolean;
   imagenUrl?: string;

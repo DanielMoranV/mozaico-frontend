@@ -2,9 +2,6 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { ProductoService } from "@/services/productoService";
 import type {
-  ApiResponse,
-} from "@/types";
-import type {
   ProductoRequestDTO,
   ProductoResponseDTO,
   ProductoUpdateDTO,
@@ -180,11 +177,12 @@ export const useProductoStore = defineStore("producto", () => {
     }
   };
 
-  const buscarProductos = async (criteria: ProductoSearchCriteria) => {
+  const buscarProductos = async (criteria?: ProductoSearchCriteria) => {
     try {
       setLoading(true);
       clearError();
-      const response = await ProductoService.buscarProductos(criteria);
+      const criteriosToUse = criteria || busquedaParams.value;
+      const response = await ProductoService.buscarProductos(criteriosToUse);
       if (response.status === "SUCCESS") {
         productos.value = response.data;
         return { success: true, data: response.data };

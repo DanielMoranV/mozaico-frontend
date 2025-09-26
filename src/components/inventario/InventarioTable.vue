@@ -12,7 +12,7 @@
       {{ item.producto ? item.producto.nombre : 'N/A' }}
     </template>
     <template v-slot:item.costoUnitario="{ item }">
-      {{ formatCurrency(item.costoUnitario) }}
+      {{ item.costoUnitario !== undefined ? formatCurrency(item.costoUnitario) : 'N/A' }}
     </template>
     <template v-slot:item.fechaActualizacion="{ item }">
       {{ formatDate(item.fechaActualizacion) }}

@@ -1,5 +1,7 @@
 import { EstadoMesa } from './enums';
 
+export { EstadoMesa };
+
 export interface Mesa {
   idMesa: number;
   numeroMesa: number;
@@ -8,6 +10,8 @@ export interface Mesa {
   estado: EstadoMesa;
   observaciones?: string;
   fechaCreacion: string;
+  idPedidoActivo?: number; // Nuevo campo para el ID del pedido activo
+  totalPedidoActivo?: number; // Nuevo campo para el total del pedido activo
 }
 
 export interface MesaRequestDTO {
