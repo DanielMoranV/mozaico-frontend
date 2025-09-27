@@ -1,6 +1,36 @@
-import { EstadoMesa } from './enums';
+import { EstadoMesa, EstadoPedido, TipoServicio } from './enums';
 
 export { EstadoMesa };
+
+// Interfaces para el endpoint detallado
+export interface DetallePedidoDetallado {
+  idDetalle: number;
+  producto: string;
+  cantidad: number;
+  precioUnitario: number;
+  estado: string;
+}
+
+export interface UltimoPedido {
+  idPedido: number;
+  fechaPedido: string;
+  estado: EstadoPedido;
+  tipoServicio: TipoServicio;
+  cliente: string;
+  empleado: string;
+  total: number;
+  detalles: DetallePedidoDetallado[];
+}
+
+export interface UltimaReserva {
+  idReserva: number;
+  fechaHoraReserva: string;
+  numeroPersonas: number;
+  estado: string;
+  cliente: string;
+  observaciones: string;
+  fechaCreacion: string;
+}
 
 export interface Mesa {
   idMesa: number;
@@ -10,8 +40,11 @@ export interface Mesa {
   estado: EstadoMesa;
   observaciones?: string;
   fechaCreacion: string;
-  idPedidoActivo?: number; // Nuevo campo para el ID del pedido activo
-  totalPedidoActivo?: number; // Nuevo campo para el total del pedido activo
+  ultimoPedido?: UltimoPedido | null;
+  ultimaReserva?: UltimaReserva | null;
+  // Campos legacy para compatibilidad
+  idPedidoActivo?: number;
+  totalPedidoActivo?: number;
 }
 
 export interface MesaRequestDTO {

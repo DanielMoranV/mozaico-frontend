@@ -42,11 +42,12 @@ export interface PedidoResponseDTO {
   };
   mesa?: {
     idMesa: number;
-    numero: string;
+    numeroMesa: number;
   };
   empleado?: {
     idUsuario: number;
-    nombreUsuario: string;
+    nombre: string;
+    username: string;
   };
   fechaPedido: string; // ISO 8601 date string
   estado: EstadoPedido;

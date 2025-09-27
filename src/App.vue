@@ -120,41 +120,31 @@
         </div>
       </div>
 
-      <!-- Quick Stats (solo modo expandido) -->
-      <div v-if="!rail" class="pa-4 pt-0">
-        <v-row dense>
-          <v-col cols="6">
-            <v-card
-              flat
-              color="success"
-              variant="tonal"
-              class="pa-2 text-center"
-            >
-              <div class="text-h6 font-weight-bold">24</div>
-              <div class="text-caption">Pedidos Hoy</div>
-            </v-card>
-          </v-col>
-          <v-col cols="6">
-            <v-card
-              flat
-              color="warning"
-              variant="tonal"
-              class="pa-2 text-center"
-            >
-              <div class="text-h6 font-weight-bold">12</div>
-              <div class="text-caption">Mesas Activas</div>
-            </v-card>
-          </v-col>
-        </v-row>
-      </div>
 
       <v-divider class="mx-3"></v-divider>
 
       <!-- Navigation List -->
       <v-list density="compact" nav class="pa-2">
-        <template v-for="item in menuItems" :key="item.title">
+        <template v-for="(item, index) in menuItems" :key="`${item.title}-${index}`">
+          <!-- Separador Visual -->
+          <v-divider
+            v-if="item.separator"
+            class="my-3 mx-2"
+            :thickness="1"
+            opacity="0.3"
+          ></v-divider>
+
           <!-- Group Items -->
-          <v-list-group v-if="item.children" :value="item.title" fluid>
+          <v-list-group
+            v-else-if="item.children"
+            :value="item.title"
+            fluid
+            :class="[
+              'nav-group',
+              `priority-${item.priority}`,
+              { 'mb-2': item.priority === 'high' }
+            ]"
+          >
             <template v-slot:activator="{ props }">
               <v-tooltip :text="item.title" location="end" :disabled="!rail">
                 <template v-slot:activator="{ props: tooltipProps }">
@@ -164,12 +154,15 @@
                     :title="item.title"
                     color="primary"
                     rounded="lg"
-                    class="mb-1 nav-item"
+                    :class="[
+                      'mb-1 nav-item nav-group-header',
+                      `priority-${item.priority}`
+                    ]"
                   >
                     <template v-if="item.badge" v-slot:append>
                       <v-chip
                         size="x-small"
-                        color="error"
+                        :color="item.badgeColor || 'primary'"
                         variant="flat"
                         class="text-caption"
                       >
@@ -216,7 +209,12 @@
           </v-list-group>
 
           <!-- Single Items -->
-          <v-tooltip v-else :text="item.title" location="end" :disabled="!rail">
+          <v-tooltip
+            v-else
+            :text="item.title"
+            location="end"
+            :disabled="!rail"
+          >
             <template v-slot:activator="{ props: tooltipProps }">
               <v-list-item
                 v-bind="tooltipProps"
@@ -225,13 +223,18 @@
                 :title="item.title"
                 color="primary"
                 rounded="lg"
-                class="mb-1 nav-item"
+                :class="[
+                  'mb-1 nav-item',
+                  `priority-${item.priority}`,
+                  { 'nav-item-important': item.priority === 'high' }
+                ]"
               >
                 <template v-if="item.badge" v-slot:append>
                   <v-chip
                     size="x-small"
                     :color="item.badgeColor || 'error'"
                     variant="flat"
+                    :class="{ 'pulse-animation': item.priority === 'high' && item.badge }"
                   >
                     {{ item.badge }}
                   </v-chip>
@@ -286,8 +289,7 @@
     <v-footer app color="surface" border class="footer-modern px-4">
       <div class="d-flex align-center justify-space-between w-100">
         <span class="text-caption">
-          &copy; {{ new Date().getFullYear() }} Mozaico - Gestión de
-          Restaurantes
+          &copy; {{ new Date().getFullYear() }} Mozaico - Sistema de Gestión Restaurante
         </span>
         <div class="d-flex align-center">
           <v-chip
@@ -295,11 +297,27 @@
             color="success"
             variant="flat"
             prepend-icon="mdi-wifi"
+            class="me-2 status-chip"
+          >
+            <v-icon start size="12" class="pulse-dot">mdi-circle</v-icon>
+            Online
+          </v-chip>
+          <v-chip
+            size="small"
+            color="info"
+            variant="outlined"
             class="me-2"
           >
-            Conectado
+            v2.1.0
           </v-chip>
-          <span class="text-caption">v2.1.0</span>
+          <v-chip
+            size="small"
+            color="primary"
+            variant="text"
+            prepend-icon="mdi-account-outline"
+          >
+            {{ new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) }}
+          </v-chip>
         </div>
       </div>
     </v-footer>
@@ -318,6 +336,8 @@ interface MenuItem {
   badge?: string | null;
   badgeColor?: string;
   children?: MenuItem[];
+  separator?: boolean; // Para separadores visuales
+  priority?: 'high' | 'medium' | 'low'; // Para jerarquía visual
 }
 
 const theme = useTheme();
@@ -346,97 +366,109 @@ const breadcrumbs = ref([
 ]);
 
 const menuItems = computed((): MenuItem[] => [
+  // 🏠 DASHBOARD - Vista general
   {
     title: "Dashboard",
-    icon: "mdi-view-dashboard-outline",
+    icon: "mdi-view-dashboard-variant-outline",
     to: "/",
-    badge: null,
+    priority: "high",
+  },
+
+  // Separador visual
+  {
+    title: "",
+    icon: "",
+    separator: true,
+  },
+
+  // 🔥 OPERACIONES DIARIAS - Máxima prioridad
+  {
+    title: "Punto de Venta",
+    icon: "mdi-point-of-sale",
+    to: "/pos",
+    badge: "LIVE",
+    badgeColor: "error",
+    priority: "high",
   },
   {
-    title: "Gestión de Usuarios",
-    icon: "mdi-account-group-outline",
+    title: "Pedidos Activos",
+    icon: "mdi-clipboard-list-outline",
+    to: "/pedidos",
+    badge: "8",
+    badgeColor: "warning",
+    priority: "high",
+  },
+  {
+    title: "Mesas",
+    icon: "mdi-table-chair",
+    to: "/mesas",
+    badge: "12/20",
+    badgeColor: "success",
+    priority: "high",
+  },
+  {
+    title: "Reservas",
+    icon: "mdi-calendar-check-outline",
+    to: "/reservas",
+    badge: "5",
+    badgeColor: "info",
+    priority: "medium",
+  },
+
+  // Separador visual
+  {
+    title: "",
+    icon: "",
+    separator: true,
+  },
+
+  // 📦 GESTIÓN DE PRODUCTOS
+  {
+    title: "Catálogo de Productos",
+    icon: "mdi-food-variant",
+    priority: "medium",
     children: [
       {
-        title: "Usuarios",
-        icon: "mdi-account-outline",
-        to: "/usuarios",
-      },
-      {
-        title: "Clientes",
-        icon: "mdi-account-tie-outline",
-        to: "/clientes",
-        badge: clienteStore.totalClientes.toString(),
+        title: "Productos",
+        icon: "mdi-food-apple-outline",
+        to: "/productos",
+        badge: "156",
         badgeColor: "info",
       },
-      {
-        title: "Reservas",
-        icon: "mdi-calendar-check-outline",
-        to: "/reservas",
-        badge: "5",
-        badgeColor: "warning",
-      },
-    ],
-  },
-  {
-    title: "Gestión de Productos",
-    icon: "mdi-food-apple-outline",
-    children: [
       {
         title: "Categorías",
         icon: "mdi-shape-outline",
         to: "/categorias",
       },
       {
-        title: "Productos",
-        icon: "mdi-food-apple-outline",
-        to: "/productos",
-      },
-      {
-        title: "Menú",
-        icon: "mdi-food-outline",
+        title: "Menús Activos",
+        icon: "mdi-book-open-page-variant-outline",
         to: "/menu",
+        badge: "3",
+        badgeColor: "success",
       },
     ],
   },
+
+  // 📋 INVENTARIO Y COMPRAS
   {
-    title: "Operaciones",
-    icon: "mdi-table-chair",
-    badge: "3",
+    title: "Inventario",
+    icon: "mdi-warehouse",
+    priority: "medium",
     children: [
       {
-        title: "Mesas",
-        icon: "mdi-table-chair",
-        to: "/mesas",
-        badge: "12",
-        badgeColor: "success",
-      },
-      {
-        title: "Pedidos",
-        icon: "mdi-clipboard-list-outline",
-        to: "/pedidos",
-        badge: "8",
+        title: "Stock Actual",
+        icon: "mdi-package-variant-closed",
+        to: "/inventario",
+        badge: "LOW",
         badgeColor: "error",
       },
       {
-        title: "Punto de Venta (POS)",
-        icon: "mdi-point-of-sale",
-        to: "/pos",
-      },
-    ],
-  },
-  {
-    title: "Inventario y Compras",
-    icon: "mdi-package-variant-closed",
-    children: [
-      {
-        title: "Inventario",
-        icon: "mdi-package-variant-closed",
-        to: "/inventario",
-      },
-      {
-        title: "Compras",
-        icon: "mdi-cart-outline",
+        title: "Órdenes de Compra",
+        icon: "mdi-cart-plus",
         to: "/compras",
+        badge: "3",
+        badgeColor: "warning",
       },
       {
         title: "Proveedores",
@@ -445,31 +477,92 @@ const menuItems = computed((): MenuItem[] => [
       },
     ],
   },
+
+  // 👥 GESTIÓN DE CLIENTES
   {
-    title: "Finanzas",
-    icon: "mdi-cash-multiple",
+    title: "Clientes y CRM",
+    icon: "mdi-account-group-outline",
+    priority: "medium",
     children: [
       {
-        title: "Métodos de Pago",
-        icon: "mdi-credit-card-outline",
-        to: "/metodos-pago",
+        title: "Base de Clientes",
+        icon: "mdi-account-multiple-outline",
+        to: "/clientes",
+        badge: clienteStore.totalClientes.toString(),
+        badgeColor: "info",
       },
       {
-        title: "Transacciones",
-        icon: "mdi-cash-multiple",
-        to: "/pagos",
+        title: "Programa de Fidelización",
+        icon: "mdi-heart-outline",
+        to: "/fidelizacion",
+        badge: "NEW",
+        badgeColor: "success",
       },
     ],
   },
+
+  // 💰 FINANZAS Y REPORTES
   {
-    title: "Reportes",
-    icon: "mdi-chart-line",
-    to: "/reportes",
+    title: "Finanzas",
+    icon: "mdi-cash-multiple",
+    priority: "medium",
+    children: [
+      {
+        title: "Caja y Transacciones",
+        icon: "mdi-cash-register",
+        to: "/pagos",
+        badge: "HOY: S/1,250",
+        badgeColor: "success",
+      },
+      {
+        title: "Métodos de Pago",
+        icon: "mdi-credit-card-multiple-outline",
+        to: "/metodos-pago",
+      },
+      {
+        title: "Reportes y Analytics",
+        icon: "mdi-chart-line",
+        to: "/reportes",
+      },
+    ],
   },
+
+  // Separador visual
   {
-    title: "Configuración",
-    icon: "mdi-cog-outline",
-    to: "/configuracion",
+    title: "",
+    icon: "",
+    separator: true,
+  },
+
+  // ⚙️ ADMINISTRACIÓN DEL SISTEMA
+  {
+    title: "Administración",
+    icon: "mdi-shield-account-outline",
+    priority: "low",
+    children: [
+      {
+        title: "Usuarios del Sistema",
+        icon: "mdi-account-tie-outline",
+        to: "/usuarios",
+        badge: "5",
+        badgeColor: "info",
+      },
+      {
+        title: "Roles y Permisos",
+        icon: "mdi-account-key-outline",
+        to: "/roles",
+      },
+      {
+        title: "Configuración General",
+        icon: "mdi-cog-outline",
+        to: "/configuracion",
+      },
+      {
+        title: "Logs del Sistema",
+        icon: "mdi-text-box-outline",
+        to: "/logs",
+      },
+    ],
   },
 ]);
 
@@ -508,9 +601,52 @@ onMounted(async () => {
   transform: translateX(4px);
 }
 
+/* Priority-based styling */
+.priority-high {
+  font-weight: 600;
+}
+
+.priority-high .v-list-item__prepend .v-icon {
+  color: rgb(var(--v-theme-primary)) !important;
+}
+
+.nav-item-important {
+  background: rgba(var(--v-theme-primary), 0.04) !important;
+  border: 1px solid rgba(var(--v-theme-primary), 0.12);
+}
+
+.nav-item-important:hover {
+  background: rgba(var(--v-theme-primary), 0.08) !important;
+  transform: translateX(6px);
+  box-shadow: 0 4px 12px rgba(var(--v-theme-primary), 0.15);
+}
+
+/* Group headers */
+.nav-group-header {
+  font-weight: 500;
+}
+
+.nav-group-header .v-list-item__prepend .v-icon {
+  opacity: 0.8;
+}
+
+.nav-group .priority-medium .nav-group-header {
+  opacity: 0.9;
+}
+
+.nav-group .priority-low .nav-group-header {
+  opacity: 0.7;
+}
+
+/* Sub Items */
 .nav-sub-item {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   position: relative;
+  opacity: 0.85;
+}
+
+.nav-sub-item:hover {
+  opacity: 1;
 }
 
 .nav-sub-item:before {
@@ -532,7 +668,42 @@ onMounted(async () => {
 
 .sub-menu {
   position: relative;
+  border-left: 1px solid rgba(var(--v-theme-surface-variant), 0.3);
+  margin-left: 12px;
+  padding-left: 8px;
 }
+
+/* Badge animations */
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Badge colors by context */
+.v-chip.text-caption {
+  font-size: 0.65rem !important;
+  font-weight: 600;
+}
+
+/* Spacing improvements */
+.nav-group .mb-2 {
+  margin-bottom: 16px;
+}
+
 
 /* Rail Toggle Button */
 .rail-toggle-btn {
@@ -562,6 +733,34 @@ onMounted(async () => {
 .footer-modern {
   backdrop-filter: blur(10px);
   border-top: 1px solid rgb(var(--v-theme-surface-variant));
+}
+
+.status-chip {
+  animation: subtle-pulse 3s infinite;
+}
+
+.pulse-dot {
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes subtle-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
 }
 
 /* Responsive */

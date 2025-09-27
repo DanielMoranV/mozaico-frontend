@@ -18,6 +18,13 @@ export class MesaService {
     return response.data;
   }
 
+  static async obtenerMesasConEstadoDetallado(): Promise<ApiResponse<Mesa[]>> {
+    const response = await apiClient.get<ApiResponse<Mesa[]>>(
+      `${this.BASE_PATH}/estado-detallado`
+    );
+    return response.data;
+  }
+
   static async obtenerMesaPorId(id: number): Promise<ApiResponse<Mesa>> {
     const response = await apiClient.get<ApiResponse<Mesa>>(
       `${this.BASE_PATH}/${id}`

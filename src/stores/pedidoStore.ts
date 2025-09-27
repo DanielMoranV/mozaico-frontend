@@ -123,15 +123,18 @@ export const usePedidoStore = defineStore("pedido", () => {
 
   // Nuevas acciones para la funcionalidad POS
 
-  const fetchPedidoActivoPorMesa = async (
-    idMesa: number
+  // Método actualizado que usa la información del endpoint de mesas detallado
+  const fetchPedidoPorId = async (
+    idPedido: number
   ): Promise<PedidoResponseDTO | null> => {
     try {
+      console.log('🔍 [pedidoStore] Fetching pedido with ID:', idPedido);
       setLoading(true);
       clearError();
-      // Asumimos un nuevo endpoint o lógica en el servicio para esto
-      const response = await PedidoService.obtenerPedidoActivoPorMesa(idMesa);
+      const response = await PedidoService.obtenerPedidoCompleto(idPedido);
+
       if (response.status === "SUCCESS" && response.data) {
+        console.log('✅ [pedidoStore] Pedido loaded successfully');
         // Actualizar el estado local si el pedido ya existe
         const index = pedidos.value.findIndex(
           (p) => p.idPedido === response.data.idPedido
@@ -142,49 +145,35 @@ export const usePedidoStore = defineStore("pedido", () => {
           pedidos.value.push(response.data);
         }
         return response.data;
-      } else if (response.status === "SUCCESS" && !response.data) {
-        // No hay pedido activo, retornar null para que se cree uno nuevo en la UI
-        return null;
       } else {
+        console.log('❌ [pedidoStore] Error en respuesta:', response.message);
         setError(response.message);
         return null;
       }
     } catch (err: any) {
-      // Si el error es 404 (no encontrado), significa que no hay pedido activo, lo cual es esperado
-      if (err.response?.status === 404) {
-        return null;
-      }
-      setError(err.response?.data?.message || "Error al buscar pedido activo");
+      console.error('❌ [pedidoStore] Exception caught:', err);
+      setError(err.response?.data?.message || "Error al obtener pedido");
       return null;
     } finally {
       setLoading(false);
     }
   };
 
-  const crearOActualizarPedidoConDetalles = async (
-    pedidoData: PedidoRequestDTO,
-    detallesData: DetallePedidoRequestDTO[],
-    idPedidoExistente?: number
+  const crearPedidoCompleto = async (
+    data: {
+      idCliente?: number;
+      idMesa: number;
+      idEmpleado: number;
+      tipoServicio: string;
+      observaciones?: string;
+      direccionDelivery?: string;
+      detalles: DetallePedidoRequestDTO[];
+    }
   ) => {
     try {
       setLoading(true);
       clearError();
-      let response: ApiResponse<PedidoResponseDTO>;
-
-      if (idPedidoExistente) {
-        // Actualizar pedido existente
-        response = await PedidoService.actualizarPedidoConDetalles(
-          idPedidoExistente,
-          pedidoData,
-          detallesData
-        );
-      } else {
-        // Crear nuevo pedido
-        response = await PedidoService.crearPedidoConDetalles(
-          pedidoData,
-          detallesData
-        );
-      }
+      const response = await PedidoService.crearPedidoCompleto(data);
 
       if (response.status === "SUCCESS") {
         const index = pedidos.value.findIndex(
@@ -201,7 +190,7 @@ export const usePedidoStore = defineStore("pedido", () => {
         return { success: false, error: response.message };
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Error al guardar pedido");
+      setError(err.response?.data?.message || "Error al crear pedido");
       return { success: false, error: err.response?.data?.message };
     } finally {
       setLoading(false);
@@ -210,29 +199,38 @@ export const usePedidoStore = defineStore("pedido", () => {
 
   const agregarProductoAPedido = async (
     idPedido: number,
-    detalle: DetallePedidoRequestDTO
+    data: {
+      idProducto: number;
+      cantidad: number;
+      observaciones?: string;
+    }
   ) => {
     try {
       setLoading(true);
       clearError();
-      // Add pedidoId to the detalle object since the new API expects it
-      const detalleConPedido = { ...detalle, idPedido };
-      const response = await PedidoService.crearDetallePedido(detalleConPedido);
+      console.log('🔍 [pedidoStore] Adding product to existing order:', idPedido, data);
+
+      const response = await PedidoService.agregarProductoAPedido(idPedido, data);
       if (response.status === "SUCCESS") {
+        console.log('✅ [pedidoStore] Product added successfully');
+
         // Refresh the order to get updated details and totals
-        const updatedPedidoResponse = await PedidoService.obtenerPedidoPorId(idPedido);
+        const updatedPedidoResponse = await PedidoService.obtenerPedidoCompleto(idPedido);
         if (updatedPedidoResponse.status === "SUCCESS") {
           const index = pedidos.value.findIndex((p) => p.idPedido === idPedido);
           if (index !== -1) {
             pedidos.value[index] = updatedPedidoResponse.data;
           }
+          return { success: true, data: updatedPedidoResponse.data };
         }
         return { success: true, data: response.data };
       } else {
+        console.log('❌ [pedidoStore] Error adding product:', response.message);
         setError(response.message);
         return { success: false, error: response.message };
       }
     } catch (err: any) {
+      console.error('❌ [pedidoStore] Exception adding product:', err);
       setError(err.response?.data?.message || "Error al agregar producto");
       return { success: false, error: err.response?.data?.message };
     } finally {
@@ -434,8 +432,8 @@ export const usePedidoStore = defineStore("pedido", () => {
     fetchSelectedPedidoDetalles,
     clearError,
     // Acciones para POS
-    fetchPedidoActivoPorMesa,
-    crearOActualizarPedidoConDetalles,
+    fetchPedidoPorId,
+    crearPedidoCompleto,
     agregarProductoAPedido,
     actualizarCantidadProductoEnPedido,
     eliminarProductoDePedido,

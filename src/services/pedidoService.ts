@@ -98,6 +98,7 @@ export class PedidoService {
     const response = await apiClient.get<
       ApiResponse<DetallePedidoResponseDTO[]>
     >(`/detalles-pedido/pedido/${pedidoId}`);
+    console.log("Detalle de pedido del id ", pedidoId, " :", response);
     return response.data;
   }
 
@@ -139,24 +140,49 @@ export class PedidoService {
     return response.data;
   }
 
-  // Nuevos métodos para la funcionalidad POS
+  // Métodos actualizados para la funcionalidad POS usando endpoints correctos
 
-  static async obtenerPedidoActivoPorMesa(
-    idMesa: number
+  // Usar el endpoint GET /api/v1/pedidos/{id} para obtener pedido completo
+  static async obtenerPedidoCompleto(
+    idPedido: number
   ): Promise<ApiResponse<PedidoResponseDTO>> {
     const response = await apiClient.get<ApiResponse<PedidoResponseDTO>>(
-      `${this.BASE_PATH}/mesa/${idMesa}/activo`
+      `${this.BASE_PATH}/${idPedido}`
     );
     return response.data;
   }
 
-  static async crearPedidoConDetalles(
-    pedidoData: PedidoRequestDTO,
-    detallesData: DetallePedidoRequestDTO[]
+  // Usar el nuevo endpoint POST /api/v1/pedidos/completo
+  static async crearPedidoCompleto(
+    data: {
+      idCliente?: number;
+      idMesa: number;
+      idEmpleado: number;
+      tipoServicio: string;
+      observaciones?: string;
+      direccionDelivery?: string;
+      detalles: DetallePedidoRequestDTO[];
+    }
   ): Promise<ApiResponse<PedidoResponseDTO>> {
     const response = await apiClient.post<ApiResponse<PedidoResponseDTO>>(
-      `${this.BASE_PATH}/con-detalles`,
-      { pedido: pedidoData, detalles: detallesData }
+      `${this.BASE_PATH}/completo`,
+      data
+    );
+    return response.data;
+  }
+
+  // Nuevo endpoint para agregar productos a pedido existente
+  static async agregarProductoAPedido(
+    idPedido: number,
+    data: {
+      idProducto: number;
+      cantidad: number;
+      observaciones?: string;
+    }
+  ): Promise<ApiResponse<DetallePedidoResponseDTO>> {
+    const response = await apiClient.post<ApiResponse<DetallePedidoResponseDTO>>(
+      `${this.BASE_PATH}/${idPedido}/productos`,
+      data
     );
     return response.data;
   }

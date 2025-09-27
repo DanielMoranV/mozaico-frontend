@@ -37,11 +37,15 @@ export const EstadoMesa = {
 export type EstadoMesa = (typeof EstadoMesa)[keyof typeof EstadoMesa];
 
 export const EstadoPedido = {
+  ABIERTO: 'ABIERTO',           // Mesa ocupada, pueden seguir pidiendo productos
+  ATENDIDO: 'ATENDIDO',         // Cliente terminó de pedir, esperando finalizar consumo
+  PAGADO: 'PAGADO',             // Mesa pagó, se libera
+  CANCELADO: 'CANCELADO',       // Mesa cancelada, se libera
+  // Estados legacy para compatibilidad
   PENDIENTE: 'PENDIENTE',
   EN_PREPARACION: 'EN_PREPARACION',
   LISTO: 'LISTO',
   ENTREGADO: 'ENTREGADO',
-  CANCELADO: 'CANCELADO',
 } as const;
 
 export type EstadoPedido = (typeof EstadoPedido)[keyof typeof EstadoPedido];
@@ -55,8 +59,12 @@ export const TipoServicio = {
 export type TipoServicio = (typeof TipoServicio)[keyof typeof TipoServicio];
 
 export const EstadoDetallePedido = {
+  PEDIDO: 'PEDIDO',             // Cliente pidió el producto
+  EN_PREPARACION: 'EN_PREPARACION', // Cocina preparando
+  SERVIDO: 'SERVIDO',           // Producto entregado al cliente
+  CANCELADO: 'CANCELADO',       // Producto cancelado
+  // Estados legacy para compatibilidad
   PENDIENTE: 'PENDIENTE',
-  EN_PREPARACION: 'EN_PREPARACION',
   LISTO: 'LISTO',
   ENTREGADO: 'ENTREGADO',
 } as const;
