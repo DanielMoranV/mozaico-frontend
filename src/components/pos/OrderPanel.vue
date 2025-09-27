@@ -13,20 +13,34 @@
           <v-icon color="primary">mdi-table-furniture</v-icon>
         </v-avatar>
         <div>
-          <v-toolbar-title class="text-h6">Mesa #{{ selectedMesa.numeroMesa }}</v-toolbar-title>
-          <div class="text-caption">Capacidad: {{ selectedMesa.capacidad }} personas</div>
-          <div v-if="selectedMesa.ubicacion" class="text-caption">📍 {{ selectedMesa.ubicacion }}</div>
+          <v-toolbar-title class="text-h6"
+            >Mesa #{{ selectedMesa.numeroMesa }}</v-toolbar-title
+          >
+          <div class="text-caption">
+            Capacidad: {{ selectedMesa.capacidad }} personas
+          </div>
+          <div v-if="selectedMesa.ubicacion" class="text-caption">
+            📍 {{ selectedMesa.ubicacion }}
+          </div>
         </div>
         <v-spacer></v-spacer>
 
         <!-- Indicador de estado del pedido -->
         <v-chip
           v-if="currentPedido"
-          :color="currentPedido.idPedido === 0 ? 'orange' : getPedidoEstadoColor(currentPedido.estado)"
+          :color="
+            currentPedido.idPedido === 0
+              ? 'orange'
+              : getPedidoEstadoColor(currentPedido.estado)
+          "
           size="small"
           class="mr-3"
         >
-          {{ currentPedido.idPedido === 0 ? 'Borrador' : getPedidoEstadoTexto(currentPedido.estado) }}
+          {{
+            currentPedido.idPedido === 0
+              ? "Borrador"
+              : getPedidoEstadoTexto(currentPedido.estado)
+          }}
         </v-chip>
 
         <v-btn icon @click="closePanel">
@@ -35,8 +49,16 @@
       </v-toolbar>
 
       <!-- Loading overlay -->
-      <v-overlay v-model="loading" contained class="d-flex align-center justify-center">
-        <v-progress-circular indeterminate size="64" color="primary"></v-progress-circular>
+      <v-overlay
+        v-model="loading"
+        contained
+        class="d-flex align-center justify-center"
+      >
+        <v-progress-circular
+          indeterminate
+          size="64"
+          color="primary"
+        ></v-progress-circular>
       </v-overlay>
 
       <v-card-text class="pa-0">
@@ -86,7 +108,9 @@
                 >
                   <v-card
                     class="product-card"
-                    :class="{ 'product-selected': isProductInOrder(producto.idProducto) }"
+                    :class="{
+                      'product-selected': isProductInOrder(producto.idProducto),
+                    }"
                     @click="addProductToOrder(producto)"
                     hover
                   >
@@ -94,8 +118,12 @@
                       <v-avatar size="50" color="primary" class="mb-2">
                         <v-icon color="white">mdi-food-variant</v-icon>
                       </v-avatar>
-                      <div class="text-body-2 font-weight-bold mb-1">{{ producto.nombre }}</div>
-                      <div class="text-h6 text-primary">${{ producto.precio.toFixed(2) }}</div>
+                      <div class="text-body-2 font-weight-bold mb-1">
+                        {{ producto.nombre }}
+                      </div>
+                      <div class="text-h6 text-primary">
+                        ${{ producto.precio.toFixed(2) }}
+                      </div>
                       <v-btn
                         icon
                         size="small"
@@ -113,8 +141,12 @@
               <!-- Empty state productos -->
               <v-card v-else class="text-center pa-8" variant="outlined">
                 <v-icon size="64" color="grey-lighten-2">mdi-food-off</v-icon>
-                <div class="text-h6 mt-4 text-grey">No se encontraron productos</div>
-                <div class="text-body-2 text-grey">Prueba con otros términos de búsqueda</div>
+                <div class="text-h6 mt-4 text-grey">
+                  No se encontraron productos
+                </div>
+                <div class="text-body-2 text-grey">
+                  Prueba con otros términos de búsqueda
+                </div>
               </v-card>
             </div>
           </v-col>
@@ -126,7 +158,11 @@
                 <v-icon class="mr-2" color="primary">mdi-receipt</v-icon>
                 <h3 class="text-h6">Detalle del Pedido</h3>
                 <v-spacer></v-spacer>
-                <v-chip v-if="currentPedido?.detalles?.length" size="small" color="primary">
+                <v-chip
+                  v-if="currentPedido?.detalles?.length"
+                  size="small"
+                  color="primary"
+                >
                   {{ currentPedido.detalles.length }} items
                 </v-chip>
               </div>
@@ -205,9 +241,13 @@
 
                 <!-- Empty state pedido -->
                 <div v-else class="text-center pa-8">
-                  <v-icon size="48" color="grey-lighten-2">mdi-cart-outline</v-icon>
+                  <v-icon size="48" color="grey-lighten-2"
+                    >mdi-cart-outline</v-icon
+                  >
                   <div class="text-body-1 mt-2 text-grey">Pedido vacío</div>
-                  <div class="text-caption text-grey">Selecciona productos para agregar</div>
+                  <div class="text-caption text-grey">
+                    Selecciona productos para agregar
+                  </div>
                 </div>
               </v-card>
 
@@ -216,20 +256,37 @@
                 <v-card-text>
                   <div class="d-flex justify-space-between mb-1">
                     <span>Subtotal:</span>
-                    <span>${{ currentPedido?.subtotal?.toFixed(2) || '0.00' }}</span>
+                    <span
+                      >${{
+                        currentPedido?.subtotal?.toFixed(2) || "0.00"
+                      }}</span
+                    >
                   </div>
                   <div class="d-flex justify-space-between mb-1">
                     <span>Impuestos (10%):</span>
-                    <span>${{ currentPedido?.impuestos?.toFixed(2) || '0.00' }}</span>
+                    <span
+                      >${{
+                        currentPedido?.impuestos?.toFixed(2) || "0.00"
+                      }}</span
+                    >
                   </div>
-                  <div class="d-flex justify-space-between mb-1" v-if="currentPedido?.descuento">
+                  <div
+                    class="d-flex justify-space-between mb-1"
+                    v-if="currentPedido?.descuento"
+                  >
                     <span>Descuento:</span>
-                    <span class="text-success">-${{ currentPedido.descuento.toFixed(2) }}</span>
+                    <span class="text-success"
+                      >-${{ currentPedido.descuento.toFixed(2) }}</span
+                    >
                   </div>
                   <v-divider class="my-2"></v-divider>
-                  <div class="d-flex justify-space-between text-h6 font-weight-bold">
+                  <div
+                    class="d-flex justify-space-between text-h6 font-weight-bold"
+                  >
                     <span>Total:</span>
-                    <span>${{ currentPedido?.total?.toFixed(2) || '0.00' }}</span>
+                    <span
+                      >${{ currentPedido?.total?.toFixed(2) || "0.00" }}</span
+                    >
                   </div>
                 </v-card-text>
               </v-card>
@@ -265,7 +322,10 @@
 
         <!-- Botón para marcar como atendido (solo para pedidos abiertos) -->
         <v-btn
-          v-if="currentPedido?.idPedido !== 0 && currentPedido?.estado === EstadoPedido.ABIERTO"
+          v-if="
+            currentPedido?.idPedido !== 0 &&
+            currentPedido?.estado === EstadoPedido.ABIERTO
+          "
           color="warning"
           variant="flat"
           @click="marcarComoAtendido"
@@ -279,7 +339,10 @@
 
         <!-- Botón para procesar pago (solo para pedidos atendidos) -->
         <v-btn
-          v-if="currentPedido?.idPedido !== 0 && currentPedido?.estado === EstadoPedido.ATENDIDO"
+          v-if="
+            currentPedido?.idPedido !== 0 &&
+            currentPedido?.estado === EstadoPedido.ATENDIDO
+          "
           color="success"
           variant="flat"
           @click="confirmarPago"
@@ -300,7 +363,11 @@
           :loading="loading"
           prepend-icon="mdi-plus"
         >
-          {{ currentPedido?.idPedido === 0 ? 'Abrir Mesa' : 'Agregar Productos' }}
+          {{
+            currentPedido?.idPedido === 0
+              ? "Generar Pedido"
+              : "Agregar Productos"
+          }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -315,8 +382,8 @@
 
     <ConfirmDialog
       v-model="showFinalizeDialog"
-      title="Finalizar Pedido"
-      message="¿Deseas finalizar este pedido? Se procesará el pago y se marcará como completado."
+      :title="currentPedido?.idPedido === 0 ? 'Generar Pedido' : 'Finalizar Pedido'"
+      :message="currentPedido?.idPedido === 0 ? '¿Confirmas generar este pedido? La mesa quedará ocupada y se podrán agregar más productos.' : '¿Deseas finalizar este pedido? Se procesará el pago y se marcará como completado.'"
       @confirm="finalizeOrder"
     />
 
@@ -336,26 +403,27 @@
     >
       {{ notificationMessage }}
       <template v-slot:actions>
-        <v-btn variant="text" @click="showNotification = false">
-          Cerrar
-        </v-btn>
+        <v-btn variant="text" @click="showNotification = false"> Cerrar </v-btn>
       </template>
     </v-snackbar>
   </v-bottom-sheet>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
-import { useMesaStore } from '@/stores/mesaStore';
-import { usePedidoStore } from '@/stores/pedidoStore';
-import { useProductoStore } from '@/stores/productoStore';
-import { useCategoriaStore } from '@/stores/categoriaStore';
-import type { Mesa } from '@/types/mesa';
-import type { Pedido } from '@/types/pedido';
-import type { Producto } from '@/types/producto';
-import type { DetallePedido, DetallePedidoRequestDTO } from '@/types/detallePedido';
-import { EstadoPedido, TipoServicio, EstadoMesa } from '@/types/enums';
-import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
+import { ref, computed, watch, onMounted } from "vue";
+import { useMesaStore } from "@/stores/mesaStore";
+import { usePedidoStore } from "@/stores/pedidoStore";
+import { useProductoStore } from "@/stores/productoStore";
+import { useCategoriaStore } from "@/stores/categoriaStore";
+import type { Mesa } from "@/types/mesa";
+import type { Pedido } from "@/types/pedido";
+import type { Producto } from "@/types/producto";
+import type {
+  DetallePedido,
+  DetallePedidoRequestDTO,
+} from "@/types/detallePedido";
+import { EstadoPedido, TipoServicio, EstadoMesa } from "@/types/enums";
+import ConfirmDialog from "@/components/common/ConfirmDialog.vue";
 
 interface Props {
   mesaId: number | null;
@@ -363,7 +431,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits(['close-panel', 'order-updated']);
+const emit = defineEmits(["close-panel", "order-updated"]);
 
 // Stores
 const mesaStore = useMesaStore();
@@ -374,9 +442,9 @@ const categoriaStore = useCategoriaStore();
 // State
 const isVisible = ref(props.visible);
 const currentPedido = ref<Pedido | null>(null);
-const searchProduct = ref('');
-const selectedCategory = ref<number | 'all'>('all');
-const orderObservaciones = ref('');
+const searchProduct = ref("");
+const selectedCategory = ref<number | "all">("all");
+const orderObservaciones = ref("");
 const loading = ref(false);
 
 // Dialog states
@@ -387,32 +455,36 @@ const itemToRemove = ref<DetallePedido | null>(null);
 
 // Notification state
 const showNotification = ref(false);
-const notificationMessage = ref('');
-const notificationColor = ref('success');
+const notificationMessage = ref("");
+const notificationColor = ref("success");
 
 // Computed
 const selectedMesa = computed<Mesa | undefined>(() => {
-  return mesaStore.mesas.find(m => m.idMesa === props.mesaId);
+  return mesaStore.mesas.find((m) => m.idMesa === props.mesaId);
 });
 
 const categoryOptions = computed(() => [
-  { title: 'Todas las categorías', value: 'all' },
-  ...categoriaStore.categorias.map(cat => ({
+  { title: "Todas las categorías", value: "all" },
+  ...categoriaStore.categorias.map((cat) => ({
     title: cat.nombre,
-    value: cat.idCategoria
-  }))
+    value: cat.idCategoria,
+  })),
 ]);
 
 const filteredProducts = computed(() => {
   let products = productoStore.productos;
 
-  if (selectedCategory.value && selectedCategory.value !== 'all') {
-    products = products.filter(p => p.categoria.idCategoria === selectedCategory.value);
+  if (selectedCategory.value && selectedCategory.value !== "all") {
+    products = products.filter(
+      (p) => p.categoria.idCategoria === selectedCategory.value
+    );
   }
 
   if (searchProduct.value) {
     const searchTerm = searchProduct.value.toLowerCase();
-    products = products.filter(p => p.nombre.toLowerCase().includes(searchTerm));
+    products = products.filter((p) =>
+      p.nombre.toLowerCase().includes(searchTerm)
+    );
   }
 
   return products;
@@ -423,14 +495,17 @@ const hasItems = computed(() => {
 });
 
 // Watch para sincronizar la visibilidad
-watch(() => props.visible, (newVal) => {
-  isVisible.value = newVal;
-  if (newVal && props.mesaId) {
-    loadPedidoForMesa(props.mesaId);
-  } else {
-    resetPanel();
+watch(
+  () => props.visible,
+  (newVal) => {
+    isVisible.value = newVal;
+    if (newVal && props.mesaId) {
+      loadPedidoForMesa(props.mesaId);
+    } else {
+      resetPanel();
+    }
   }
-});
+);
 
 onMounted(() => {
   productoStore.fetchProductos();
@@ -441,47 +516,66 @@ onMounted(() => {
 const loadPedidoForMesa = async (mesaId: number) => {
   if (!selectedMesa.value) return;
 
-  console.log('🔍 Loading pedido for mesa:', mesaId, selectedMesa.value.ultimoPedido);
+  console.log(
+    "🔍 Loading pedido for mesa:",
+    mesaId,
+    selectedMesa.value.ultimoPedido
+  );
 
   loading.value = true;
   try {
     // Verificar si la mesa ya tiene un pedido activo según la información detallada
     if (selectedMesa.value.ultimoPedido) {
-      console.log('✅ Mesa has active order, loading details for pedido ID:', selectedMesa.value.ultimoPedido.idPedido);
+      console.log(
+        "✅ Mesa has active order, loading details for pedido ID:",
+        selectedMesa.value.ultimoPedido.idPedido
+      );
 
       // Cargar el pedido completo usando su ID
-      const result = await pedidoStore.fetchPedidoPorId(selectedMesa.value.ultimoPedido.idPedido);
+      const result = await pedidoStore.fetchPedidoPorId(
+        selectedMesa.value.ultimoPedido.idPedido
+      );
 
       if (result) {
         currentPedido.value = result;
-        orderObservaciones.value = result.observaciones || '';
-        console.log('✅ Order loaded successfully with', result.detalles?.length || 0, 'items');
-        showSuccess('Pedido cargado exitosamente');
+        orderObservaciones.value = result.observaciones || "";
+        console.log(
+          "✅ Order loaded successfully with",
+          result.detalles?.length || 0,
+          "items"
+        );
+        showSuccess("Pedido cargado exitosamente");
       } else {
-        console.log('❌ Could not load order');
-        showError('No se pudo cargar el pedido');
+        console.log("❌ Could not load order");
+        showError("No se pudo cargar el pedido");
       }
     } else {
-      console.log('ℹ️ No active order, initializing new...');
+      console.log("ℹ️ No active order, initializing new...");
       // Si no hay pedido activo, inicializar uno nuevo para la UI
       initializeNewOrder();
     }
   } catch (error) {
-    console.error('❌ Error loading order:', error);
-    showError('Error al cargar información del pedido');
+    console.error("❌ Error loading order:", error);
+    showError("Error al cargar información del pedido");
   } finally {
     loading.value = false;
   }
 };
 
 const initializeNewOrder = () => {
-  if (!selectedMesa.value) return;
+  console.log("🆕 [DEBUG] Inicializando nuevo pedido");
+  console.log("🆕 [DEBUG] Mesa seleccionada:", selectedMesa.value);
+
+  if (!selectedMesa.value) {
+    console.log("❌ [DEBUG] No hay mesa seleccionada para inicializar");
+    return;
+  }
 
   currentPedido.value = {
     idPedido: 0, // Temporal, el backend asignará uno real
     mesa: {
       idMesa: selectedMesa.value.idMesa,
-      numeroMesa: selectedMesa.value.numeroMesa
+      numeroMesa: selectedMesa.value.numeroMesa,
     },
     fechaPedido: new Date().toISOString(),
     estado: EstadoPedido.ABIERTO, // Nuevo estado inicial para restaurante
@@ -492,25 +586,39 @@ const initializeNewOrder = () => {
     total: 0,
     detalles: [],
   } as Pedido;
-  orderObservaciones.value = '';
+  orderObservaciones.value = "";
+
+  console.log("🆕 [DEBUG] Pedido inicializado:", currentPedido.value);
 };
 
 const addProductToOrder = async (product: Producto) => {
-  if (!currentPedido.value || !selectedMesa.value || loading.value) return;
+  console.log("🛒 [DEBUG] Iniciando addProductToOrder");
+  console.log("🛒 [DEBUG] Producto:", product);
+  console.log("🛒 [DEBUG] currentPedido antes:", currentPedido.value);
+
+  if (!currentPedido.value || !selectedMesa.value || loading.value) {
+    console.log("❌ [DEBUG] Validación fallida en addProductToOrder");
+    return;
+  }
 
   // Para pedidos temporales (idPedido === 0), manejar en frontend hasta crear
   if (currentPedido.value.idPedido === 0) {
+    console.log("🆕 [DEBUG] Agregando producto a pedido temporal");
     // Verificar si el producto ya está en el pedido temporal
     const existingDetalle = currentPedido.value.detalles?.find(
-      d => d.producto.idProducto === product.idProducto
+      (d) => d.producto.idProducto === product.idProducto
     );
 
     if (existingDetalle) {
+      console.log("🔄 [DEBUG] Producto existe, incrementando cantidad");
       // Si ya existe, incrementar cantidad localmente
       existingDetalle.cantidad += 1;
-      existingDetalle.subtotal = existingDetalle.cantidad * existingDetalle.precioUnitario;
+      existingDetalle.subtotal =
+        existingDetalle.cantidad * existingDetalle.precioUnitario;
+      console.log("🔄 [DEBUG] Nueva cantidad:", existingDetalle.cantidad);
       showSuccess(`Cantidad de ${product.nombre} aumentada`);
     } else {
+      console.log("➕ [DEBUG] Producto nuevo, agregando al pedido");
       // Si no existe, agregarlo al pedido temporal
       const newDetalle = {
         idDetalle: Date.now(), // ID temporal único
@@ -518,19 +626,30 @@ const addProductToOrder = async (product: Producto) => {
         cantidad: 1,
         precioUnitario: product.precio,
         subtotal: product.precio,
-        observaciones: '',
-        estado: 'PENDIENTE'
+        observaciones: "",
+        estado: "PENDIENTE",
       };
+
+      console.log("➕ [DEBUG] Nuevo detalle:", newDetalle);
 
       if (!currentPedido.value.detalles) {
         currentPedido.value.detalles = [];
       }
       currentPedido.value.detalles.push(newDetalle);
+      console.log(
+        "➕ [DEBUG] Total productos en pedido:",
+        currentPedido.value.detalles.length
+      );
       showSuccess(`${product.nombre} agregado al pedido`);
     }
 
     // Recalcular totales localmente
+    console.log("💰 [DEBUG] Recalculando totales");
     recalculateTotals();
+    console.log(
+      "💰 [DEBUG] Pedido después de recalcular:",
+      currentPedido.value
+    );
     return;
   }
 
@@ -539,7 +658,7 @@ const addProductToOrder = async (product: Producto) => {
   try {
     // Verificar si el producto ya está en el pedido
     const existingDetalle = currentPedido.value.detalles?.find(
-      d => d.producto.idProducto === product.idProducto
+      (d) => d.producto.idProducto === product.idProducto
     );
 
     if (existingDetalle) {
@@ -547,40 +666,49 @@ const addProductToOrder = async (product: Producto) => {
       const updateData = {
         idProducto: product.idProducto,
         cantidad: existingDetalle.cantidad + 1,
-        observaciones: existingDetalle.observaciones || ''
+        observaciones: existingDetalle.observaciones || "",
       };
 
-      const result = await pedidoStore.agregarProductoAPedido(currentPedido.value.idPedido, updateData);
+      const result = await pedidoStore.agregarProductoAPedido(
+        currentPedido.value.idPedido,
+        updateData
+      );
       if (result.success && result.data) {
         currentPedido.value = result.data;
         showSuccess(`Cantidad de ${product.nombre} aumentada`);
       } else {
-        showError(result.error || 'Error al actualizar producto');
+        showError(result.error || "Error al actualizar producto");
       }
     } else {
       // Si no existe, agregarlo usando el nuevo endpoint
       const agregarData = {
         idProducto: product.idProducto,
         cantidad: 1,
-        observaciones: ''
+        observaciones: "",
       };
 
-      const result = await pedidoStore.agregarProductoAPedido(currentPedido.value.idPedido, agregarData);
+      const result = await pedidoStore.agregarProductoAPedido(
+        currentPedido.value.idPedido,
+        agregarData
+      );
       if (result.success && result.data) {
         currentPedido.value = result.data;
         showSuccess(`${product.nombre} agregado al pedido`);
       } else {
-        showError(result.error || 'Error al agregar producto');
+        showError(result.error || "Error al agregar producto");
       }
     }
   } catch (error) {
-    showError('Error al agregar producto al pedido');
+    showError("Error al agregar producto al pedido");
   } finally {
     loading.value = false;
   }
 };
 
-const updateDetalleCantidad = async (detalle: DetallePedido, change: number) => {
+const updateDetalleCantidad = async (
+  detalle: DetallePedido,
+  change: number
+) => {
   if (!currentPedido.value) return;
 
   const newCantidad = detalle.cantidad + change;
@@ -606,9 +734,9 @@ const updateDetalleCantidad = async (detalle: DetallePedido, change: number) => 
     detalle.cantidad = newCantidad;
     detalle.subtotal = detalle.cantidad * detalle.precioUnitario;
     recalculateTotals();
-    showSuccess('Cantidad actualizada');
+    showSuccess("Cantidad actualizada");
   } catch (error) {
-    showError('Error al actualizar cantidad');
+    showError("Error al actualizar cantidad");
   } finally {
     loading.value = false;
   }
@@ -624,11 +752,12 @@ const removeDetalle = async () => {
 
   // Para pedidos temporales (idPedido === 0), eliminar localmente
   if (currentPedido.value.idPedido === 0) {
-    currentPedido.value.detalles = currentPedido.value.detalles?.filter(
-      d => d.idDetalle !== itemToRemove.value?.idDetalle
-    ) || [];
+    currentPedido.value.detalles =
+      currentPedido.value.detalles?.filter(
+        (d) => d.idDetalle !== itemToRemove.value?.idDetalle
+      ) || [];
     recalculateTotals();
-    showSuccess('Producto eliminado del pedido');
+    showSuccess("Producto eliminado del pedido");
     showRemoveItemDialog.value = false;
     itemToRemove.value = null;
     return;
@@ -639,13 +768,14 @@ const removeDetalle = async () => {
   try {
     // TODO: Implementar endpoint correcto para eliminar producto
     // Por ahora eliminamos localmente
-    currentPedido.value.detalles = currentPedido.value.detalles?.filter(
-      d => d.idDetalle !== itemToRemove.value?.idDetalle
-    ) || [];
+    currentPedido.value.detalles =
+      currentPedido.value.detalles?.filter(
+        (d) => d.idDetalle !== itemToRemove.value?.idDetalle
+      ) || [];
     recalculateTotals();
-    showSuccess('Producto eliminado del pedido');
+    showSuccess("Producto eliminado del pedido");
   } catch (error) {
-    showError('Error al eliminar producto');
+    showError("Error al eliminar producto");
   } finally {
     loading.value = false;
     showRemoveItemDialog.value = false;
@@ -657,14 +787,15 @@ const recalculateTotals = () => {
   if (!currentPedido.value) return;
 
   let subtotal = 0;
-  currentPedido.value.detalles?.forEach(d => {
+  currentPedido.value.detalles?.forEach((d) => {
     subtotal += d.subtotal;
   });
 
   currentPedido.value.subtotal = subtotal;
   currentPedido.value.impuestos = subtotal * 0.1; // 10% impuestos según documentación
   currentPedido.value.descuento = 0;
-  currentPedido.value.total = subtotal + currentPedido.value.impuestos - currentPedido.value.descuento;
+  currentPedido.value.total =
+    subtotal + currentPedido.value.impuestos - currentPedido.value.descuento;
 };
 
 const saveOrder = async () => {
@@ -672,67 +803,103 @@ const saveOrder = async () => {
 
   loading.value = true;
   try {
-    const result = await pedidoStore.actualizarPedido(currentPedido.value.idPedido, {
-      observaciones: orderObservaciones.value,
-    });
+    const result = await pedidoStore.actualizarPedido(
+      currentPedido.value.idPedido,
+      {
+        observaciones: orderObservaciones.value,
+      }
+    );
 
     if (result.success) {
-      showSuccess('Pedido guardado exitosamente');
-      emit('order-updated');
+      showSuccess("Pedido guardado exitosamente");
+      emit("order-updated");
     } else {
-      showError(result.error || 'Error al guardar pedido');
+      showError(result.error || "Error al guardar pedido");
     }
   } catch (error) {
-    showError('Error al guardar pedido');
+    showError("Error al guardar pedido");
   } finally {
     loading.value = false;
   }
 };
 
 const confirmFinalizeOrder = () => {
+  console.log("🚀 [DEBUG] Iniciando confirmFinalizeOrder");
+  console.log("🚀 [DEBUG] hasItems:", hasItems.value);
+  console.log("🚀 [DEBUG] currentPedido:", currentPedido.value);
+
   if (!hasItems.value) {
-    showError('Agrega productos antes de finalizar el pedido');
+    console.log("❌ [DEBUG] No hay items en el pedido");
+    showError("Agrega productos antes de finalizar el pedido");
     return;
   }
+  console.log("✅ [DEBUG] Mostrando diálogo de confirmación");
   showFinalizeDialog.value = true;
 };
 
 const finalizeOrder = async () => {
-  if (!currentPedido.value || loading.value) return;
+  console.log("🔥 [DEBUG] Iniciando finalizeOrder");
+  console.log("🔥 [DEBUG] currentPedido:", currentPedido.value);
+  console.log("🔥 [DEBUG] loading:", loading.value);
+
+  if (!currentPedido.value || loading.value) {
+    console.log("❌ [DEBUG] No hay pedido o está cargando, saliendo");
+    return;
+  }
 
   loading.value = true;
+  console.log("🔥 [DEBUG] Loading activado");
+
   try {
     if (currentPedido.value.idPedido === 0) {
+      console.log("🆕 [DEBUG] Creando pedido nuevo");
       // Si es un pedido nuevo, crearlo primero
-      if (!selectedMesa.value) return;
+      if (!selectedMesa.value) {
+        console.log("❌ [DEBUG] No hay mesa seleccionada");
+        return;
+      }
 
       const pedidoCompleto = {
         idMesa: selectedMesa.value.idMesa,
         idEmpleado: 1, // TODO: Obtener del contexto de usuario logueado
-        tipoServicio: 'MESA',
-        observaciones: orderObservaciones.value || '',
-        detalles: currentPedido.value.detalles?.map(d => ({
-          idProducto: d.producto.idProducto,
-          cantidad: d.cantidad,
-          observaciones: d.observaciones || ''
-        })) || []
+        tipoServicio: "MESA",
+        observaciones: orderObservaciones.value || "",
+        detalles:
+          currentPedido.value.detalles?.map((d) => ({
+            idProducto: d.producto.idProducto,
+            cantidad: d.cantidad,
+            observaciones: d.observaciones || "",
+          })) || [],
       };
 
+      console.log("📋 [DEBUG] Datos del pedido a crear:", pedidoCompleto);
+      console.log(
+        "📋 [DEBUG] Número de productos:",
+        pedidoCompleto.detalles.length
+      );
+
       const result = await pedidoStore.crearPedidoCompleto(pedidoCompleto);
+      console.log("📤 [DEBUG] Resultado de crearPedidoCompleto:", result);
+
       if (result.success) {
-        showSuccess('Pedido creado exitosamente');
-        emit('order-updated');
+        console.log("✅ [DEBUG] Pedido creado exitosamente");
+        showSuccess("Pedido creado exitosamente");
+        emit("order-updated");
         closePanel();
       } else {
-        showError(result.error || 'Error al crear pedido');
+        console.log("❌ [DEBUG] Error al crear pedido:", result.error);
+        showError(result.error || "Error al crear pedido");
       }
     } else {
+      console.log("🔄 [DEBUG] Actualizando pedido existente (no implementado)");
       // TODO: Implementar finalización de pedido existente
-      showError('Funcionalidad de finalización pendiente de implementar');
+      showError("Funcionalidad de finalización pendiente de implementar");
     }
   } catch (error) {
-    showError('Error al finalizar pedido');
+    console.error("💥 [DEBUG] Error en finalizeOrder:", error);
+    showError("Error al finalizar pedido");
   } finally {
+    console.log("🏁 [DEBUG] Finalizando finalizeOrder");
     loading.value = false;
     showFinalizeDialog.value = false;
   }
@@ -757,22 +924,28 @@ const cancelOrder = async () => {
 
   loading.value = true;
   try {
-    const result = await pedidoStore.actualizarPedido(currentPedido.value.idPedido, {
-      estado: EstadoPedido.CANCELADO
-    });
+    const result = await pedidoStore.actualizarPedido(
+      currentPedido.value.idPedido,
+      {
+        estado: EstadoPedido.CANCELADO,
+      }
+    );
 
     if (result.success) {
-      showSuccess('Pedido cancelado');
+      showSuccess("Pedido cancelado");
       if (selectedMesa.value) {
-        await mesaStore.cambiarEstadoMesa(selectedMesa.value.idMesa, EstadoMesa.DISPONIBLE);
+        await mesaStore.cambiarEstadoMesa(
+          selectedMesa.value.idMesa,
+          EstadoMesa.DISPONIBLE
+        );
       }
-      emit('order-updated');
+      emit("order-updated");
       closePanel();
     } else {
-      showError(result.error || 'Error al cancelar pedido');
+      showError(result.error || "Error al cancelar pedido");
     }
   } catch (error) {
-    showError('Error al cancelar pedido');
+    showError("Error al cancelar pedido");
   } finally {
     loading.value = false;
     showCancelDialog.value = false;
@@ -781,61 +954,83 @@ const cancelOrder = async () => {
 
 const resetPanel = () => {
   currentPedido.value = null;
-  orderObservaciones.value = '';
-  searchProduct.value = '';
-  selectedCategory.value = 'all';
+  orderObservaciones.value = "";
+  searchProduct.value = "";
+  selectedCategory.value = "all";
 };
 
 const closePanel = () => {
   isVisible.value = false;
   resetPanel();
-  emit('close-panel');
+  emit("close-panel");
 };
 
 // Utility methods
 const isProductInOrder = (productId: number) => {
-  return currentPedido.value?.detalles?.some(d => d.producto.idProducto === productId) || false;
+  return (
+    currentPedido.value?.detalles?.some(
+      (d) => d.producto.idProducto === productId
+    ) || false
+  );
 };
 
 const getPedidoEstadoColor = (estado: EstadoPedido) => {
   switch (estado) {
-    case EstadoPedido.ABIERTO: return 'primary';
-    case EstadoPedido.ATENDIDO: return 'warning';
-    case EstadoPedido.PAGADO: return 'success';
-    case EstadoPedido.CANCELADO: return 'error';
+    case EstadoPedido.ABIERTO:
+      return "primary";
+    case EstadoPedido.ATENDIDO:
+      return "warning";
+    case EstadoPedido.PAGADO:
+      return "success";
+    case EstadoPedido.CANCELADO:
+      return "error";
     // Estados legacy
-    case EstadoPedido.PENDIENTE: return 'orange';
-    case EstadoPedido.EN_PREPARACION: return 'blue';
-    case EstadoPedido.LISTO: return 'green';
-    case EstadoPedido.ENTREGADO: return 'success';
-    default: return 'grey';
+    case EstadoPedido.PENDIENTE:
+      return "orange";
+    case EstadoPedido.EN_PREPARACION:
+      return "blue";
+    case EstadoPedido.LISTO:
+      return "green";
+    case EstadoPedido.ENTREGADO:
+      return "success";
+    default:
+      return "grey";
   }
 };
 
 const getPedidoEstadoTexto = (estado: EstadoPedido) => {
   switch (estado) {
-    case EstadoPedido.ABIERTO: return 'Mesa Abierta';
-    case EstadoPedido.ATENDIDO: return 'Atendido';
-    case EstadoPedido.PAGADO: return 'Pagado';
-    case EstadoPedido.CANCELADO: return 'Cancelado';
+    case EstadoPedido.ABIERTO:
+      return "Mesa Abierta";
+    case EstadoPedido.ATENDIDO:
+      return "Atendido";
+    case EstadoPedido.PAGADO:
+      return "Pagado";
+    case EstadoPedido.CANCELADO:
+      return "Cancelado";
     // Estados legacy
-    case EstadoPedido.PENDIENTE: return 'Pendiente';
-    case EstadoPedido.EN_PREPARACION: return 'Preparando';
-    case EstadoPedido.LISTO: return 'Listo';
-    case EstadoPedido.ENTREGADO: return 'Entregado';
-    default: return 'Desconocido';
+    case EstadoPedido.PENDIENTE:
+      return "Pendiente";
+    case EstadoPedido.EN_PREPARACION:
+      return "Preparando";
+    case EstadoPedido.LISTO:
+      return "Listo";
+    case EstadoPedido.ENTREGADO:
+      return "Entregado";
+    default:
+      return "Desconocido";
   }
 };
 
 const showSuccess = (message: string) => {
   notificationMessage.value = message;
-  notificationColor.value = 'success';
+  notificationColor.value = "success";
   showNotification.value = true;
 };
 
 const showError = (message: string) => {
   notificationMessage.value = message;
-  notificationColor.value = 'error';
+  notificationColor.value = "error";
   showNotification.value = true;
 };
 
@@ -845,19 +1040,22 @@ const marcarComoAtendido = async () => {
 
   loading.value = true;
   try {
-    const result = await pedidoStore.actualizarPedido(currentPedido.value.idPedido, {
-      estado: EstadoPedido.ATENDIDO
-    });
+    const result = await pedidoStore.actualizarPedido(
+      currentPedido.value.idPedido,
+      {
+        estado: EstadoPedido.ATENDIDO,
+      }
+    );
 
     if (result.success) {
       currentPedido.value.estado = EstadoPedido.ATENDIDO;
-      showSuccess('Mesa marcada como atendida');
-      emit('order-updated');
+      showSuccess("Mesa marcada como atendida");
+      emit("order-updated");
     } else {
-      showError(result.error || 'Error al marcar como atendido');
+      showError(result.error || "Error al marcar como atendido");
     }
   } catch (error) {
-    showError('Error al marcar como atendido');
+    showError("Error al marcar como atendido");
   } finally {
     loading.value = false;
   }
@@ -868,20 +1066,23 @@ const confirmarPago = async () => {
 
   loading.value = true;
   try {
-    const result = await pedidoStore.actualizarPedido(currentPedido.value.idPedido, {
-      estado: EstadoPedido.PAGADO
-    });
+    const result = await pedidoStore.actualizarPedido(
+      currentPedido.value.idPedido,
+      {
+        estado: EstadoPedido.PAGADO,
+      }
+    );
 
     if (result.success) {
-      showSuccess('Pago procesado. Mesa liberada');
+      showSuccess("Pago procesado. Mesa liberada");
       // La mesa se libera automáticamente en el backend
-      emit('order-updated');
+      emit("order-updated");
       closePanel();
     } else {
-      showError(result.error || 'Error al procesar pago');
+      showError(result.error || "Error al procesar pago");
     }
   } catch (error) {
-    showError('Error al procesar pago');
+    showError("Error al procesar pago");
   } finally {
     loading.value = false;
   }
@@ -973,7 +1174,8 @@ const confirmarPago = async () => {
 @media (max-width: 1024px) {
   .product-selection {
     border-right: none;
-    border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+    border-bottom: 1px solid
+      rgba(var(--v-border-color), var(--v-border-opacity));
   }
 
   .order-summary-content {
@@ -999,8 +1201,14 @@ const confirmarPago = async () => {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .order-item {
