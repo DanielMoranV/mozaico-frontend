@@ -40,10 +40,10 @@
       }}
     </template>
     <template v-slot:item.mesa.numeroMesa="{ item }">
-      {{ item.mesa ? item.mesa.numeroMesa : "N/A" }}
+      {{ item.mesa ? item.mesa.numero : "N/A" }}
     </template>
     <template v-slot:item.empleado.nombre="{ item }">
-      {{ item.empleado ? item.empleado.nombre : "N/A" }}
+      {{ item.empleado ? item.empleado.nombreUsuario : "N/A" }}
     </template>
     <template v-slot:item.total="{ item }">
       {{ formatCurrency(item.total) }}
@@ -100,7 +100,7 @@ import type { PedidoResponseDTO } from "@/types/pedido";
 import { EstadoPedido, TipoServicio } from "@/types/enums";
 import PedidoDetalles from "./PedidoDetalles.vue"; // Import the new component
 
-const props = defineProps<{
+defineProps<{
   pedidos: PedidoResponseDTO[];
   loading: boolean;
   headers: any[];

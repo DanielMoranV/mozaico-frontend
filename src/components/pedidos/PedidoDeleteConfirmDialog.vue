@@ -16,11 +16,11 @@
 
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue';
-import type { Pedido } from '@/types/pedido';
+import type { PedidoResponseDTO } from '@/types/pedido';
 
 defineProps<{
   mostrar: boolean;
-  pedidoAEliminar: Pedido | null;
+  pedidoAEliminar: PedidoResponseDTO | null;
   loading: boolean;
 }>();
 

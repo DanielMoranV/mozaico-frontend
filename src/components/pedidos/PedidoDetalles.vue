@@ -24,11 +24,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="detalle in store.selectedPedidoDetalles" :key="detalle.idDetallePedido">
+          <tr v-for="detalle in store.selectedPedidoDetalles" :key="detalle.idDetalle">
             <td>{{ detalle.producto?.nombre || 'N/A' }}</td>
             <td>{{ detalle.cantidad }}</td>
             <td>{{ formatCurrency(detalle.precioUnitario) }}</td>
-            <td>{{ formatCurrency(detalle.cantidad * detalle.precioUnitario) }}</td>
+            <td>{{ formatCurrency(detalle.subtotal) }}</td>
             <td>{{ detalle.observaciones || '-' }}</td>
             <td>
               <v-chip :color="getEstadoColor(detalle.estado)" size="small" variant="tonal">

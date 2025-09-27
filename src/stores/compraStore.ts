@@ -6,8 +6,6 @@ import type {
   CompraRequestDTO,
   CompraSearchParams,
   DetalleCompraResponseDTO,
-  DetalleCompraRequestDTO,
-  EstadoCompra,
 } from '@/types/compra';
 
 export const useCompraStore = defineStore('compra', () => {

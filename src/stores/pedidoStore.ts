@@ -10,15 +10,15 @@ import type {
 } from "@/types/pedido";
 import type { EstadoPedido } from "@/types/enums";
 import type {
-  DetallePedido,
   DetallePedidoRequestDTO,
-} from "@/types/detallePedido"; // Importar DetallePedido y DetallePedidoRequestDTO
+  DetallePedidoResponseDTO,
+} from "@/types/detallePedido";
 
 export const usePedidoStore = defineStore("pedido", () => {
   // State
   const pedidos = ref<PedidoResponseDTO[]>([]);
   const pedidoActual = ref<PedidoResponseDTO | null>(null);
-  const selectedPedidoDetalles = ref<DetallePedido[]>([]); // New state for details
+  const selectedPedidoDetalles = ref<DetallePedidoResponseDTO[]>([]); // New state for details
   const busquedaParams = ref<PedidoSearchParams>({});
   const loading = ref(false);
   const error = ref<string | null>(null);
@@ -215,14 +215,17 @@ export const usePedidoStore = defineStore("pedido", () => {
     try {
       setLoading(true);
       clearError();
-      const response = await PedidoService.agregarDetalleAPedido(
-        idPedido,
-        detalle
-      );
+      // Add pedidoId to the detalle object since the new API expects it
+      const detalleConPedido = { ...detalle, idPedido };
+      const response = await PedidoService.crearDetallePedido(detalleConPedido);
       if (response.status === "SUCCESS") {
-        const index = pedidos.value.findIndex((p) => p.idPedido === idPedido);
-        if (index !== -1) {
-          pedidos.value[index] = response.data; // Asumimos que el backend devuelve el pedido actualizado
+        // Refresh the order to get updated details and totals
+        const updatedPedidoResponse = await PedidoService.obtenerPedidoPorId(idPedido);
+        if (updatedPedidoResponse.status === "SUCCESS") {
+          const index = pedidos.value.findIndex((p) => p.idPedido === idPedido);
+          if (index !== -1) {
+            pedidos.value[index] = updatedPedidoResponse.data;
+          }
         }
         return { success: true, data: response.data };
       } else {
@@ -246,21 +249,18 @@ export const usePedidoStore = defineStore("pedido", () => {
       setLoading(true);
       clearError();
       const response = await PedidoService.actualizarDetallePedido(
-        idPedido,
         idDetallePedido,
         { cantidad: nuevaCantidad }
       );
       if (response.status === "SUCCESS") {
-        const pedidoIndex = pedidos.value.findIndex(
-          (p) => p.idPedido === idPedido
-        );
-        const pedido = pedidos.value[pedidoIndex];
-        if (pedidoIndex !== -1 && pedido?.detalles) {
-          const detalleIndex = pedido.detalles.findIndex(
-            (d) => d.idDetalle === idDetallePedido
+        // Refresh the order to get updated details and totals
+        const updatedPedidoResponse = await PedidoService.obtenerPedidoPorId(idPedido);
+        if (updatedPedidoResponse.status === "SUCCESS") {
+          const pedidoIndex = pedidos.value.findIndex(
+            (p) => p.idPedido === idPedido
           );
-          if (detalleIndex !== -1) {
-            pedido.detalles[detalleIndex] = response.data as any;
+          if (pedidoIndex !== -1) {
+            pedidos.value[pedidoIndex] = updatedPedidoResponse.data;
           }
         }
         return { success: true, data: response.data };
@@ -283,10 +283,7 @@ export const usePedidoStore = defineStore("pedido", () => {
     try {
       setLoading(true);
       clearError();
-      const response = await PedidoService.eliminarDetallePedido(
-        idPedido,
-        idDetallePedido
-      );
+      const response = await PedidoService.eliminarDetallePedido(idDetallePedido);
       if (response.status === "SUCCESS") {
         // Vuelve a buscar el pedido para obtener los totales actualizados
         const updatedPedidoResponse = await PedidoService.obtenerPedidoPorId(

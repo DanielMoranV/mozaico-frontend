@@ -13,6 +13,7 @@ export interface DetallePedido {
 }
 
 export interface DetallePedidoRequestDTO {
+  idPedido?: number; // Optional for when creating via form, required for API
   idProducto: number;
   cantidad: number;
   observaciones?: string;
