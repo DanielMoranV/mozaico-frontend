@@ -45,7 +45,7 @@ import { defineProps, defineEmits } from 'vue';
 import type { Mesa } from '@/types/mesa';
 import { EstadoMesa } from '@/types/mesa';
 
-const props = defineProps<{
+defineProps<{
   mesas: Mesa[];
   loading: boolean;
   headers: any[];

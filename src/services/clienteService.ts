@@ -11,6 +11,32 @@ export class ClienteService {
   private static readonly BASE_PATH = '/clientes';
 
   static async crearCliente(data: ClienteRequestDTO): Promise<ApiResponse<ClienteResponseDTO>> {
+    console.log('🔍 [ClienteService] Enviando POST a:', this.BASE_PATH);
+    console.log('🔍 [ClienteService] Datos del cliente:', data);
+
+    // Debug: Ver headers de la petición
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      console.log('🔑 [ClienteService] Token en localStorage:', token.substring(0, 50) + '...');
+
+      // Decodificar el token para ver su contenido
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        const payload = JSON.parse(jsonPayload);
+        console.log('🔍 [ClienteService] Payload del token:', payload);
+        console.log('🔍 [ClienteService] Token expira en:', new Date(payload.exp * 1000).toLocaleString());
+        console.log('🔍 [ClienteService] Tiempo actual:', new Date().toLocaleString());
+      } catch (e) {
+        console.error('❌ [ClienteService] Error decodificando token:', e);
+      }
+    } else {
+      console.error('❌ [ClienteService] No hay token en localStorage');
+    }
+
     const response = await apiClient.post<ApiResponse<ClienteResponseDTO>>(
       this.BASE_PATH,
       data

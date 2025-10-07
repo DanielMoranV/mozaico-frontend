@@ -1,4 +1,5 @@
 export const TipoUsuario = {
+  SUPER_ADMIN: "SUPER_ADMIN",
   ADMIN: "ADMIN",
   MESERO: "MESERO",
   COCINERO: "COCINERO",
@@ -101,3 +102,23 @@ export const EstadoReserva = {
 } as const;
 
 export type EstadoReserva = (typeof EstadoReserva)[keyof typeof EstadoReserva];
+
+export const TipoComprobante = {
+  TICKET_INTERNO: 'TICKET_INTERNO',
+  BOLETA_VENTA: 'BOLETA_VENTA',
+  FACTURA: 'FACTURA',
+  NOTA_CREDITO: 'NOTA_CREDITO',
+  NOTA_DEBITO: 'NOTA_DEBITO',
+} as const;
+
+export type TipoComprobante = (typeof TipoComprobante)[keyof typeof TipoComprobante];
+
+export const EstadoComprobante = {
+  GENERADO: 'GENERADO',
+  IMPRESO: 'IMPRESO',
+  ENVIADO: 'ENVIADO',
+  ANULADO: 'ANULADO',
+  ERROR: 'ERROR',
+} as const;
+
+export type EstadoComprobante = (typeof EstadoComprobante)[keyof typeof EstadoComprobante];

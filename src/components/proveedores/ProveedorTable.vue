@@ -31,7 +31,7 @@
 import { defineProps, defineEmits } from 'vue';
 import type { ProveedorResponseDTO } from '@/types/proveedor';
 
-const props = defineProps<{
+defineProps<{
   proveedores: ProveedorResponseDTO[];
   loading: boolean;
   headers: any[];

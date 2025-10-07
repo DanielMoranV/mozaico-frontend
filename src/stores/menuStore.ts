@@ -76,7 +76,7 @@ export const useMenuStore = defineStore('menu', () => {
       if (response.status === 'SUCCESS') {
         const index = menus.value.findIndex((m) => m.idMenu === id);
         if (index !== -1) {
-          menus.value[index] = response.data;
+          menus.value[index] = response.data!;
         }
         return { success: true, data: response.data };
       } else {
@@ -119,7 +119,7 @@ export const useMenuStore = defineStore('menu', () => {
       if (response.status === 'SUCCESS') {
         const index = menus.value.findIndex((m) => m.idMenu === id);
         if (index !== -1) {
-          menus.value[index] = response.data;
+          menus.value[index] = response.data!;
         }
         return { success: true, data: response.data };
       } else {
@@ -142,7 +142,7 @@ export const useMenuStore = defineStore('menu', () => {
       if (response.status === 'SUCCESS') {
         const index = menus.value.findIndex((m) => m.idMenu === id);
         if (index !== -1) {
-          menus.value[index] = response.data;
+          menus.value[index] = response.data!;
         }
         return { success: true, data: response.data };
       } else {

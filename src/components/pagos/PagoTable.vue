@@ -40,7 +40,7 @@
 import { defineProps, defineEmits } from 'vue';
 import type { PagoResponseDTO, EstadoPago } from '@/types/pago';
 
-const props = defineProps<{
+defineProps<{
   pagos: PagoResponseDTO[];
   loading: boolean;
   headers: any[];

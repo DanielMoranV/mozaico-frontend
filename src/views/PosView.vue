@@ -150,7 +150,7 @@
                 </v-chip>
                 <div v-if="mesa.ultimoPedido" class="text-caption text-grey">
                   <div>Pedido: #{{ mesa.ultimoPedido.idPedido }}</div>
-                  <div class="font-weight-bold">${{ mesa.ultimoPedido.total.toFixed(2) }}</div>
+                  <div class="font-weight-bold">S/{{ mesa.ultimoPedido.total?.toFixed(2) || '0.00' }}</div>
                 </div>
                 <div v-else-if="mesa.ultimaReserva" class="text-caption text-grey">
                   <div>{{ mesa.ultimaReserva.cliente }}</div>
@@ -185,7 +185,6 @@
 import { ref, computed, onMounted } from 'vue';
 import { useMesaStore } from '@/stores/mesaStore';
 import { EstadoMesa } from '@/types/enums';
-import type { Mesa } from '@/types/mesa';
 import MesaCard from '@/components/pos/MesaCard.vue';
 import OrderPanel from '@/components/pos/OrderPanel.vue';
 
@@ -222,6 +221,7 @@ const maintenanceTables = computed(() => {
 // Mesas filtradas
 const filteredMesas = computed(() => {
   let mesas = mesaStore.mesas;
+
 
   // Filtro por búsqueda
   if (searchMesa.value) {
@@ -312,6 +312,7 @@ const getEmptyMessage = () => {
   }
   return 'No hay mesas disponibles.';
 };
+
 
 const formatDate = (dateString: string) => {
   try {

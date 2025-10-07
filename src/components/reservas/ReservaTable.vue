@@ -54,7 +54,7 @@ import { defineProps, defineEmits } from 'vue';
 import type { ReservaResponseDTO } from '@/types/reserva';
 import { EstadoReserva } from '@/types/reserva';
 
-const props = defineProps<{
+defineProps<{
   reservas: ReservaResponseDTO[];
   loading: boolean;
   headers: any[];

@@ -15,7 +15,7 @@
         emit(
           'toggle-expand',
           expanded.length > 0
-            ? pedidos.find((p) => p.idPedido === expanded[0])
+            ? pedidos.find((p) => p.idPedido === Number(expanded[0]))
             : null
         )
     "
@@ -40,10 +40,10 @@
       }}
     </template>
     <template v-slot:item.mesa.numeroMesa="{ item }">
-      {{ item.mesa ? item.mesa.numero : "N/A" }}
+      {{ item.mesa ? item.mesa.numeroMesa : "N/A" }}
     </template>
     <template v-slot:item.empleado.nombre="{ item }">
-      {{ item.empleado ? item.empleado.nombreUsuario : "N/A" }}
+      {{ item.empleado ? item.empleado.nombre : "N/A" }}
     </template>
     <template v-slot:item.total="{ item }">
       {{ formatCurrency(item.total) }}

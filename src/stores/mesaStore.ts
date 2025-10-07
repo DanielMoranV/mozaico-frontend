@@ -43,6 +43,8 @@ export const useMesaStore = defineStore('mesa', () => {
       if (response.status === 'SUCCESS') {
         const mesasConPedido = response.data.filter(m => m.ultimoPedido);
         console.log('✅ [mesaStore] Loaded', response.data.length, 'mesas,', mesasConPedido.length, 'with active orders');
+
+
         mesas.value = response.data;
       } else {
         console.log('❌ [mesaStore] Error in response:', response.message);

@@ -35,7 +35,7 @@ export const usePagoStore = defineStore('pago', () => {
     try {
       setLoading(true);
       clearError();
-      const response = await PagoService.obtenerTodosLosPagos();
+      const response = await PagoService.getTodosPagos();
       if (response.status === 'SUCCESS') {
         pagos.value = response.data;
       } else {

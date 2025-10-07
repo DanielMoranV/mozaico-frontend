@@ -1,0 +1,786 @@
+<template>
+  <v-app>
+    <!-- App Bar -->
+    <v-app-bar
+      app
+      color="primary"
+      dark
+      elevation="0"
+      height="64"
+      class="app-bar-modern"
+    >
+      <v-btn icon @click="toggleDrawer" class="me-3" variant="text">
+        <v-icon>mdi-menu</v-icon>
+      </v-btn>
+
+      <div class="d-flex align-center">
+        <v-avatar size="32" class="me-3" color="white">
+          <v-icon color="primary">mdi-silverware-fork-knife</v-icon>
+        </v-avatar>
+        <div>
+          <v-app-bar-title class="text-h6 font-weight-bold"
+            >Mozaico</v-app-bar-title
+          >
+          <div class="text-caption text-white-70">Gestión de Restaurante</div>
+        </div>
+      </div>
+
+      <v-spacer></v-spacer>
+
+      <!-- Breadcrumbs para contexto -->
+      <v-breadcrumbs
+        v-if="!$vuetify.display.mobile"
+        :items="breadcrumbs"
+        class="pa-0"
+        color="white"
+        divider="/"
+      >
+        <template v-slot:item="{ item }">
+          <v-breadcrumbs-item
+            :to="item.to"
+            :disabled="item.disabled"
+            class="text-white-70"
+          >
+            {{ item.title }}
+          </v-breadcrumbs-item>
+        </template>
+      </v-breadcrumbs>
+
+      <!-- Actions Bar -->
+      <div class="d-flex align-center">
+        <!-- Search -->
+        <v-btn icon variant="text" class="me-2">
+          <v-icon>mdi-magnify</v-icon>
+        </v-btn>
+
+        <!-- Notifications with badge -->
+        <v-btn icon variant="text" class="me-2">
+          <v-badge color="error" content="3" offset-x="10" offset-y="10">
+            <v-icon>mdi-bell</v-icon>
+          </v-badge>
+        </v-btn>
+
+        <!-- User Menu -->
+        <UserMenu />
+      </div>
+    </v-app-bar>
+
+    <!-- Navigation Drawer -->
+    <v-navigation-drawer
+      v-model="drawer"
+      app
+      :rail="rail"
+      rail-width="72"
+      permanent
+      class="navigation-drawer-modern"
+      color="surface"
+    >
+      <!-- User Profile Section -->
+      <div class="pa-4 user-profile-section">
+        <v-card v-if="!rail" flat color="primary" class="pa-3 rounded-lg" dark>
+          <div class="d-flex align-center">
+            <v-avatar class="me-3" color="white" size="40">
+              <v-icon color="primary">mdi-account</v-icon>
+            </v-avatar>
+            <div class="flex-grow-1">
+              <div class="text-subtitle2 font-weight-bold">{{ user?.nombre || 'Usuario' }}</div>
+              <div class="text-caption text-white-70">{{ user?.email || '' }}</div>
+            </div>
+            <v-chip size="x-small" color="success" variant="flat">
+              <v-icon start size="12">mdi-circle</v-icon>
+              Online
+            </v-chip>
+          </div>
+        </v-card>
+
+        <div v-else class="d-flex justify-center">
+          <v-avatar color="primary" size="40">
+            <v-icon color="white">mdi-account</v-icon>
+          </v-avatar>
+        </div>
+      </div>
+
+      <v-divider class="mx-3"></v-divider>
+
+      <!-- Navigation List -->
+      <v-list density="compact" nav class="pa-2">
+        <template v-for="(item, index) in menuItems" :key="`${item.title}-${index}`">
+          <!-- Separador Visual -->
+          <v-divider
+            v-if="item.separator"
+            class="my-3 mx-2"
+            :thickness="1"
+            opacity="0.3"
+          ></v-divider>
+
+          <!-- Group Items -->
+          <v-list-group
+            v-else-if="item.children"
+            :value="item.title"
+            fluid
+            :class="[
+              'nav-group',
+              `priority-${item.priority}`,
+              { 'mb-2': item.priority === 'high' }
+            ]"
+          >
+            <template v-slot:activator="{ props }">
+              <v-tooltip :text="item.title" location="end" :disabled="!rail">
+                <template v-slot:activator="{ props: tooltipProps }">
+                  <v-list-item
+                    v-bind="{ ...props, ...tooltipProps }"
+                    :prepend-icon="item.icon"
+                    :title="item.title"
+                    color="primary"
+                    rounded="lg"
+                    :class="[
+                      'mb-1 nav-item nav-group-header',
+                      `priority-${item.priority}`
+                    ]"
+                  >
+                    <template v-if="item.badge" v-slot:append>
+                      <v-chip
+                        size="x-small"
+                        :color="item.badgeColor || 'primary'"
+                        variant="flat"
+                        class="text-caption"
+                      >
+                        {{ item.badge }}
+                      </v-chip>
+                    </template>
+                  </v-list-item>
+                </template>
+              </v-tooltip>
+            </template>
+
+            <!-- Sub Items -->
+            <div class="sub-menu">
+              <v-tooltip
+                v-for="subItem in item.children"
+                :key="subItem.title"
+                :text="subItem.title"
+                location="end"
+                :disabled="!rail"
+              >
+                <template v-slot:activator="{ props: tooltipProps }">
+                  <v-list-item
+                    v-bind="tooltipProps"
+                    :to="subItem.to"
+                    :prepend-icon="subItem.icon"
+                    :title="subItem.title"
+                    color="primary"
+                    rounded="lg"
+                    class="mb-1 ms-4 nav-sub-item"
+                  >
+                    <template v-if="subItem.badge" v-slot:append>
+                      <v-chip
+                        size="x-small"
+                        :color="subItem.badgeColor || 'primary'"
+                        variant="flat"
+                      >
+                        {{ subItem.badge }}
+                      </v-chip>
+                    </template>
+                  </v-list-item>
+                </template>
+              </v-tooltip>
+            </div>
+          </v-list-group>
+
+          <!-- Single Items -->
+          <v-tooltip
+            v-else
+            :text="item.title"
+            location="end"
+            :disabled="!rail"
+          >
+            <template v-slot:activator="{ props: tooltipProps }">
+              <v-list-item
+                v-bind="tooltipProps"
+                :to="item.to"
+                :prepend-icon="item.icon"
+                :title="item.title"
+                color="primary"
+                rounded="lg"
+                :class="[
+                  'mb-1 nav-item',
+                  `priority-${item.priority}`,
+                  { 'nav-item-important': item.priority === 'high' }
+                ]"
+              >
+                <template v-if="item.badge" v-slot:append>
+                  <v-chip
+                    size="x-small"
+                    :color="item.badgeColor || 'error'"
+                    variant="flat"
+                    :class="{ 'pulse-animation': item.priority === 'high' && item.badge }"
+                  >
+                    {{ item.badge }}
+                  </v-chip>
+                </template>
+              </v-list-item>
+            </template>
+          </v-tooltip>
+        </template>
+      </v-list>
+
+      <!-- Bottom Actions -->
+      <template v-slot:append>
+        <div class="pa-3">
+          <!-- Theme Toggle -->
+          <v-btn
+            v-if="!rail"
+            block
+            variant="text"
+            prepend-icon="mdi-theme-light-dark"
+            class="mb-2 justify-start"
+            @click="toggleTheme"
+          >
+            Tema {{ isDark ? "Claro" : "Oscuro" }}
+          </v-btn>
+
+          <!-- Rail Toggle -->
+          <v-btn
+            block
+            @click="rail = !rail"
+            :icon="rail"
+            color="primary"
+            variant="tonal"
+            class="rail-toggle-btn"
+          >
+            <v-icon>{{
+              rail ? "mdi-chevron-right" : "mdi-chevron-left"
+            }}</v-icon>
+            <span v-if="!rail" class="ms-2">Contraer Menú</span>
+          </v-btn>
+        </div>
+      </template>
+    </v-navigation-drawer>
+
+    <!-- Main Content -->
+    <v-main class="main-content">
+      <div class="content-wrapper">
+        <router-view />
+      </div>
+    </v-main>
+
+    <!-- Footer -->
+    <v-footer app color="surface" border class="footer-modern px-4">
+      <div class="d-flex align-center justify-space-between w-100">
+        <span class="text-caption">
+          &copy; {{ new Date().getFullYear() }} Mozaico - Sistema de Gestión Restaurante
+        </span>
+        <div class="d-flex align-center">
+          <v-chip
+            size="small"
+            color="success"
+            variant="flat"
+            prepend-icon="mdi-wifi"
+            class="me-2 status-chip"
+          >
+            <v-icon start size="12" class="pulse-dot">mdi-circle</v-icon>
+            Online
+          </v-chip>
+          <v-chip
+            size="small"
+            color="info"
+            variant="outlined"
+            class="me-2"
+          >
+            v2.1.0
+          </v-chip>
+          <v-chip
+            size="small"
+            color="primary"
+            variant="text"
+            prepend-icon="mdi-account-outline"
+          >
+            {{ new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) }}
+          </v-chip>
+        </div>
+      </div>
+    </v-footer>
+  </v-app>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
+import { useTheme } from "vuetify";
+import { useClienteStore } from "@/stores/clienteStore";
+import { useAuth } from "@/stores/authStore";
+import { useConditionalRender } from "@/composables/useConditionalRender";
+import UserMenu from "@/components/auth/UserMenu.vue";
+
+interface MenuItem {
+  title: string;
+  icon: string;
+  to?: string;
+  badge?: string | null;
+  badgeColor?: string;
+  children?: MenuItem[];
+  separator?: boolean;
+  priority?: 'high' | 'medium' | 'low';
+}
+
+const theme = useTheme();
+const drawer = ref(true);
+const rail = ref(false);
+const clienteStore = useClienteStore();
+
+// Autenticación
+const { user, isAuthenticated } = useAuth();
+const { getMenuItemVisibility } = useConditionalRender();
+
+const isDark = computed(() => theme.current.value.dark);
+
+const toggleDrawer = () => {
+  if (rail.value) {
+    rail.value = false;
+  } else {
+    drawer.value = !drawer.value;
+  }
+};
+
+const toggleTheme = () => {
+  theme.global.name.value = theme.current.value.dark ? "light" : "dark";
+};
+
+// Breadcrumbs dinámicos
+const breadcrumbs = ref([
+  { title: "Dashboard", to: "/dashboard", disabled: false },
+  { title: "Gestión", disabled: true },
+]);
+
+const menuItems = computed((): MenuItem[] => [
+  // Dashboard
+  {
+    title: "Dashboard",
+    icon: "mdi-view-dashboard-variant-outline",
+    to: "/dashboard",
+    priority: "high",
+  },
+  {
+    title: "",
+    icon: "",
+    separator: true,
+  },
+  // Operaciones diarias
+  {
+    title: "Punto de Venta",
+    icon: "mdi-point-of-sale",
+    to: "/pos",
+    badge: "LIVE",
+    badgeColor: "error",
+    priority: "high",
+  },
+  {
+    title: "Pedidos Activos",
+    icon: "mdi-clipboard-list-outline",
+    to: "/pedidos",
+    badge: "8",
+    badgeColor: "warning",
+    priority: "high",
+  },
+  {
+    title: "Mesas",
+    icon: "mdi-table-chair",
+    to: "/mesas",
+    badge: "12/20",
+    badgeColor: "success",
+    priority: "high",
+  },
+  {
+    title: "Reservas",
+    icon: "mdi-calendar-check-outline",
+    to: "/reservas",
+    badge: "5",
+    badgeColor: "info",
+    priority: "medium",
+  },
+  {
+    title: "",
+    icon: "",
+    separator: true,
+  },
+  // Gestión de productos
+  {
+    title: "Catálogo de Productos",
+    icon: "mdi-food-variant",
+    priority: "medium",
+    children: [
+      {
+        title: "Productos",
+        icon: "mdi-food-apple-outline",
+        to: "/productos",
+        badge: "156",
+        badgeColor: "info",
+      },
+      {
+        title: "Categorías",
+        icon: "mdi-shape-outline",
+        to: "/categorias",
+      },
+      {
+        title: "Menús Activos",
+        icon: "mdi-book-open-page-variant-outline",
+        to: "/menu",
+        badge: "3",
+        badgeColor: "success",
+      },
+    ],
+  },
+  // Inventario y compras
+  {
+    title: "Inventario",
+    icon: "mdi-warehouse",
+    priority: "medium",
+    children: [
+      {
+        title: "Stock Actual",
+        icon: "mdi-package-variant-closed",
+        to: "/inventario",
+        badge: "LOW",
+        badgeColor: "error",
+      },
+      {
+        title: "Órdenes de Compra",
+        icon: "mdi-cart-plus",
+        to: "/compras",
+        badge: "3",
+        badgeColor: "warning",
+      },
+      {
+        title: "Proveedores",
+        icon: "mdi-truck-delivery-outline",
+        to: "/proveedores",
+      },
+    ],
+  },
+  // Gestión de clientes
+  {
+    title: "Clientes y CRM",
+    icon: "mdi-account-group-outline",
+    priority: "medium",
+    children: [
+      {
+        title: "Base de Clientes",
+        icon: "mdi-account-multiple-outline",
+        to: "/clientes",
+        badge: clienteStore.totalClientes.toString(),
+        badgeColor: "info",
+      },
+      {
+        title: "Programa de Fidelización",
+        icon: "mdi-heart-outline",
+        to: "/fidelizacion",
+        badge: "NEW",
+        badgeColor: "success",
+      },
+    ],
+  },
+  // Finanzas y reportes
+  {
+    title: "Finanzas",
+    icon: "mdi-cash-multiple",
+    priority: "medium",
+    children: [
+      {
+        title: "Caja y Transacciones",
+        icon: "mdi-cash-register",
+        to: "/pagos",
+        badge: "HOY: S/1,250",
+        badgeColor: "success",
+      },
+      {
+        title: "Comprobantes",
+        icon: "mdi-receipt-text",
+        to: "/comprobantes",
+      },
+      {
+        title: "Métodos de Pago",
+        icon: "mdi-credit-card-multiple-outline",
+        to: "/metodos-pago",
+      },
+      {
+        title: "Reportes y Analytics",
+        icon: "mdi-chart-line",
+        to: "/reportes",
+      },
+    ],
+  },
+  {
+    title: "",
+    icon: "",
+    separator: true,
+  },
+  // Administración del sistema
+  {
+    title: "Administración",
+    icon: "mdi-shield-account-outline",
+    priority: "low",
+    children: [
+      {
+        title: "Usuarios del Sistema",
+        icon: "mdi-account-tie-outline",
+        to: "/usuarios",
+        badge: "5",
+        badgeColor: "info",
+      },
+      {
+        title: "Roles y Permisos",
+        icon: "mdi-account-key-outline",
+        to: "/roles",
+      },
+      {
+        title: "Configuración General",
+        icon: "mdi-cog-outline",
+        to: "/configuracion",
+      },
+      {
+        title: "Logs del Sistema",
+        icon: "mdi-text-box-outline",
+        to: "/logs",
+      },
+    ],
+  },
+]);
+
+// Cargar datos iniciales
+onMounted(async () => {
+  // Solo cargar datos si el usuario está autenticado
+  if (isAuthenticated.value) {
+    try {
+      await clienteStore.fetchClientes();
+    } catch (error) {
+      console.warn('Error cargando datos iniciales:', error);
+    }
+  }
+});
+</script>
+
+<style scoped>
+/* App Bar Moderna */
+.app-bar-modern {
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Navigation Drawer */
+.navigation-drawer-modern {
+  border-right: 1px solid rgb(var(--v-theme-surface-variant));
+}
+
+.user-profile-section {
+  background: linear-gradient(
+    145deg,
+    rgba(var(--v-theme-primary), 0.05) 0%,
+    rgba(var(--v-theme-secondary), 0.05) 100%
+  );
+}
+
+/* Navigation Items */
+.nav-item {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.nav-item:hover {
+  transform: translateX(4px);
+}
+
+/* Priority-based styling */
+.priority-high {
+  font-weight: 600;
+}
+
+.priority-high .v-list-item__prepend .v-icon {
+  color: rgb(var(--v-theme-primary)) !important;
+}
+
+.nav-item-important {
+  background: rgba(var(--v-theme-primary), 0.04) !important;
+  border: 1px solid rgba(var(--v-theme-primary), 0.12);
+}
+
+.nav-item-important:hover {
+  background: rgba(var(--v-theme-primary), 0.08) !important;
+  transform: translateX(6px);
+  box-shadow: 0 4px 12px rgba(var(--v-theme-primary), 0.15);
+}
+
+/* Group headers */
+.nav-group-header {
+  font-weight: 500;
+}
+
+.nav-group-header .v-list-item__prepend .v-icon {
+  opacity: 0.8;
+}
+
+.nav-group .priority-medium .nav-group-header {
+  opacity: 0.9;
+}
+
+.nav-group .priority-low .nav-group-header {
+  opacity: 0.7;
+}
+
+/* Sub Items */
+.nav-sub-item {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  opacity: 0.85;
+}
+
+.nav-sub-item:hover {
+  opacity: 1;
+}
+
+.nav-sub-item:before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 16px;
+  background: rgb(var(--v-theme-primary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.nav-sub-item.v-list-item--active:before {
+  opacity: 1;
+}
+
+.sub-menu {
+  position: relative;
+  border-left: 1px solid rgba(var(--v-theme-surface-variant), 0.3);
+  margin-left: 12px;
+  padding-left: 8px;
+}
+
+/* Badge animations */
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Badge colors by context */
+.v-chip.text-caption {
+  font-size: 0.65rem !important;
+  font-weight: 600;
+}
+
+/* Spacing improvements */
+.nav-group .mb-2 {
+  margin-bottom: 16px;
+}
+
+/* Rail Toggle Button */
+.rail-toggle-btn {
+  transition: all 0.3s ease;
+}
+
+.rail-toggle-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Main Content */
+.main-content {
+  background: linear-gradient(
+    145deg,
+    rgba(var(--v-theme-surface), 1) 0%,
+    rgba(var(--v-theme-background), 1) 100%
+  );
+}
+
+.content-wrapper {
+  padding: 24px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Footer */
+.footer-modern {
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgb(var(--v-theme-surface-variant));
+}
+
+.status-chip {
+  animation: subtle-pulse 3s infinite;
+}
+
+.pulse-dot {
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes subtle-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
+}
+
+/* Responsive */
+@media (max-width: 959px) {
+  .navigation-drawer-modern {
+    z-index: 1005;
+  }
+
+  .content-wrapper {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .content-wrapper {
+    padding: 12px;
+  }
+}
+
+/* Smooth animations */
+.v-list-item {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.v-navigation-drawer {
+  transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Active states */
+.v-list-item--active {
+  background: rgba(var(--v-theme-primary), 0.12) !important;
+  color: rgb(var(--v-theme-primary));
+}
+
+.v-list-item--active .v-icon {
+  color: rgb(var(--v-theme-primary)) !important;
+}
+</style>

@@ -8,6 +8,42 @@
     items-per-page="10"
     class="elevation-0"
   >
+    <template v-slot:item.nombre="{ item }">
+      <div class="d-flex align-center">
+        <v-icon size="small" class="mr-2" :color="item.tipoPersona === 'JURIDICA' ? 'blue' : 'grey'">
+          {{ item.tipoPersona === 'JURIDICA' ? 'mdi-domain' : 'mdi-account' }}
+        </v-icon>
+        <div>
+          <div class="font-weight-medium">
+            {{ item.nombre }} {{ item.apellido || '' }}
+          </div>
+          <div v-if="item.tipoPersona === 'JURIDICA' && item.razonSocial" class="text-caption text-grey">
+            {{ item.razonSocial }}
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template v-slot:item.documento="{ item }">
+      <div v-if="item.numeroDocumento">
+        <v-chip size="x-small" variant="tonal" :color="getDocumentoColor(item.tipoDocumento)">
+          {{ item.tipoDocumento || 'DOC' }}
+        </v-chip>
+        <div class="text-caption mt-1">{{ item.numeroDocumento }}</div>
+      </div>
+      <span v-else class="text-grey">-</span>
+    </template>
+
+    <template v-slot:item.tipoPersona="{ item }">
+      <v-chip
+        size="small"
+        variant="tonal"
+        :color="item.tipoPersona === 'JURIDICA' ? 'blue' : 'green'"
+      >
+        {{ item.tipoPersona === 'JURIDICA' ? 'Empresa' : 'Natural' }}
+      </v-chip>
+    </template>
+
     <template v-slot:item.activo="{ item }">
       <v-chip :color="item.activo ? 'success' : 'error'" size="small" variant="tonal">
         {{ item.activo ? 'Activo' : 'Inactivo' }}
@@ -55,4 +91,15 @@ const emit = defineEmits([
   'activar-cliente',
   'desactivar-cliente',
 ]);
+
+const getDocumentoColor = (tipoDocumento?: string) => {
+  const colors: Record<string, string> = {
+    'DNI': 'blue',
+    'RUC': 'purple',
+    'CARNET_EXTRANJERIA': 'orange',
+    'PASAPORTE': 'green',
+    'SIN_DOCUMENTO': 'grey'
+  };
+  return colors[tipoDocumento || ''] || 'grey';
+};
 </script>

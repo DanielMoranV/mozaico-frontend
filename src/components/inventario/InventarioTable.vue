@@ -35,7 +35,7 @@
 import { defineProps, defineEmits } from 'vue';
 import type { InventarioResponseDTO } from '@/types/inventario';
 
-const props = defineProps<{
+defineProps<{
   inventario: InventarioResponseDTO[];
   loading: boolean;
   headers: any[];

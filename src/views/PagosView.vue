@@ -94,7 +94,7 @@ const searchTerm = ref('');
 
 const searchCriteria = reactive<Omit<PagoSearchParams, 'searchTerm'>>({
   idPedido: undefined,
-  idMetodoPago: undefined,
+  idMetodo: undefined,
   estado: undefined,
   fechaPagoDesde: undefined,
   fechaPagoHasta: undefined,
@@ -108,7 +108,7 @@ const dialogo = reactive({
 
 const formulario = reactive<PagoRequestDTO>({
   idPedido: 0,
-  idMetodoPago: 0,
+  idMetodo: 0,
   monto: 0,
   referencia: undefined,
   estado: EstadoPago.PENDIENTE,
@@ -134,10 +134,12 @@ const realizarBusqueda = async () => {
     ...searchCriteria,
     searchTerm: searchTerm.value || undefined,
   };
+
   store.setBusquedaParams(criteriaToSend);
-  await store.buscarPagos();
-  if (store.error) {
-    mostrarSnackbar(store.error, 'error');
+  const resultado = await store.buscarPagos();
+
+  if (!resultado.success) {
+    mostrarSnackbar(resultado.error || 'Error al buscar pagos', 'error');
   }
 };
 
@@ -145,14 +147,19 @@ const limpiarBusqueda = async () => {
   searchTerm.value = '';
   Object.assign(searchCriteria, {
     idPedido: undefined,
-    idMetodoPago: undefined,
+    idMetodo: undefined,
     estado: undefined,
     fechaPagoDesde: undefined,
     fechaPagoHasta: undefined,
     logic: 'AND',
   });
+
   store.setBusquedaParams({});
-  await store.buscarPagos();
+  const resultado = await store.fetchPagos();
+
+  if (store.error) {
+    mostrarSnackbar(store.error, 'error');
+  }
 };
 
 const abrirDialogoCrear = () => {
@@ -165,7 +172,7 @@ const editarPago = (pago: PagoResponseDTO) => {
   pagoIdActual.value = pago.idPago;
   Object.assign(formulario, {
     idPedido: pago.pedido.idPedido,
-    idMetodoPago: pago.metodoPago.idMetodo,
+    idMetodo: pago.metodoPago.idMetodo,
     monto: pago.monto,
     referencia: pago.referencia,
     estado: pago.estado,
@@ -176,15 +183,15 @@ const editarPago = (pago: PagoResponseDTO) => {
 
 const guardarPago = async () => {
   let resultado;
+  const payload: PagoRequestDTO = { ...formulario };
+
   if (dialogo.editando && pagoIdActual.value) {
-    const payload: PagoRequestDTO = { ...formulario };
     resultado = await store.actualizarPago(pagoIdActual.value, payload);
   } else {
-    const payload: PagoRequestDTO = { ...formulario };
     resultado = await store.crearPago(payload);
   }
 
-  if (resultado?.success) {
+  if (resultado.success) {
     mostrarSnackbar(
       dialogo.editando ? 'Pago actualizado exitosamente' : 'Pago creado exitosamente',
       'success'
@@ -192,7 +199,7 @@ const guardarPago = async () => {
     cerrarDialogo();
     await realizarBusqueda();
   } else {
-    mostrarSnackbar(resultado?.error || 'Error al guardar pago', 'error');
+    mostrarSnackbar(resultado.error || 'Error al guardar pago', 'error');
   }
 };
 
@@ -224,7 +231,7 @@ const cerrarDialogo = () => {
 const limpiarFormulario = () => {
   Object.assign(formulario, {
     idPedido: 0,
-    idMetodoPago: 0,
+    idMetodo: 0,
     monto: 0,
     referencia: undefined,
     estado: EstadoPago.PENDIENTE,
@@ -238,7 +245,7 @@ const mostrarSnackbar = (mensaje: string, color: string) => {
 };
 
 onMounted(() => {
-  realizarBusqueda();
+  store.fetchPagos();
 });
 </script>
 

@@ -11,6 +11,19 @@
       </v-col>
     </v-row>
 
+    <!-- Información de Empresa -->
+    <v-row class="mb-6">
+      <v-col cols="12" lg="6">
+        <EmpresaInfo />
+      </v-col>
+      <v-col cols="12" lg="6">
+        <CarritoCalculadora
+          :productos="productosEjemplo"
+          @procesar-pedido="procesarPedidoEjemplo"
+        />
+      </v-col>
+    </v-row>
+
     <!-- Tarjetas de resumen -->
     <v-row class="mb-6">
       <v-col v-for="card in summaryCards" :key="card.title" cols="12" sm="6" md="3">
@@ -111,6 +124,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import EmpresaInfo from '@/components/common/EmpresaInfo.vue';
+import CarritoCalculadora from '@/components/common/CarritoCalculadora.vue';
+import type { ProductoCarrito } from '@/types/empresa';
 
 const $router = useRouter();
 
@@ -124,9 +140,9 @@ const summaryCards = ref([
   },
   {
     title: 'Ventas Hoy',
-    value: '$2,847',
+    value: 'S/2,847',
     trend: 12.5,
-    icon: 'mdi-currency-usd',
+    icon: 'mdi-cash',
     color: 'success'
   },
   {
@@ -155,7 +171,7 @@ const recentActivity = ref([
   },
   {
     id: 2,
-    title: 'Pago procesado - $45.80',
+    title: 'Pago procesado - S/45.80',
     time: 'Hace 5 minutos',
     icon: 'mdi-credit-card',
     color: 'primary'
@@ -182,6 +198,38 @@ const recentActivity = ref([
     color: 'secondary'
   }
 ]);
+
+// Datos de ejemplo para la calculadora
+const productosEjemplo = ref<ProductoCarrito[]>([
+  {
+    id: 1,
+    nombre: 'Hamburguesa Clásica',
+    precio: 12.00,
+    cantidad: 1,
+    subtotal: 12.00
+  },
+  {
+    id: 2,
+    nombre: 'Coca-Cola',
+    precio: 2.50,
+    cantidad: 2,
+    subtotal: 5.00
+  },
+  {
+    id: 3,
+    nombre: 'Papas Fritas',
+    precio: 6.00,
+    cantidad: 1,
+    subtotal: 6.00
+  }
+]);
+
+// Función para procesar pedido de ejemplo
+const procesarPedidoEjemplo = () => {
+  console.log('🛒 Procesando pedido de ejemplo con productos:', productosEjemplo.value);
+  // Aquí iría la lógica real de procesamiento
+  alert('Pedido procesado correctamente (ejemplo)');
+};
 
 const quickActions = ref([
   {

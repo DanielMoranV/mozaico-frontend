@@ -38,7 +38,7 @@
 import { defineProps } from 'vue';
 import type { SalesSummaryResponseDTO } from '@/types/report';
 
-const props = defineProps<{
+defineProps<{
   salesSummary: SalesSummaryResponseDTO | null;
   loading: boolean;
   error: string | null;

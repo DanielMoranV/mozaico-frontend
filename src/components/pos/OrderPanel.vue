@@ -122,17 +122,8 @@
                         {{ producto.nombre }}
                       </div>
                       <div class="text-h6 text-primary">
-                        ${{ producto.precio.toFixed(2) }}
+                        S/{{ producto.precio.toFixed(2) }}
                       </div>
-                      <v-btn
-                        icon
-                        size="small"
-                        color="primary"
-                        variant="elevated"
-                        class="mt-2"
-                      >
-                        <v-icon>mdi-plus</v-icon>
-                      </v-btn>
                     </v-card-text>
                   </v-card>
                 </v-col>
@@ -167,12 +158,78 @@
                 </v-chip>
               </div>
 
+              <!-- Selección de Cliente (Opcional) -->
+              <v-card variant="outlined" class="mb-4">
+                <v-card-text class="pb-2">
+                  <div class="d-flex align-center mb-2">
+                    <v-icon size="small" class="mr-2">mdi-account</v-icon>
+                    <span class="text-subtitle-2">Cliente (Opcional)</span>
+                  </div>
+
+                  <v-autocomplete
+                    v-model="selectedClienteId"
+                    :items="clienteStore.clientes"
+                    :item-title="(item: any) => `${item.nombre} ${item.apellido}`"
+                    item-value="idCliente"
+                    label="Buscar cliente"
+                    placeholder="Escribe para buscar..."
+                    prepend-inner-icon="mdi-magnify"
+                    variant="outlined"
+                    density="compact"
+                    clearable
+                    hide-details="auto"
+                    :loading="clienteStore.loading"
+                    no-data-text="No se encontraron clientes"
+                  >
+                    <template v-slot:item="{ props, item }">
+                      <v-list-item
+                        v-bind="props"
+                        :title="`${item.raw.nombre} ${item.raw.apellido || ''}`"
+                        :subtitle="getClienteSubtitle(item.raw)"
+                      >
+                        <template v-slot:prepend>
+                          <v-avatar color="primary" size="32">
+                            <v-icon size="small">{{ item.raw.tipoPersona === 'JURIDICA' ? 'mdi-domain' : 'mdi-account' }}</v-icon>
+                          </v-avatar>
+                        </template>
+                      </v-list-item>
+                    </template>
+
+                    <template v-slot:append-item>
+                      <v-divider class="mb-2"></v-divider>
+                      <v-list-item @click="showClienteDialog = true">
+                        <template v-slot:prepend>
+                          <v-avatar color="success" size="32">
+                            <v-icon size="small">mdi-plus</v-icon>
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title class="text-success">
+                          Crear nuevo cliente
+                        </v-list-item-title>
+                      </v-list-item>
+                    </template>
+                  </v-autocomplete>
+
+                  <!-- Información del cliente seleccionado -->
+                  <v-chip
+                    v-if="selectedCliente"
+                    size="small"
+                    color="primary"
+                    variant="tonal"
+                    class="mt-2"
+                    prepend-icon="mdi-account-check"
+                  >
+                    {{ selectedCliente.nombre }} {{ selectedCliente.apellido }}
+                  </v-chip>
+                </v-card-text>
+              </v-card>
+
               <!-- Lista de productos en el pedido -->
               <v-card variant="outlined" class="order-items mb-4">
                 <v-list v-if="currentPedido?.detalles?.length">
                   <v-list-item
                     v-for="(detalle, index) in currentPedido.detalles"
-                    :key="detalle.idDetalle || index"
+                    :key="detalle.idDetallePedido || index"
                     class="order-item"
                   >
                     <template v-slot:prepend>
@@ -189,7 +246,7 @@
                         💬 {{ detalle.observaciones }}
                       </v-list-item-subtitle>
                       <div class="text-caption text-primary">
-                        ${{ detalle.precioUnitario.toFixed(2) }} c/u
+                        S/{{ detalle.precioUnitario.toFixed(2) }} c/u
                       </div>
                     </div>
 
@@ -222,7 +279,11 @@
                       <!-- Subtotal y eliminar -->
                       <div class="ml-3 text-right">
                         <div class="text-body-2 font-weight-bold">
-                          ${{ detalle.subtotal.toFixed(2) }}
+                          S/{{
+                            (detalle.cantidad * detalle.precioUnitario).toFixed(
+                              2
+                            )
+                          }}
                         </div>
                         <v-btn
                           icon
@@ -257,18 +318,22 @@
                   <div class="d-flex justify-space-between mb-1">
                     <span>Subtotal:</span>
                     <span
-                      >${{
+                      >S/{{
                         currentPedido?.subtotal?.toFixed(2) || "0.00"
                       }}</span
                     >
                   </div>
-                  <div class="d-flex justify-space-between mb-1">
-                    <span>Impuestos (10%):</span>
+                  <div v-if="empresaStore.aplicaIgv" class="d-flex justify-space-between mb-1">
+                    <span>IGV ({{ empresaStore.porcentajeIgv }}%):</span>
                     <span
-                      >${{
+                      >S/{{
                         currentPedido?.impuestos?.toFixed(2) || "0.00"
                       }}</span
                     >
+                  </div>
+                  <div v-else class="d-flex justify-space-between mb-1">
+                    <span class="text-medium-emphasis">IGV (No aplica):</span>
+                    <span class="text-medium-emphasis">S/0.00</span>
                   </div>
                   <div
                     class="d-flex justify-space-between mb-1"
@@ -276,7 +341,7 @@
                   >
                     <span>Descuento:</span>
                     <span class="text-success"
-                      >-${{ currentPedido.descuento.toFixed(2) }}</span
+                      >-S/{{ currentPedido.descuento.toFixed(2) }}</span
                     >
                   </div>
                   <v-divider class="my-2"></v-divider>
@@ -285,7 +350,7 @@
                   >
                     <span>Total:</span>
                     <span
-                      >${{ currentPedido?.total?.toFixed(2) || "0.00" }}</span
+                      >S/{{ currentPedido?.total?.toFixed(2) || "0.00" }}</span
                     >
                   </div>
                 </v-card-text>
@@ -382,8 +447,14 @@
 
     <ConfirmDialog
       v-model="showFinalizeDialog"
-      :title="currentPedido?.idPedido === 0 ? 'Generar Pedido' : 'Finalizar Pedido'"
-      :message="currentPedido?.idPedido === 0 ? '¿Confirmas generar este pedido? La mesa quedará ocupada y se podrán agregar más productos.' : '¿Deseas finalizar este pedido? Se procesará el pago y se marcará como completado.'"
+      :title="
+        currentPedido?.idPedido === 0 ? 'Generar Pedido' : 'Finalizar Pedido'
+      "
+      :message="
+        currentPedido?.idPedido === 0
+          ? '¿Confirmas generar este pedido? La mesa quedará ocupada y se podrán agregar más productos.'
+          : '¿Deseas finalizar este pedido? Se procesará el pago y se marcará como completado.'
+      "
       @confirm="finalizeOrder"
     />
 
@@ -393,6 +464,177 @@
       :message="`¿Eliminar ${itemToRemove?.producto?.nombre} del pedido?`"
       @confirm="removeDetalle"
     />
+
+    <!-- Diálogo de selección de método de pago -->
+    <PaymentMethodDialog
+      v-model:visible="showPaymentDialog"
+      :pedido="currentPedido"
+      @pago-completado="onPagoCompletado"
+      @pago-error="onPagoError"
+    />
+
+    <!-- Diálogo para crear nuevo cliente -->
+    <v-dialog v-model="showClienteDialog" max-width="500px">
+      <v-card>
+        <v-card-title class="d-flex align-center">
+          <v-icon class="mr-2" color="primary">mdi-account-plus</v-icon>
+          <span>Nuevo Cliente</span>
+          <v-spacer></v-spacer>
+          <v-btn icon variant="text" @click="showClienteDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text>
+          <v-form ref="clienteForm" @submit.prevent="crearCliente">
+            <!-- Tipo de Persona -->
+            <v-radio-group
+              v-model="nuevoCliente.tipoPersona"
+              inline
+              hide-details
+              class="mb-3"
+            >
+              <template v-slot:label>
+                <span class="text-subtitle-2">Tipo de Persona *</span>
+              </template>
+              <v-radio label="Persona Natural" value="NATURAL"></v-radio>
+              <v-radio label="Empresa" value="JURIDICA"></v-radio>
+            </v-radio-group>
+
+            <v-divider class="mb-3"></v-divider>
+
+            <!-- Campos para Persona Natural -->
+            <template v-if="nuevoCliente.tipoPersona === 'NATURAL'">
+              <v-text-field
+                v-model="nuevoCliente.nombre"
+                label="Nombre *"
+                prepend-inner-icon="mdi-account"
+                variant="outlined"
+                density="compact"
+                :rules="[v => !!v || 'El nombre es requerido']"
+                required
+              ></v-text-field>
+
+              <v-text-field
+                v-model="nuevoCliente.apellido"
+                label="Apellido *"
+                prepend-inner-icon="mdi-account"
+                variant="outlined"
+                density="compact"
+                class="mt-3"
+                :rules="[v => !!v || 'El apellido es requerido']"
+                required
+              ></v-text-field>
+            </template>
+
+            <!-- Campos para Persona Jurídica -->
+            <template v-else>
+              <v-text-field
+                v-model="nuevoCliente.razonSocial"
+                label="Razón Social *"
+                prepend-inner-icon="mdi-domain"
+                variant="outlined"
+                density="compact"
+                hint="Nombre legal de la empresa"
+                persistent-hint
+                :rules="[v => !!v || 'La razón social es requerida']"
+                required
+              ></v-text-field>
+
+              <v-text-field
+                v-model="nuevoCliente.nombreComercial"
+                label="Nombre Comercial"
+                prepend-inner-icon="mdi-store"
+                variant="outlined"
+                density="compact"
+                class="mt-3"
+                hint="Nombre con el que opera"
+                persistent-hint
+              ></v-text-field>
+
+              <v-text-field
+                v-model="nuevoCliente.representanteLegal"
+                label="Representante Legal"
+                prepend-inner-icon="mdi-account-tie"
+                variant="outlined"
+                density="compact"
+                class="mt-3"
+              ></v-text-field>
+            </template>
+
+            <!-- Tipo y Número de Documento -->
+            <v-select
+              v-model="nuevoCliente.tipoDocumento"
+              :items="tiposDocumento"
+              label="Tipo de Documento"
+              prepend-inner-icon="mdi-card-account-details"
+              variant="outlined"
+              density="compact"
+              class="mt-3"
+            ></v-select>
+
+            <v-text-field
+              v-model="nuevoCliente.numeroDocumento"
+              label="Número de Documento"
+              prepend-inner-icon="mdi-numeric"
+              variant="outlined"
+              density="compact"
+              class="mt-3"
+              :hint="getDocumentoHint()"
+              persistent-hint
+            ></v-text-field>
+
+            <v-text-field
+              v-model="nuevoCliente.telefono"
+              label="Teléfono"
+              prepend-inner-icon="mdi-phone"
+              variant="outlined"
+              density="compact"
+              class="mt-3"
+            ></v-text-field>
+
+            <v-text-field
+              v-model="nuevoCliente.email"
+              label="Email"
+              prepend-inner-icon="mdi-email"
+              variant="outlined"
+              density="compact"
+              type="email"
+              class="mt-3"
+            ></v-text-field>
+
+            <v-textarea
+              v-model="nuevoCliente.direccion"
+              label="Dirección"
+              prepend-inner-icon="mdi-map-marker"
+              variant="outlined"
+              density="compact"
+              rows="2"
+              class="mt-3"
+            ></v-textarea>
+          </v-form>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            variant="text"
+            @click="showClienteDialog = false"
+          >
+            Cancelar
+          </v-btn>
+          <v-btn
+            color="primary"
+            variant="elevated"
+            @click="crearCliente"
+            :loading="creandoCliente"
+            prepend-icon="mdi-content-save"
+          >
+            Guardar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <!-- Snackbar para notificaciones -->
     <v-snackbar
@@ -415,15 +657,16 @@ import { useMesaStore } from "@/stores/mesaStore";
 import { usePedidoStore } from "@/stores/pedidoStore";
 import { useProductoStore } from "@/stores/productoStore";
 import { useCategoriaStore } from "@/stores/categoriaStore";
+import { useEmpresaStore } from "@/stores/empresaStore";
+import { useClienteStore } from "@/stores/clienteStore";
 import type { Mesa } from "@/types/mesa";
 import type { Pedido } from "@/types/pedido";
 import type { Producto } from "@/types/producto";
-import type {
-  DetallePedido,
-  DetallePedidoRequestDTO,
-} from "@/types/detallePedido";
+import type { DetallePedido } from "@/types/detallePedido";
+import type { Cliente } from "@/types/cliente";
 import { EstadoPedido, TipoServicio, EstadoMesa } from "@/types/enums";
 import ConfirmDialog from "@/components/common/ConfirmDialog.vue";
+import PaymentMethodDialog from "@/components/pos/PaymentMethodDialog.vue";
 
 interface Props {
   mesaId: number | null;
@@ -438,6 +681,8 @@ const mesaStore = useMesaStore();
 const pedidoStore = usePedidoStore();
 const productoStore = useProductoStore();
 const categoriaStore = useCategoriaStore();
+const empresaStore = useEmpresaStore();
+const clienteStore = useClienteStore();
 
 // State
 const isVisible = ref(props.visible);
@@ -447,10 +692,39 @@ const selectedCategory = ref<number | "all">("all");
 const orderObservaciones = ref("");
 const loading = ref(false);
 
+// Cliente state
+const selectedClienteId = ref<number | null>(null);
+const showClienteDialog = ref(false);
+const creandoCliente = ref(false);
+const clienteForm = ref<any>(null);
+const nuevoCliente = ref({
+  tipoPersona: 'NATURAL' as 'NATURAL' | 'JURIDICA',
+  nombre: '',
+  apellido: '',
+  tipoDocumento: undefined as 'DNI' | 'RUC' | 'CARNET_EXTRANJERIA' | 'PASAPORTE' | 'SIN_DOCUMENTO' | undefined,
+  numeroDocumento: '',
+  telefono: '',
+  email: '',
+  direccion: '',
+  // Persona Jurídica
+  razonSocial: '',
+  nombreComercial: '',
+  representanteLegal: ''
+});
+
+const tiposDocumento = [
+  { title: 'DNI', value: 'DNI' },
+  { title: 'RUC', value: 'RUC' },
+  { title: 'Carnet de Extranjería', value: 'CARNET_EXTRANJERIA' },
+  { title: 'Pasaporte', value: 'PASAPORTE' },
+  { title: 'Sin Documento', value: 'SIN_DOCUMENTO' }
+];
+
 // Dialog states
 const showCancelDialog = ref(false);
 const showFinalizeDialog = ref(false);
 const showRemoveItemDialog = ref(false);
+const showPaymentDialog = ref(false);
 const itemToRemove = ref<DetallePedido | null>(null);
 
 // Notification state
@@ -491,7 +765,12 @@ const filteredProducts = computed(() => {
 });
 
 const hasItems = computed(() => {
-  return currentPedido.value?.detalles?.length > 0;
+  return (currentPedido.value?.detalles?.length || 0) > 0;
+});
+
+const selectedCliente = computed(() => {
+  if (!selectedClienteId.value) return null;
+  return clienteStore.clientes.find(c => c.idCliente === selectedClienteId.value);
 });
 
 // Watch para sincronizar la visibilidad
@@ -507,9 +786,30 @@ watch(
   }
 );
 
-onMounted(() => {
+// Watch para cerrar el panel cuando se cierre el diálogo de pago
+// (después de que el usuario descargue el comprobante)
+watch(showPaymentDialog, (newVal, oldVal) => {
+  // Si el diálogo de pago se cierra después de estar abierto
+  if (oldVal === true && newVal === false) {
+    console.log('💳 [OrderPanel] Diálogo de pago cerrado, cerrando panel...');
+    // Dar un pequeño delay para que se vea la transición
+    setTimeout(() => {
+      closePanel();
+    }, 300);
+  }
+});
+
+onMounted(async () => {
   productoStore.fetchProductos();
   categoriaStore.fetchCategorias();
+  clienteStore.fetchClientes(); // Cargar lista de clientes
+  // Cargar configuración de empresa
+  try {
+    await empresaStore.cargarValidacion();
+    console.log('✅ Configuración de empresa cargada en OrderPanel');
+  } catch (error) {
+    console.error('❌ Error al cargar configuración de empresa:', error);
+  }
 });
 
 // Methods
@@ -537,13 +837,14 @@ const loadPedidoForMesa = async (mesaId: number) => {
       );
 
       if (result) {
-        currentPedido.value = result;
+        currentPedido.value = result as any;
         orderObservaciones.value = result.observaciones || "";
         console.log(
           "✅ Order loaded successfully with",
           result.detalles?.length || 0,
           "items"
         );
+
         showSuccess("Pedido cargado exitosamente");
       } else {
         console.log("❌ Could not load order");
@@ -576,6 +877,9 @@ const initializeNewOrder = () => {
     mesa: {
       idMesa: selectedMesa.value.idMesa,
       numeroMesa: selectedMesa.value.numeroMesa,
+      capacidad: selectedMesa.value.capacidad,
+      estado: selectedMesa.value.estado,
+      fechaCreacion: selectedMesa.value.fechaCreacion,
     },
     fechaPedido: new Date().toISOString(),
     estado: EstadoPedido.ABIERTO, // Nuevo estado inicial para restaurante
@@ -613,21 +917,22 @@ const addProductToOrder = async (product: Producto) => {
       console.log("🔄 [DEBUG] Producto existe, incrementando cantidad");
       // Si ya existe, incrementar cantidad localmente
       existingDetalle.cantidad += 1;
-      existingDetalle.subtotal =
-        existingDetalle.cantidad * existingDetalle.precioUnitario;
+      // existingDetalle.subtotal = existingDetalle.cantidad * existingDetalle.precioUnitario; // Calculated dynamically
       console.log("🔄 [DEBUG] Nueva cantidad:", existingDetalle.cantidad);
       showSuccess(`Cantidad de ${product.nombre} aumentada`);
     } else {
       console.log("➕ [DEBUG] Producto nuevo, agregando al pedido");
       // Si no existe, agregarlo al pedido temporal
       const newDetalle = {
-        idDetalle: Date.now(), // ID temporal único
-        producto: product,
+        idDetallePedido: Date.now(), // ID temporal único
+        producto: {
+          idProducto: product.idProducto,
+          nombre: product.nombre,
+        },
         cantidad: 1,
         precioUnitario: product.precio,
-        subtotal: product.precio,
         observaciones: "",
-        estado: "PENDIENTE",
+        estado: "PENDIENTE" as any,
       };
 
       console.log("➕ [DEBUG] Nuevo detalle:", newDetalle);
@@ -674,7 +979,7 @@ const addProductToOrder = async (product: Producto) => {
         updateData
       );
       if (result.success && result.data) {
-        currentPedido.value = result.data;
+        currentPedido.value = result.data as any;
         showSuccess(`Cantidad de ${product.nombre} aumentada`);
       } else {
         showError(result.error || "Error al actualizar producto");
@@ -692,7 +997,7 @@ const addProductToOrder = async (product: Producto) => {
         agregarData
       );
       if (result.success && result.data) {
-        currentPedido.value = result.data;
+        currentPedido.value = result.data as any;
         showSuccess(`${product.nombre} agregado al pedido`);
       } else {
         showError(result.error || "Error al agregar producto");
@@ -721,7 +1026,7 @@ const updateDetalleCantidad = async (
   // Para pedidos temporales (idPedido === 0), actualizar localmente
   if (currentPedido.value.idPedido === 0) {
     detalle.cantidad = newCantidad;
-    detalle.subtotal = detalle.cantidad * detalle.precioUnitario;
+    // detalle.subtotal = detalle.cantidad * detalle.precioUnitario; // Calculated dynamically
     recalculateTotals();
     return;
   }
@@ -732,7 +1037,7 @@ const updateDetalleCantidad = async (
     // TODO: Implementar endpoint correcto para actualizar cantidad
     // Por ahora actualizamos localmente
     detalle.cantidad = newCantidad;
-    detalle.subtotal = detalle.cantidad * detalle.precioUnitario;
+    // detalle.subtotal = detalle.cantidad * detalle.precioUnitario; // Calculated dynamically
     recalculateTotals();
     showSuccess("Cantidad actualizada");
   } catch (error) {
@@ -754,7 +1059,7 @@ const removeDetalle = async () => {
   if (currentPedido.value.idPedido === 0) {
     currentPedido.value.detalles =
       currentPedido.value.detalles?.filter(
-        (d) => d.idDetalle !== itemToRemove.value?.idDetalle
+        (d) => d.idDetallePedido !== itemToRemove.value?.idDetallePedido
       ) || [];
     recalculateTotals();
     showSuccess("Producto eliminado del pedido");
@@ -770,7 +1075,7 @@ const removeDetalle = async () => {
     // Por ahora eliminamos localmente
     currentPedido.value.detalles =
       currentPedido.value.detalles?.filter(
-        (d) => d.idDetalle !== itemToRemove.value?.idDetalle
+        (d) => d.idDetallePedido !== itemToRemove.value?.idDetallePedido
       ) || [];
     recalculateTotals();
     showSuccess("Producto eliminado del pedido");
@@ -788,39 +1093,30 @@ const recalculateTotals = () => {
 
   let subtotal = 0;
   currentPedido.value.detalles?.forEach((d) => {
-    subtotal += d.subtotal;
+    subtotal += d.cantidad * d.precioUnitario;
   });
 
-  currentPedido.value.subtotal = subtotal;
-  currentPedido.value.impuestos = subtotal * 0.1; // 10% impuestos según documentación
-  currentPedido.value.descuento = 0;
-  currentPedido.value.total =
-    subtotal + currentPedido.value.impuestos - currentPedido.value.descuento;
-};
-
-const saveOrder = async () => {
-  if (!currentPedido.value || loading.value) return;
-
-  loading.value = true;
-  try {
-    const result = await pedidoStore.actualizarPedido(
-      currentPedido.value.idPedido,
-      {
-        observaciones: orderObservaciones.value,
-      }
-    );
-
-    if (result.success) {
-      showSuccess("Pedido guardado exitosamente");
-      emit("order-updated");
-    } else {
-      showError(result.error || "Error al guardar pedido");
-    }
-  } catch (error) {
-    showError("Error al guardar pedido");
-  } finally {
-    loading.value = false;
+  // Usar configuración de empresa para calcular IGV
+  let impuestos = 0;
+  if (empresaStore.aplicaIgv) {
+    impuestos = subtotal * (empresaStore.porcentajeIgv / 100);
   }
+
+  const descuento = 0;
+  const total = subtotal + impuestos - descuento;
+
+  currentPedido.value.subtotal = subtotal;
+  currentPedido.value.impuestos = impuestos;
+  currentPedido.value.descuento = descuento;
+  currentPedido.value.total = total;
+
+  console.log('💰 Totales recalculados:', {
+    subtotal,
+    igv: impuestos,
+    total,
+    aplicaIgv: empresaStore.aplicaIgv,
+    porcentajeIgv: empresaStore.porcentajeIgv
+  });
 };
 
 const confirmFinalizeOrder = () => {
@@ -859,7 +1155,7 @@ const finalizeOrder = async () => {
         return;
       }
 
-      const pedidoCompleto = {
+      const pedidoCompleto: any = {
         idMesa: selectedMesa.value.idMesa,
         idEmpleado: 1, // TODO: Obtener del contexto de usuario logueado
         tipoServicio: "MESA",
@@ -871,6 +1167,12 @@ const finalizeOrder = async () => {
             observaciones: d.observaciones || "",
           })) || [],
       };
+
+      // Agregar cliente si está seleccionado
+      if (selectedClienteId.value) {
+        pedidoCompleto.idCliente = selectedClienteId.value;
+        console.log("👤 [DEBUG] Cliente agregado al pedido:", selectedClienteId.value);
+      }
 
       console.log("📋 [DEBUG] Datos del pedido a crear:", pedidoCompleto);
       console.log(
@@ -1061,30 +1363,183 @@ const marcarComoAtendido = async () => {
   }
 };
 
-const confirmarPago = async () => {
+const confirmarPago = () => {
   if (!currentPedido.value || loading.value) return;
 
-  loading.value = true;
-  try {
-    const result = await pedidoStore.actualizarPedido(
-      currentPedido.value.idPedido,
-      {
-        estado: EstadoPedido.PAGADO,
-      }
-    );
+  // Verificar que el pedido tiene items
+  if (!currentPedido.value.detalles || currentPedido.value.detalles.length === 0) {
+    showError("No hay productos en el pedido para procesar el pago");
+    return;
+  }
 
-    if (result.success) {
-      showSuccess("Pago procesado. Mesa liberada");
-      // La mesa se libera automáticamente en el backend
-      emit("order-updated");
-      closePanel();
-    } else {
-      showError(result.error || "Error al procesar pago");
+  // Verificar que el pedido tiene total
+  if (!currentPedido.value.total || currentPedido.value.total <= 0) {
+    showError("El total del pedido debe ser mayor a 0");
+    return;
+  }
+
+  // Mostrar el diálogo de selección de método de pago
+  showPaymentDialog.value = true;
+};
+
+// Manejadores de eventos del diálogo de pago
+const onPagoCompletado = (pagoResponse: any) => {
+  console.log('✅ Pago completado:', pagoResponse);
+
+  showSuccess(`Pago procesado exitosamente. Método: ${pagoResponse.metodoPago.nombre}`);
+
+  // El backend automáticamente:
+  // 1. Cambia el estado del pedido a PAGADO
+  // 2. Libera la mesa si es de tipo MESA
+
+  emit("order-updated");
+
+  // NO cerrar el panel automáticamente para permitir descargar el comprobante
+  // El usuario cerrará manualmente el diálogo de pago después de descargar
+  // closePanel();
+};
+
+const onPagoError = (error: string) => {
+  console.error('❌ Error en pago:', error);
+  showError(error);
+};
+
+// Helper para hint de documento
+const getDocumentoHint = () => {
+  switch (nuevoCliente.value.tipoDocumento) {
+    case 'DNI':
+      return 'DNI: 8 dígitos';
+    case 'RUC':
+      return 'RUC: 11 dígitos';
+    case 'CARNET_EXTRANJERIA':
+      return 'Carnet de Extranjería';
+    case 'PASAPORTE':
+      return 'Número de Pasaporte';
+    default:
+      return 'Ingrese el número de documento';
+  }
+};
+
+// Helper para subtitle del cliente en el autocomplete
+const getClienteSubtitle = (cliente: any) => {
+  const parts: string[] = [];
+
+  // Agregar tipo de documento y número si existe
+  if (cliente.tipoDocumento && cliente.numeroDocumento) {
+    parts.push(`${cliente.tipoDocumento}: ${cliente.numeroDocumento}`);
+  } else if (cliente.numeroDocumento) {
+    parts.push(cliente.numeroDocumento);
+  }
+
+  // Agregar teléfono si existe
+  if (cliente.telefono) {
+    parts.push(cliente.telefono);
+  }
+
+  // Agregar email si existe y no hay otros datos
+  if (cliente.email && parts.length === 0) {
+    parts.push(cliente.email);
+  }
+
+  return parts.length > 0 ? parts.join(' • ') : 'Sin información adicional';
+};
+
+// Crear nuevo cliente
+const crearCliente = async () => {
+  // Validar según tipo de persona
+  if (nuevoCliente.value.tipoPersona === 'NATURAL') {
+    if (!nuevoCliente.value.nombre?.trim()) {
+      showError('El nombre es requerido');
+      return;
     }
-  } catch (error) {
-    showError("Error al procesar pago");
+    if (!nuevoCliente.value.apellido?.trim()) {
+      showError('El apellido es requerido');
+      return;
+    }
+  } else {
+    // JURIDICA
+    if (!nuevoCliente.value.razonSocial?.trim()) {
+      showError('La razón social es requerida');
+      return;
+    }
+  }
+
+  creandoCliente.value = true;
+
+  try {
+    console.log('👤 [OrderPanel] Creando nuevo cliente:', nuevoCliente.value);
+
+    // Preparar datos según tipo de persona
+    const clienteData: any = {
+      tipoPersona: nuevoCliente.value.tipoPersona,
+      telefono: nuevoCliente.value.telefono?.trim() || undefined,
+      email: nuevoCliente.value.email?.trim() || undefined,
+      direccion: nuevoCliente.value.direccion?.trim() || undefined,
+      tipoDocumento: nuevoCliente.value.tipoDocumento || undefined,
+      numeroDocumento: nuevoCliente.value.numeroDocumento?.trim() || undefined
+    };
+
+    if (nuevoCliente.value.tipoPersona === 'NATURAL') {
+      clienteData.nombre = nuevoCliente.value.nombre.trim();
+      clienteData.apellido = nuevoCliente.value.apellido.trim();
+    } else {
+      // JURIDICA
+      clienteData.nombre = nuevoCliente.value.razonSocial?.trim() || nuevoCliente.value.nombreComercial?.trim();
+      clienteData.razonSocial = nuevoCliente.value.razonSocial.trim();
+      clienteData.nombreComercial = nuevoCliente.value.nombreComercial?.trim() || undefined;
+      clienteData.representanteLegal = nuevoCliente.value.representanteLegal?.trim() || undefined;
+    }
+
+    const result = await clienteStore.crearCliente(clienteData);
+
+    if (result.success && result.data) {
+      console.log('✅ [OrderPanel] Cliente creado exitosamente:', result.data);
+
+      // Seleccionar el nuevo cliente automáticamente
+      selectedClienteId.value = result.data.idCliente;
+
+      // Limpiar formulario
+      nuevoCliente.value = {
+        tipoPersona: 'NATURAL',
+        nombre: '',
+        apellido: '',
+        tipoDocumento: undefined,
+        numeroDocumento: '',
+        telefono: '',
+        email: '',
+        direccion: '',
+        razonSocial: '',
+        nombreComercial: '',
+        representanteLegal: ''
+      };
+
+      // Cerrar diálogo
+      showClienteDialog.value = false;
+
+      showSuccess(`Cliente "${result.data.nombre}" creado exitosamente`);
+    } else {
+      // Mensaje de error mejorado
+      const errorMsg = result.error || 'Error al crear el cliente';
+
+      if (errorMsg.includes('403') || errorMsg.includes('Forbidden') || errorMsg.includes('Permisos')) {
+        showError('⚠️ No tienes permisos para crear clientes. Contacta al administrador o selecciona un cliente existente.');
+        console.error('❌ [OrderPanel] Error de permisos en backend. Verifica @PreAuthorize en ClienteController');
+      } else {
+        showError(errorMsg);
+      }
+    }
+  } catch (error: any) {
+    console.error('❌ [OrderPanel] Error al crear cliente:', error);
+
+    // Mejorar mensaje de error
+    if (error.response?.status === 403) {
+      showError('⚠️ No tienes permisos para crear clientes. Por favor, selecciona un cliente existente de la lista.');
+      console.error('❌ [OrderPanel] Error 403 del backend. Verifica la configuración de seguridad en ClienteController');
+    } else {
+      showError(error.message || 'Error inesperado al crear el cliente');
+    }
   } finally {
-    loading.value = false;
+    creandoCliente.value = false;
   }
 };
 </script>

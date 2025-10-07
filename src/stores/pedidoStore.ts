@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { PedidoService } from "@/services/pedidoService";
-import type { ApiResponse } from "@/types";
 import type {
   PedidoRequestDTO,
   PedidoResponseDTO,

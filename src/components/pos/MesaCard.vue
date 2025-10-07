@@ -38,7 +38,7 @@
         </div>
 
         <div class="text-body-2 font-weight-bold text-right">
-          Total: ${{ mesa.ultimoPedido.total.toFixed(2) }}
+          Total: S/{{ mesa.ultimoPedido.total?.toFixed(2) || '0.00' }}
         </div>
 
         <div class="text-caption text-grey">
@@ -196,6 +196,7 @@ const formatDateTime = (dateString: string) => {
     return dateString;
   }
 };
+
 </script>
 
 <style scoped>

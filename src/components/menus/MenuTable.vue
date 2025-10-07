@@ -8,7 +8,7 @@
     items-per-page="10"
     class="elevation-0"
     show-expand
-    :expanded="selectedMenuId ? [selectedMenuId] : []"
+    :expanded="selectedMenuId ? [selectedMenuId.toString()] : []"
     item-value="idMenu"
     @update:expanded="(expanded) => emit('toggle-expand', expanded.length > 0 ? menus.find(m => m.idMenu === expanded[0]) : null)"
   >
@@ -50,7 +50,7 @@ import { defineProps, defineEmits } from 'vue';
 import type { MenuResponseDTO } from '@/types/menu';
 import MenuProductos from './MenuProductos.vue'; // Import the new component
 
-const props = defineProps<{
+defineProps<{
   menus: MenuResponseDTO[];
   loading: boolean;
   headers: any[];

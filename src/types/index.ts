@@ -1,6 +1,7 @@
 export * from './enums';
-export * from './usuario';
 export * from './api';
+export * from './auth';
+export * from './usuario';
 export * from './mesa';
 export * from './pedido';
 export * from './detallePedido';
@@ -9,6 +10,7 @@ export * from './inventario';
 export * from './menu';
 export * from './metodoPago';
 export * from './pago';
+export * from './comprobante';
 export * from './proveedor';
 export * from './reserva';
 export * from './report';

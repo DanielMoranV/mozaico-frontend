@@ -8,7 +8,7 @@
     items-per-page="10"
     class="elevation-0"
     show-expand
-    :expanded="selectedCompraId ? [selectedCompraId] : []"
+    :expanded="selectedCompraId ? [selectedCompraId.toString()] : []"
     item-value="idCompra"
     @update:expanded="(expanded) => emit('toggle-expand', expanded.length > 0 ? compras.find(c => c.idCompra === expanded[0]) : null)"
   >
@@ -50,7 +50,7 @@ import { defineProps, defineEmits } from 'vue';
 import type { CompraResponseDTO, EstadoCompra } from '@/types/compra';
 import CompraDetalles from './CompraDetalles.vue'; // Import the new component
 
-const props = defineProps<{
+defineProps<{
   compras: CompraResponseDTO[];
   loading: boolean;
   headers: any[];

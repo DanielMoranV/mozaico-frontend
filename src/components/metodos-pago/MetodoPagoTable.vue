@@ -28,7 +28,7 @@
 import { defineProps, defineEmits } from 'vue';
 import type { MetodoPagoResponseDTO } from '@/types/metodoPago';
 
-const props = defineProps<{
+defineProps<{
   metodosPago: MetodoPagoResponseDTO[];
   loading: boolean;
   headers: any[];

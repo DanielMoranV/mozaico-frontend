@@ -80,13 +80,13 @@ import ClienteDeleteConfirmDialog from '@/components/clientes/ClienteDeleteConfi
 const store = useClienteStore();
 
 const headers = [
-  { title: 'ID', key: 'idCliente', sortable: true },
   { title: 'Nombre', key: 'nombre', sortable: true },
-  { title: 'Apellido', key: 'apellido', sortable: true },
+  { title: 'Documento', key: 'documento', sortable: false },
+  { title: 'Tipo', key: 'tipoPersona', sortable: true },
   { title: 'Email', key: 'email', sortable: true },
   { title: 'Teléfono', key: 'telefono', sortable: true },
-  { title: 'Puntos Fidelidad', key: 'puntosFidelidad', sortable: true },
-  { title: 'Activo', key: 'activo', sortable: true },
+  { title: 'Puntos', key: 'puntosFidelidad', sortable: true },
+  { title: 'Estado', key: 'activo', sortable: true },
   { title: 'Acciones', key: 'actions', sortable: false },
 ];
 
@@ -108,6 +108,7 @@ const dialogo = reactive({
 });
 
 const formulario = reactive<ClienteRequestDTO>({
+  tipoPersona: 'NATURAL',
   nombre: '',
   apellido: '',
   email: '',
@@ -115,6 +116,12 @@ const formulario = reactive<ClienteRequestDTO>({
   fechaNacimiento: '',
   direccion: '',
   preferenciasAlimentarias: '',
+  tipoDocumento: undefined,
+  numeroDocumento: '',
+  // Persona Jurídica
+  razonSocial: '',
+  nombreComercial: '',
+  representanteLegal: ''
 });
 
 const clienteIdActual = ref<number | null>(null);
@@ -250,6 +257,7 @@ const cerrarDialogo = () => {
 
 const limpiarFormulario = () => {
   Object.assign(formulario, {
+    tipoPersona: 'NATURAL',
     nombre: '',
     apellido: '',
     email: '',
@@ -257,6 +265,11 @@ const limpiarFormulario = () => {
     fechaNacimiento: '',
     direccion: '',
     preferenciasAlimentarias: '',
+    tipoDocumento: undefined,
+    numeroDocumento: '',
+    razonSocial: '',
+    nombreComercial: '',
+    representanteLegal: ''
   });
 };
 
