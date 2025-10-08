@@ -131,13 +131,13 @@ const error = computed(() => empresaStore.error);
 
 // Permisos
 const canEdit = computed(() => {
-  const roles = authStore.user?.roles || [];
-  return roles.includes('ADMIN') || roles.includes('SUPER_ADMIN');
+  const tipoUsuario = authStore.user?.tipoUsuario;
+  return tipoUsuario === 'ADMIN' || tipoUsuario === 'SUPER_ADMIN';
 });
 
 const canChangeState = computed(() => {
-  const roles = authStore.user?.roles || [];
-  return roles.includes('SUPER_ADMIN');
+  const tipoUsuario = authStore.user?.tipoUsuario;
+  return tipoUsuario === 'SUPER_ADMIN';
 });
 
 // Métodos

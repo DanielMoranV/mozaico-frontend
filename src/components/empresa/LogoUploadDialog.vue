@@ -105,7 +105,7 @@ const emit = defineEmits<{
   'subir': [file: File];
 }>();
 
-const file = ref<File[]>([]);
+const file = ref<File | File[] | null>(null);
 const previewUrl = ref<string | null>(null);
 
 const isOpen = computed({
@@ -114,44 +114,56 @@ const isOpen = computed({
 });
 
 const rules = {
-  required: (v: File[]) => (v && v.length > 0) || 'Debe seleccionar un archivo',
-  fileSize: (v: File[]) => {
-    if (!v || v.length === 0) return true;
-    const file = v[0];
-    const maxSize = 2 * 1024 * 1024; // 2 MB
-    return file.size <= maxSize || 'El archivo debe ser menor a 2 MB';
+  required: (v: any) => {
+    if (Array.isArray(v)) return v.length > 0 || 'Debe seleccionar un archivo';
+    return !!v || 'Debe seleccionar un archivo';
   },
-  fileType: (v: File[]) => {
-    if (!v || v.length === 0) return true;
-    const file = v[0];
+  fileSize: (v: any) => {
+    if (!v) return true;
+    const selectedFile = Array.isArray(v) ? v[0] : v;
+    if (!selectedFile) return true;
+    const maxSize = 2 * 1024 * 1024; // 2 MB
+    return selectedFile.size <= maxSize || 'El archivo debe ser menor a 2 MB';
+  },
+  fileType: (v: any) => {
+    if (!v) return true;
+    const selectedFile = Array.isArray(v) ? v[0] : v;
+    if (!selectedFile) return true;
     const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-    return validTypes.includes(file.type) || 'El archivo debe ser PNG o JPG';
+    return validTypes.includes(selectedFile.type) || 'El archivo debe ser PNG o JPG';
   },
 };
 
 const onFileChange = (event: Event) => {
-  if (file.value && file.value.length > 0) {
-    const selectedFile = file.value[0];
+  if (file.value) {
+    const selectedFile = Array.isArray(file.value) ? file.value[0] : file.value;
 
-    // Crear preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      previewUrl.value = e.target?.result as string;
-    };
-    reader.readAsDataURL(selectedFile);
+    if (selectedFile) {
+      // Crear preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewUrl.value = e.target?.result as string;
+      };
+      reader.readAsDataURL(selectedFile);
+    } else {
+      previewUrl.value = null;
+    }
   } else {
     previewUrl.value = null;
   }
 };
 
 const subirLogo = () => {
-  if (file.value && file.value.length > 0) {
-    emit('subir', file.value[0]);
+  if (file.value) {
+    const selectedFile = Array.isArray(file.value) ? file.value[0] : file.value;
+    if (selectedFile) {
+      emit('subir', selectedFile);
+    }
   }
 };
 
 const close = () => {
-  file.value = [];
+  file.value = null;
   previewUrl.value = null;
   emit('update:modelValue', false);
 };
@@ -159,7 +171,7 @@ const close = () => {
 watch(() => props.modelValue, (newValue) => {
   if (!newValue) {
     // Limpiar cuando se cierra
-    file.value = [];
+    file.value = null;
     previewUrl.value = null;
   }
 });

@@ -32,71 +32,84 @@
 
     <template v-slot:item.actions="{ item }">
       <div class="d-flex gap-1">
-        <!-- Imprimir Ticket Directo -->
-        <v-tooltip text="Imprimir Ticket" location="top">
+        <!-- Menú Imprimir -->
+        <v-menu location="bottom">
           <template v-slot:activator="{ props }">
-            <v-btn
-              v-bind="props"
-              icon
-              size="small"
-              variant="text"
-              color="primary"
-              :disabled="!item.archivoTicketDisponible || item.estado === 'ANULADO'"
+            <v-tooltip text="Imprimir" location="top">
+              <template v-slot:activator="{ props: tooltipProps }">
+                <v-btn
+                  v-bind="{ ...props, ...tooltipProps }"
+                  icon
+                  size="small"
+                  variant="text"
+                  color="primary"
+                  :disabled="item.estado === 'ANULADO'"
+                >
+                  <v-icon>mdi-printer</v-icon>
+                </v-btn>
+              </template>
+            </v-tooltip>
+          </template>
+          <v-list density="compact">
+            <v-list-item
+              :disabled="!item.archivoTicketDisponible"
               @click="emit('imprimir-ticket', item)"
             >
-              <v-icon>mdi-printer</v-icon>
-            </v-btn>
-          </template>
-        </v-tooltip>
-
-        <!-- Imprimir PDF -->
-        <v-tooltip text="Imprimir PDF A4" location="top">
-          <template v-slot:activator="{ props }">
-            <v-btn
-              v-bind="props"
-              icon
-              size="small"
-              variant="text"
-              color="primary"
-              :disabled="!item.archivoPdfDisponible || item.estado === 'ANULADO'"
+              <template v-slot:prepend>
+                <v-icon>mdi-receipt</v-icon>
+              </template>
+              <v-list-item-title>Formato Ticket</v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              :disabled="!item.archivoPdfDisponible"
               @click="emit('imprimir-pdf', item)"
             >
-              <v-icon>mdi-printer-outline</v-icon>
-            </v-btn>
-          </template>
-        </v-tooltip>
+              <template v-slot:prepend>
+                <v-icon>mdi-file-document</v-icon>
+              </template>
+              <v-list-item-title>Formato A4</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
 
-        <!-- Descargar Ticket -->
-        <v-tooltip text="Descargar Ticket" location="top">
+        <!-- Menú Descargar -->
+        <v-menu location="bottom">
           <template v-slot:activator="{ props }">
-            <v-btn
-              v-bind="props"
-              icon
-              size="small"
-              variant="text"
+            <v-tooltip text="Descargar" location="top">
+              <template v-slot:activator="{ props: tooltipProps }">
+                <v-btn
+                  v-bind="{ ...props, ...tooltipProps }"
+                  icon
+                  size="small"
+                  variant="text"
+                  color="primary"
+                >
+                  <v-icon>mdi-download</v-icon>
+                </v-btn>
+              </template>
+            </v-tooltip>
+          </template>
+          <v-list density="compact">
+            <v-list-item
               :disabled="!item.archivoTicketDisponible"
               @click="emit('descargar-ticket', item)"
             >
-              <v-icon>mdi-download</v-icon>
-            </v-btn>
-          </template>
-        </v-tooltip>
-
-        <!-- Descargar PDF -->
-        <v-tooltip text="Descargar PDF" location="top">
-          <template v-slot:activator="{ props }">
-            <v-btn
-              v-bind="props"
-              icon
-              size="small"
-              variant="text"
+              <template v-slot:prepend>
+                <v-icon>mdi-receipt</v-icon>
+              </template>
+              <v-list-item-title>Formato Ticket</v-list-item-title>
+            </v-list-item>
+            <v-list-item
               :disabled="!item.archivoPdfDisponible"
               @click="emit('descargar-pdf', item)"
             >
-              <v-icon>mdi-file-pdf-box</v-icon>
-            </v-btn>
-          </template>
-        </v-tooltip>
+              <template v-slot:prepend>
+                <v-icon>mdi-file-pdf-box</v-icon>
+              </template>
+              <v-list-item-title>Formato A4 (PDF)</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
 
         <!-- Reimprimir (Backend) -->
         <v-tooltip text="Reimprimir en el servidor" location="top">

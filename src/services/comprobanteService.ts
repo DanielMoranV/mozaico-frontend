@@ -31,19 +31,20 @@ export class ComprobanteService {
   }
 
   /**
-   * Descarga el comprobante en formato thermal (para guardar)
+   * Descarga el comprobante en formato ticket PDF (para guardar)
    * GET /api/v1/comprobantes/{id}/ticket
    * Content-Disposition: attachment
+   * Backend envía tickets en formato PDF
    */
   static async descargarTicket(idComprobante: number): Promise<Blob> {
     try {
-      console.log('🎫 Descargando ticket:', idComprobante);
+      console.log('🎫 Descargando ticket PDF:', idComprobante);
 
       const response = await apiClient.get(`${this.BASE_URL}/${idComprobante}/ticket`, {
         responseType: 'blob'
       });
 
-      console.log('✅ Ticket descargado exitosamente');
+      console.log('✅ Ticket PDF descargado exitosamente');
       return response.data;
     } catch (error) {
       console.error('❌ Error al descargar ticket:', error);
@@ -52,20 +53,21 @@ export class ComprobanteService {
   }
 
   /**
-   * Obtiene el ticket para imprimir automáticamente
+   * Obtiene el ticket PDF para imprimir automáticamente
    * GET /api/v1/comprobantes/{id}/ticket/imprimir
    * Content-Disposition: inline
    * Header: X-Auto-Print: true
+   * Backend envía tickets en formato PDF
    */
   static async obtenerTicketParaImprimir(idComprobante: number): Promise<Blob> {
     try {
-      console.log('🖨️ Obteniendo ticket para imprimir:', idComprobante);
+      console.log('🖨️ Obteniendo ticket PDF para imprimir:', idComprobante);
 
       const response = await apiClient.get(`${this.BASE_URL}/${idComprobante}/ticket/imprimir`, {
         responseType: 'blob'
       });
 
-      console.log('✅ Ticket listo para imprimir');
+      console.log('✅ Ticket PDF listo para imprimir');
       return response.data;
     } catch (error) {
       console.error('❌ Error al obtener ticket para imprimir:', error);
@@ -191,11 +193,12 @@ export class ComprobanteService {
 
   /**
    * Formatea el nombre del archivo para descarga
+   * Nota: Tanto tickets como PDFs son en formato PDF
    */
   static formatFilename(comprobante: ComprobanteDTO, tipo: 'ticket' | 'pdf'): string {
     const fecha = new Date(comprobante.fechaEmision).toISOString().split('T')[0];
-    const extension = tipo === 'pdf' ? '.pdf' : '.txt';
-    return `${comprobante.numeroComprobante}_${fecha}${extension}`;
+    const prefix = tipo === 'ticket' ? 'ticket' : 'comprobante';
+    return `${prefix}_${comprobante.numeroComprobante}_${fecha}.pdf`;
   }
 
   /**
