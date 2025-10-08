@@ -116,16 +116,19 @@ export class EmpresaService {
   /**
    * Cambiar slug de la empresa
    * PUT /api/v1/empresa/slug
+   * Requiere: ADMIN o SUPER_ADMIN
+   *
+   * Formato: ^[a-z0-9]+(-[a-z0-9]+)*$ (minúsculas, números y guiones)
+   * - No puede empezar ni terminar con guión
+   * - No puede tener guiones consecutivos
+   * - Debe ser único
    */
   static async cambiarSlug(nuevoSlug: string): Promise<ApiResponse<Empresa>> {
     try {
       console.log('🔗 Cambiando slug a:', nuevoSlug);
       const response = await apiClient.put<ApiResponse<Empresa>>(
         `${this.BASE_URL}/slug`,
-        null,
-        {
-          params: { nuevoSlug }
-        }
+        { slug: nuevoSlug }  // Enviar en el body como objeto
       );
       console.log('✅ Slug actualizado:', response.data);
       return response.data;

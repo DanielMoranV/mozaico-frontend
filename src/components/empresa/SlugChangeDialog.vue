@@ -149,8 +149,27 @@ const rules = {
   required: (v: string) => !!v || 'El slug es requerido',
   slug: (v: string) => {
     if (!v) return true;
-    const pattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-    return pattern.test(v) || 'Formato de slug inválido (solo letras minúsculas, números y guiones)';
+    // Backend regex: ^[a-z0-9]+(-[a-z0-9]+)*$
+    const pattern = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+    if (!pattern.test(v)) {
+      return 'Formato inválido: solo letras minúsculas, números y guiones (sin espacios ni caracteres especiales)';
+    }
+
+    // Validaciones adicionales
+    if (v.startsWith('-') || v.endsWith('-')) {
+      return 'El slug no puede empezar ni terminar con guión';
+    }
+
+    if (v.includes('--')) {
+      return 'El slug no puede tener guiones consecutivos';
+    }
+
+    if (v.length < 3) {
+      return 'El slug debe tener al menos 3 caracteres';
+    }
+
+    return true;
   },
 };
 

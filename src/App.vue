@@ -16,6 +16,11 @@
       </v-main>
     </template>
 
+    <!-- Show router-view for public routes (no layout) -->
+    <template v-else-if="isPublicRoute">
+      <router-view />
+    </template>
+
     <!-- Show LoginView if not authenticated -->
     <template v-else-if="!isAuthenticated">
       <router-view />
@@ -29,13 +34,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuth } from './stores/authStore';
 import DashboardLayout from './components/layout/DashboardLayout.vue';
 
 // Router
 const router = useRouter();
+const route = useRoute();
+
+// Check if current route is public (Carta Digital)
+const isPublicRoute = computed(() => {
+  const publicRoutes = ['/carta'];
+  return publicRoutes.some(r => route.path.startsWith(r));
+});
 
 // Auth store
 const { isAuthenticated, checkAuth } = useAuth();
@@ -66,6 +78,12 @@ watch(() => isAuthenticated.value, async (newValue, oldValue) => {
 
   const currentPath = router.currentRoute.value.path;
 
+  // Skip redirects for public routes
+  if (isPublicRoute.value) {
+    console.log('✅ Public route - no redirect needed');
+    return;
+  }
+
   if (!newValue && currentPath !== '/login') {
     console.log('🔄 AUTH LOST - Redirecting to login');
     router.push('/login');
@@ -93,6 +111,12 @@ onMounted(async () => {
       isAuthenticatedType: typeof isAuthenticated.value,
       currentPath
     });
+
+    // Skip redirects for public routes
+    if (isPublicRoute.value) {
+      console.log('✅ APP MOUNT - Public route detected, no redirect needed');
+      return;
+    }
 
     // Redirect based on authentication state
     if (!isAuthenticated.value && currentPath !== '/login') {

@@ -5,6 +5,9 @@ import { authService } from '../services/authService';
 // Vistas de autenticación
 import LoginView from '../views/LoginView.vue';
 
+// Vista pública
+import CartaDigitalView from '../views/CartaDigitalView.vue';
+
 // Vistas principales
 import DashboardView from '../views/DashboardView.vue';
 import UsuariosView from '../views/UsuariosView.vue';
@@ -40,6 +43,17 @@ const routes = [
     meta: {
       requiresAuth: false,
       title: 'Iniciar Sesión'
+    } as RouteMeta
+  },
+
+  // Carta Digital Pública (sin autenticación)
+  {
+    path: '/carta/:slug',
+    name: 'CartaDigital',
+    component: CartaDigitalView,
+    meta: {
+      requiresAuth: false,
+      title: 'Carta Digital'
     } as RouteMeta
   },
 

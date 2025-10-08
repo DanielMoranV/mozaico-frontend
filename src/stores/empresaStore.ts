@@ -222,9 +222,16 @@ export const useEmpresaStore = defineStore('empresa', () => {
       }
       return false;
     } catch (err: any) {
-      error.value = err.message || 'Error al cambiar slug';
+      // Capturar mensajes específicos del backend
+      if (err.response?.data?.message) {
+        error.value = err.response.data.message;
+      } else if (err.message) {
+        error.value = err.message;
+      } else {
+        error.value = 'Error al cambiar slug';
+      }
       console.error('❌ Error al cambiar slug:', err);
-      return false;
+      throw err; // Propagar el error para que ConfiguracionView pueda manejarlo
     } finally {
       loading.value = false;
     }
