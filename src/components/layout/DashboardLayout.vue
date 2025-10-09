@@ -374,6 +374,14 @@ const menuItems = computed((): MenuItem[] => [
     priority: "high",
   },
   {
+    title: "Cocina (KDS)",
+    icon: "mdi-chef-hat",
+    to: "/cocina",
+    badge: "12",
+    badgeColor: "info",
+    priority: "high",
+  },
+  {
     title: "Pedidos Activos",
     icon: "mdi-clipboard-list-outline",
     to: "/pedidos",

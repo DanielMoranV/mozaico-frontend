@@ -26,6 +26,7 @@ import PagosView from '../views/PagosView.vue';
 import ComprobantesView from '../views/ComprobantesView.vue';
 import ProveedoresView from '../views/ProveedoresView.vue';
 import ReservasView from '../views/ReservasView.vue';
+import KitchenView from '../views/KitchenView.vue';
 
 // Interfaz para metadatos de rutas
 interface RouteMeta {
@@ -227,6 +228,18 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_ORDERS', 'MANAGE_CASH_REGISTER', 'ALL_PERMISSIONS'],
       title: 'Punto de Venta'
+    } as RouteMeta
+  },
+
+  // Cocina (KDS) - Cocinero, Admin
+  {
+    path: '/cocina',
+    name: 'Cocina',
+    component: KitchenView,
+    meta: {
+      requiresAuth: true,
+      permissions: ['MANAGE_KITCHEN', 'ALL_PERMISSIONS'],
+      title: 'Cocina - KDS'
     } as RouteMeta
   },
 
