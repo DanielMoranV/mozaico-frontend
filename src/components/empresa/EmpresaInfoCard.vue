@@ -11,9 +11,9 @@
         size="small"
       >
         <v-icon start size="small">
-          {{ empresa.activa ? 'mdi-check-circle' : 'mdi-close-circle' }}
+          {{ empresa.activa ? "mdi-check-circle" : "mdi-close-circle" }}
         </v-icon>
-        {{ empresa.activa ? 'ACTIVA' : 'INACTIVA' }}
+        {{ empresa.activa ? "ACTIVA" : "INACTIVA" }}
       </v-chip>
     </v-card-title>
 
@@ -28,12 +28,7 @@
               size="150"
               class="mb-4"
             />
-            <v-avatar
-              v-else
-              size="150"
-              color="grey-lighten-2"
-              class="mb-4"
-            >
+            <v-avatar v-else size="150" color="grey-lighten-2" class="mb-4">
               <v-icon size="80" color="grey">mdi-domain</v-icon>
             </v-avatar>
 
@@ -58,7 +53,9 @@
               <template v-slot:prepend>
                 <v-icon color="primary">mdi-office-building</v-icon>
               </template>
-              <v-list-item-title class="font-weight-medium">Nombre</v-list-item-title>
+              <v-list-item-title class="font-weight-medium"
+                >Nombre</v-list-item-title
+              >
               <v-list-item-subtitle>{{ empresa.nombre }}</v-list-item-subtitle>
             </v-list-item>
 
@@ -66,7 +63,9 @@
               <template v-slot:prepend>
                 <v-icon color="primary">mdi-link</v-icon>
               </template>
-              <v-list-item-title class="font-weight-medium">Slug</v-list-item-title>
+              <v-list-item-title class="font-weight-medium"
+                >Slug</v-list-item-title
+              >
               <v-list-item-subtitle>
                 <code class="slug-text">{{ empresa.slug }}</code>
                 <v-btn
@@ -85,31 +84,45 @@
               <template v-slot:prepend>
                 <v-icon color="primary">mdi-text</v-icon>
               </template>
-              <v-list-item-title class="font-weight-medium">Descripción</v-list-item-title>
-              <v-list-item-subtitle>{{ empresa.descripcion }}</v-list-item-subtitle>
+              <v-list-item-title class="font-weight-medium"
+                >Descripción</v-list-item-title
+              >
+              <v-list-item-subtitle>{{
+                empresa.descripcion
+              }}</v-list-item-subtitle>
             </v-list-item>
 
             <v-list-item v-if="empresa.direccion">
               <template v-slot:prepend>
                 <v-icon color="primary">mdi-map-marker</v-icon>
               </template>
-              <v-list-item-title class="font-weight-medium">Dirección</v-list-item-title>
-              <v-list-item-subtitle>{{ empresa.direccion }}</v-list-item-subtitle>
+              <v-list-item-title class="font-weight-medium"
+                >Dirección</v-list-item-title
+              >
+              <v-list-item-subtitle>{{
+                empresa.direccion
+              }}</v-list-item-subtitle>
             </v-list-item>
 
             <v-list-item v-if="empresa.telefono">
               <template v-slot:prepend>
                 <v-icon color="primary">mdi-phone</v-icon>
               </template>
-              <v-list-item-title class="font-weight-medium">Teléfono</v-list-item-title>
-              <v-list-item-subtitle>{{ empresa.telefono }}</v-list-item-subtitle>
+              <v-list-item-title class="font-weight-medium"
+                >Teléfono</v-list-item-title
+              >
+              <v-list-item-subtitle>{{
+                empresa.telefono
+              }}</v-list-item-subtitle>
             </v-list-item>
 
             <v-list-item v-if="empresa.email">
               <template v-slot:prepend>
                 <v-icon color="primary">mdi-email</v-icon>
               </template>
-              <v-list-item-title class="font-weight-medium">Email</v-list-item-title>
+              <v-list-item-title class="font-weight-medium"
+                >Email</v-list-item-title
+              >
               <v-list-item-subtitle>{{ empresa.email }}</v-list-item-subtitle>
             </v-list-item>
 
@@ -117,9 +130,15 @@
               <template v-slot:prepend>
                 <v-icon color="primary">mdi-web</v-icon>
               </template>
-              <v-list-item-title class="font-weight-medium">Página Web</v-list-item-title>
+              <v-list-item-title class="font-weight-medium"
+                >Página Web</v-list-item-title
+              >
               <v-list-item-subtitle>
-                <a :href="empresa.paginaWeb" target="_blank" class="text-decoration-none">
+                <a
+                  :href="empresa.paginaWeb"
+                  target="_blank"
+                  class="text-decoration-none"
+                >
                   {{ empresa.paginaWeb }}
                 </a>
               </v-list-item-subtitle>
@@ -139,7 +158,11 @@
               <v-col cols="6" md="4">
                 <div class="config-item">
                   <span class="text-caption text-grey">Tipo Operación</span>
-                  <v-chip :color="getTipoOperacionColor(empresa.tipoOperacion)" size="small" class="mt-1">
+                  <v-chip
+                    :color="getTipoOperacionColor(empresa.tipoOperacion)"
+                    size="small"
+                    class="mt-1"
+                  >
                     {{ getTipoOperacionLabel(empresa.tipoOperacion) }}
                   </v-chip>
                 </div>
@@ -148,8 +171,16 @@
               <v-col cols="6" md="4">
                 <div class="config-item">
                   <span class="text-caption text-grey">IGV</span>
-                  <v-chip :color="empresa.aplicaIgv ? 'success' : 'grey'" size="small" class="mt-1">
-                    {{ empresa.aplicaIgv ? `${empresa.porcentajeIgv}%` : 'No aplica' }}
+                  <v-chip
+                    :color="empresa.aplicaIgv ? 'success' : 'grey'"
+                    size="small"
+                    class="mt-1"
+                  >
+                    {{
+                      empresa.aplicaIgv
+                        ? `${empresa.porcentajeIgv}%`
+                        : "No aplica"
+                    }}
                   </v-chip>
                 </div>
               </v-col>
@@ -187,7 +218,7 @@
         :prepend-icon="empresa.activa ? 'mdi-close-circle' : 'mdi-check-circle'"
         @click="$emit('cambiar-estado', !empresa.activa)"
       >
-        {{ empresa.activa ? 'Desactivar Empresa' : 'Activar Empresa' }}
+        {{ empresa.activa ? "Desactivar Empresa" : "Activar Empresa" }}
       </v-btn>
 
       <v-btn
@@ -204,8 +235,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { Empresa, TipoOperacion } from '@/types/empresa';
+import { computed } from "vue";
+import type { Empresa, TipoOperacion } from "@/types/empresa";
 
 interface Props {
   empresa: Empresa;
@@ -220,36 +251,36 @@ const props = withDefaults(defineProps<Props>(), {
 
 defineEmits<{
   editar: [];
-  'cambiar-logo': [];
-  'cambiar-slug': [];
-  'cambiar-estado': [activa: boolean];
+  "cambiar-logo": [];
+  "cambiar-slug": [];
+  "cambiar-estado": [activa: boolean];
 }>();
 
 const getTipoOperacionColor = (tipo: TipoOperacion): string => {
   switch (tipo) {
-    case 'TICKET_SIMPLE':
-      return 'blue';
-    case 'FACTURA_ELECTRONICA':
-      return 'purple';
-    case 'BOLETA_MANUAL':
-      return 'orange';
-    case 'MIXTO':
-      return 'teal';
+    case "TICKET_SIMPLE":
+      return "blue";
+    case "FACTURA_ELECTRONICA":
+      return "purple";
+    case "BOLETA_MANUAL":
+      return "orange";
+    case "MIXTO":
+      return "teal";
     default:
-      return 'grey';
+      return "grey";
   }
 };
 
 const getTipoOperacionLabel = (tipo: TipoOperacion): string => {
   switch (tipo) {
-    case 'TICKET_SIMPLE':
-      return 'Ticket Simple';
-    case 'FACTURA_ELECTRONICA':
-      return 'Facturación Electrónica';
-    case 'BOLETA_MANUAL':
-      return 'Boleta Manual';
-    case 'MIXTO':
-      return 'Mixto';
+    case "TICKET_SIMPLE":
+      return "Ticket Simple";
+    case "FACTURA_ELECTRONICA":
+      return "Facturación Electrónica";
+    case "BOLETA_MANUAL":
+      return "Boleta Manual";
+    case "MIXTO":
+      return "Mixto";
     default:
       return tipo;
   }

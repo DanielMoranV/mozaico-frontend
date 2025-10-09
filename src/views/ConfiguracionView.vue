@@ -1,8 +1,9 @@
 <template>
   <v-container fluid>
+    <!-- Header -->
     <v-row>
       <v-col cols="12">
-        <div class="d-flex justify-space-between align-center mb-2">
+        <div class="d-flex justify-space-between align-center mb-4 flex-wrap">
           <div>
             <h1 class="text-h4 font-weight-bold mb-2">
               <v-icon class="mr-2" color="primary">mdi-cog</v-icon>
@@ -19,7 +20,6 @@
             prepend-icon="mdi-qrcode-scan"
             :href="`/carta/${empresa.slug}`"
             target="_blank"
-            class="mb-4"
           >
             Ver Carta Digital
           </v-btn>
@@ -42,103 +42,44 @@
     <!-- Contenido principal -->
     <template v-else-if="empresa">
       <v-row>
-        <!-- Información de Empresa -->
-        <v-col cols="12" lg="8">
-          <EmpresaInfoCard
+        <!-- Columna izquierda: Apariencia y Estadísticas -->
+        <v-col cols="12" md="4" lg="3">
+          <v-row dense>
+            <!-- Apariencia -->
+            <v-col cols="12">
+              <AparienciaCard
+                :empresa="empresa"
+                :can-edit="canEdit"
+                :can-change-state="canChangeState"
+                @cambiar-logo="openLogoDialog"
+                @cambiar-slug="openSlugDialog"
+                @cambiar-estado="handleCambiarEstado"
+              />
+            </v-col>
+
+            <!-- Estadísticas -->
+            <v-col cols="12">
+              <EmpresaStatsCard v-if="estadisticas" :estadisticas="estadisticas" />
+              <v-card v-else>
+                <v-card-text class="text-center py-8">
+                  <v-icon size="64" color="grey-lighten-1">mdi-chart-box-outline</v-icon>
+                  <p class="text-grey mt-2">No hay estadísticas disponibles</p>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-col>
+
+        <!-- Columna derecha: Tabs de configuración -->
+        <v-col cols="12" md="8" lg="9">
+          <ConfiguracionTabs
             :empresa="empresa"
             :can-edit="canEdit"
-            :can-change-state="canChangeState"
             @editar="openEditDialog"
-            @cambiar-logo="openLogoDialog"
             @cambiar-slug="openSlugDialog"
-            @cambiar-estado="handleCambiarEstado"
+            @copiar-enlace="copiarEnlaceCarta"
+            @imprimir-qr="showQRPrintDialog = true"
           />
-        </v-col>
-
-        <!-- Estadísticas -->
-        <v-col cols="12" lg="4">
-          <EmpresaStatsCard v-if="estadisticas" :estadisticas="estadisticas" />
-          <v-card v-else>
-            <v-card-text class="text-center py-8">
-              <v-icon size="64" color="grey-lighten-1">mdi-chart-box-outline</v-icon>
-              <p class="text-grey mt-2">No hay estadísticas disponibles</p>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <!-- Card de Carta Digital -->
-      <v-row v-if="empresa?.slug" class="mt-4">
-        <v-col cols="12">
-          <v-card color="primary" variant="tonal">
-            <v-card-title class="d-flex align-center">
-              <v-icon class="mr-2">mdi-qrcode</v-icon>
-              Carta Digital Pública
-            </v-card-title>
-            <v-card-text>
-              <p class="mb-3">
-                Tu carta digital está disponible en:
-              </p>
-              <v-chip
-                :text="cartaUrl"
-                prepend-icon="mdi-link"
-                color="primary"
-                variant="elevated"
-                class="mb-3"
-                @click="copiarEnlaceCarta"
-              />
-              <v-divider class="my-3" />
-              <div class="d-flex gap-2 flex-wrap">
-                <v-btn
-                  :href="`/carta/${empresa.slug}`"
-                  target="_blank"
-                  variant="elevated"
-                  color="primary"
-                  prepend-icon="mdi-open-in-new"
-                  size="small"
-                >
-                  Abrir Carta
-                </v-btn>
-                <v-btn
-                  @click="copiarEnlaceCarta"
-                  variant="outlined"
-                  color="primary"
-                  prepend-icon="mdi-content-copy"
-                  size="small"
-                >
-                  Copiar Enlace
-                </v-btn>
-                <v-btn
-                  @click="showQRPrintDialog = true"
-                  variant="outlined"
-                  color="primary"
-                  prepend-icon="mdi-printer"
-                  size="small"
-                >
-                  Imprimir QR
-                </v-btn>
-                <v-btn
-                  :href="qrCodeUrl"
-                  target="_blank"
-                  variant="outlined"
-                  color="primary"
-                  prepend-icon="mdi-qrcode"
-                  size="small"
-                >
-                  Descargar QR
-                </v-btn>
-              </div>
-              <v-alert
-                type="info"
-                variant="tonal"
-                density="compact"
-                class="mt-3"
-                icon="mdi-information"
-              >
-                Comparte este enlace o QR con tus clientes para que vean tu menú sin necesidad de registro
-              </v-alert>
-            </v-card-text>
-          </v-card>
         </v-col>
       </v-row>
     </template>
@@ -203,7 +144,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { useEmpresaStore } from '@/stores/empresaStore';
 import { useAuthStore } from '@/stores/authStore';
-import EmpresaInfoCard from '@/components/empresa/EmpresaInfoCard.vue';
+import AparienciaCard from '@/components/empresa/AparienciaCard.vue';
+import ConfiguracionTabs from '@/components/empresa/ConfiguracionTabs.vue';
 import EmpresaStatsCard from '@/components/empresa/EmpresaStatsCard.vue';
 import EmpresaEditDialog from '@/components/empresa/EmpresaEditDialog.vue';
 import LogoUploadDialog from '@/components/empresa/LogoUploadDialog.vue';

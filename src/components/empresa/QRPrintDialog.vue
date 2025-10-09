@@ -49,11 +49,10 @@
                 <p class="subtitle">Escanea para ver nuestro menú</p>
               </div>
               <div class="qr-image-container">
-                <img :src="qrUrl" alt="QR Code" class="qr-image" />
+                <img :src="qrUrl" alt="QR Code" class="qr-image" crossorigin="anonymous" />
               </div>
               <div class="qr-footer">
-                <v-icon color="primary" size="small" class="mr-1">mdi-qrcode-scan</v-icon>
-                <span class="instructions">Usa la cámara de tu celular</span>
+                <span class="instructions">📱 Usa la cámara de tu celular</span>
               </div>
               <div class="qr-url">
                 {{ cartaUrl }}
@@ -139,18 +138,41 @@ const cartaUrl = computed(() => {
   return `${window.location.origin}/carta/${props.empresa.slug}`;
 });
 
-function imprimirQR() {
+async function imprimirQR() {
   const printArea = document.getElementById('qr-print-area');
-  if (!printArea) return;
+  if (!printArea) {
+    console.error('No se encontró el área de impresión');
+    return;
+  }
 
   const printWindow = window.open('', '_blank');
-  if (!printWindow) return;
+  if (!printWindow) {
+    alert('Por favor, permite las ventanas emergentes para imprimir');
+    return;
+  }
+
+  // Generar el HTML para cada QR card
+  const qrCardsHTML = Array.from({ length: qrPerPage.value }, () => `
+    <div class="qr-card">
+      <div class="qr-header">
+        <h2>${props.empresa?.nombre || 'Restaurante'}</h2>
+        <p class="subtitle">Escanea para ver nuestro menú</p>
+      </div>
+      <div class="qr-image-container">
+        <img src="${props.qrUrl}" alt="QR Code" class="qr-image" crossorigin="anonymous" />
+      </div>
+      <div class="qr-footer">
+        <span class="instructions">📱 Usa la cámara de tu celular</span>
+      </div>
+      <div class="qr-url">${cartaUrl.value}</div>
+    </div>
+  `).join('');
 
   const styles = `
     <style>
       @page {
-        size: A4;
-        margin: 10mm;
+        size: A4 portrait;
+        margin: 15mm;
       }
 
       * {
@@ -166,67 +188,108 @@ function imprimirQR() {
 
       .print-area {
         display: grid;
-        gap: 20px;
-        padding: 20px;
+        gap: 15px;
+        padding: 10px;
         width: 100%;
       }
 
-      .qr-grid-1 { grid-template-columns: 1fr; }
-      .qr-grid-2 { grid-template-columns: repeat(2, 1fr); }
-      .qr-grid-4 { grid-template-columns: repeat(2, 1fr); }
-      .qr-grid-6 { grid-template-columns: repeat(3, 1fr); }
+      .qr-grid-1 {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+      }
+
+      .qr-grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: auto;
+      }
+
+      .qr-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: auto;
+      }
+
+      .qr-grid-6 {
+        grid-template-columns: repeat(3, 1fr);
+        grid-auto-rows: auto;
+      }
 
       .qr-card {
         border: 2px solid #1976d2;
-        border-radius: 12px;
-        padding: 20px;
+        border-radius: 8px;
+        padding: 15px;
         text-align: center;
         background: white;
         page-break-inside: avoid;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
       }
 
-      .size-small .qr-card { min-height: 10cm; }
-      .size-medium .qr-card { min-height: 15cm; }
-      .size-large .qr-card { min-height: 20cm; }
+      /* Alturas fijas según cantidad de QR */
+      .qr-grid-1 .qr-card {
+        min-height: 250mm;
+      }
+
+      .qr-grid-2 .qr-card {
+        min-height: 250mm;
+      }
+
+      .qr-grid-4 .qr-card {
+        min-height: 120mm;
+        max-height: 120mm;
+      }
+
+      .qr-grid-6 .qr-card {
+        min-height: 120mm;
+        max-height: 120mm;
+      }
 
       .qr-header h2 {
         color: #1976d2;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         font-weight: 700;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
       }
 
       .qr-header .subtitle {
         color: #666;
-        font-size: 1rem;
-        margin-bottom: 20px;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
       }
 
       .qr-image-container {
         display: flex;
         justify-content: center;
         align-items: center;
-        margin: 20px 0;
+        margin: 10px 0;
+        flex: 1;
       }
 
-      .size-small .qr-image { width: 120px; height: 120px; }
-      .size-medium .qr-image { width: 180px; height: 180px; }
-      .size-large .qr-image { width: 240px; height: 240px; }
+      /* Tamaños QR según configuración */
+      .qr-grid-1 .qr-image { width: 200px; height: 200px; }
+      .qr-grid-2 .qr-image { width: 150px; height: 150px; }
+      .qr-grid-4 .qr-image { width: 120px; height: 120px; }
+      .qr-grid-6 .qr-image { width: 90px; height: 90px; }
+
+      /* Override por tamaño */
+      .size-small .qr-image { transform: scale(0.8); }
+      .size-medium .qr-image { transform: scale(1); }
+      .size-large .qr-image { transform: scale(1.2); }
 
       .qr-image {
         border: 3px solid #1976d2;
         border-radius: 8px;
-        padding: 10px;
+        padding: 8px;
         background: white;
+        display: block;
       }
 
       .qr-footer {
-        margin-top: 15px;
+        margin-top: 8px;
         color: #666;
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        font-size: 0.8rem;
+        text-align: center;
       }
 
       .qr-footer .instructions {
@@ -234,33 +297,46 @@ function imprimirQR() {
       }
 
       .qr-url {
-        margin-top: 10px;
-        font-size: 0.75rem;
+        margin-top: 6px;
+        font-size: 0.65rem;
         color: #999;
         word-break: break-all;
       }
 
       @media print {
+        @page {
+          size: A4 portrait;
+          margin: 15mm;
+        }
+
         body {
           background: white;
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+
+        .print-area {
+          width: 100%;
         }
 
         .qr-card {
-          border-color: #000;
+          border-color: #1976d2;
+          page-break-inside: avoid;
+          break-inside: avoid;
         }
 
         .qr-header h2 {
-          color: #000;
+          color: #1976d2;
         }
 
         .qr-image {
-          border-color: #000;
+          border-color: #1976d2;
         }
       }
     </style>
   `;
 
-  printWindow.document.write(`
+  const html = `
     <!DOCTYPE html>
     <html>
       <head>
@@ -269,20 +345,37 @@ function imprimirQR() {
         ${styles}
       </head>
       <body>
-        ${printArea.innerHTML}
+        <div class="print-area size-${printSize.value} qr-grid-${qrPerPage.value}">
+          ${qrCardsHTML}
+        </div>
       </body>
     </html>
-  `);
+  `;
 
+  printWindow.document.write(html);
   printWindow.document.close();
 
   // Esperar a que carguen las imágenes antes de imprimir
-  printWindow.onload = () => {
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 500);
-  };
+  const images = printWindow.document.querySelectorAll('img');
+  const imagePromises = Array.from(images).map(img => {
+    return new Promise((resolve) => {
+      if (img.complete) {
+        resolve(true);
+      } else {
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+      }
+    });
+  });
+
+  await Promise.all(imagePromises);
+
+  // Dar tiempo adicional para que se renderice todo
+  setTimeout(() => {
+    printWindow.print();
+    // No cerrar automáticamente para que el usuario pueda ver el resultado
+    // printWindow.close();
+  }, 500);
 }
 
 function close() {
