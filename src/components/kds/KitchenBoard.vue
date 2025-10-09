@@ -190,8 +190,7 @@ const handleMarcarServido = async (detalleId: number) => {
 };
 
 const handleCancelar = async (detalleId: number) => {
-  if (!confirm('¿Estás seguro de cancelar este producto?')) return;
-
+  // La confirmación ahora se maneja en el componente KitchenOrderCard
   loadingDetalle.value = detalleId;
   try {
     const result = await kdsStore.cancelarProducto(detalleId);

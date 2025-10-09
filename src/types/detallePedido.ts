@@ -22,7 +22,32 @@ export interface DetallePedidoRequestDTO {
 // Agregar DetallePedidoResponseDTO según especificación
 export interface DetallePedidoResponseDTO {
   idDetalle: number;
-  idPedido: number;
+  pedido?: {
+    idPedido: number;
+    mesa?: {
+      idMesa: number;
+      numeroMesa: number;
+    };
+    cliente?: {
+      idCliente: number;
+      nombre: string;
+      apellido: string;
+    };
+    empleado?: {
+      idUsuario: number;
+      nombre: string;
+      username: string;
+    };
+    fechaPedido: string;
+    estado: string;
+    tipoServicio: string;
+    subtotal: number;
+    impuestos: number;
+    descuento: number;
+    total: number;
+    observaciones?: string;
+    direccionDelivery?: string;
+  };
   producto: {
     idProducto: number;
     nombre: string;

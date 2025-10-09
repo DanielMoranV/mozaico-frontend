@@ -6,7 +6,9 @@
     <v-card-title class="d-flex justify-space-between align-center pa-3">
       <div class="d-flex align-center gap-2">
         <v-icon :color="getIconColor()" size="small">{{ getIcon() }}</v-icon>
-        <span class="text-h6">Mesa {{ detalle.pedido?.mesa?.numeroMesa || 'N/A' }}</span>
+        <span class="text-h6"
+          >Mesa {{ detalle.pedido?.mesa?.numeroMesa || "N/A" }}</span
+        >
       </div>
       <v-chip :color="getEstadoColor()" size="small" variant="flat">
         {{ getEstadoLabel() }}
@@ -19,7 +21,9 @@
       <!-- Información del producto -->
       <div class="product-info mb-3">
         <div class="d-flex justify-space-between align-center mb-2">
-          <h3 class="text-h5 font-weight-bold">{{ detalle.producto.nombre }}</h3>
+          <h3 class="text-h5 font-weight-bold">
+            {{ detalle.producto.nombre }}
+          </h3>
           <v-chip color="primary" size="large" variant="tonal">
             x{{ detalle.cantidad }}
           </v-chip>
@@ -44,11 +48,20 @@
           <v-icon size="x-small">mdi-clock-outline</v-icon>
           <span>{{ formatearFecha(detalle.pedido?.fechaPedido) }}</span>
         </div>
-        <div v-if="detalle.pedido?.cliente" class="d-flex align-center gap-1 mb-1">
+        <div
+          v-if="detalle.pedido?.cliente"
+          class="d-flex align-center gap-1 mb-1"
+        >
           <v-icon size="x-small">mdi-account</v-icon>
-          <span>{{ detalle.pedido.cliente.nombre }} {{ detalle.pedido.cliente.apellido }}</span>
+          <span
+            >{{ detalle.pedido.cliente.nombre }}
+            {{ detalle.pedido.cliente.apellido }}</span
+          >
         </div>
-        <div v-if="detalle.pedido?.observaciones" class="d-flex align-center gap-1">
+        <div
+          v-if="detalle.pedido?.observaciones"
+          class="d-flex align-center gap-1"
+        >
           <v-icon size="x-small">mdi-comment-text-outline</v-icon>
           <span>{{ detalle.pedido.observaciones }}</span>
         </div>
@@ -59,64 +72,114 @@
 
     <!-- Botones de acción -->
     <v-card-actions class="pa-3">
-      <v-btn
-        v-if="detalle.estado === 'PEDIDO'"
-        color="success"
-        variant="flat"
-        block
-        size="large"
-        :loading="loading"
-        @click="$emit('iniciar-preparacion', detalle.idDetalle)"
-      >
-        <v-icon start>mdi-chef-hat</v-icon>
-        Iniciar Preparación
-      </v-btn>
-
-      <v-btn
-        v-else-if="detalle.estado === 'EN_PREPARACION'"
-        color="primary"
-        variant="flat"
-        block
-        size="large"
-        :loading="loading"
-        @click="$emit('marcar-servido', detalle.idDetalle)"
-      >
-        <v-icon start>mdi-check-circle</v-icon>
-        Marcar como Listo
-      </v-btn>
-
-      <template v-else-if="detalle.estado === 'SERVIDO'">
+      <div class="d-flex flex-column gap-2 w-100">
+        <!-- Botón principal según estado -->
         <v-btn
-          color="grey"
-          variant="text"
+          v-if="detalle.estado === 'PEDIDO'"
+          color="success"
+          variant="flat"
           block
+          size="large"
+          :loading="loading"
+          @click="$emit('iniciar-preparacion', detalle.idDetalle)"
+        >
+          <v-icon start>mdi-chef-hat</v-icon>
+          Iniciar Preparación
+        </v-btn>
+
+        <v-btn
+          v-else-if="detalle.estado === 'EN_PREPARACION'"
+          color="primary"
+          variant="flat"
+          block
+          size="large"
+          :loading="loading"
+          @click="$emit('marcar-servido', detalle.idDetalle)"
+        >
+          <v-icon start>mdi-check-circle</v-icon>
+          Marcar como Listo
+        </v-btn>
+
+        <v-btn
+          v-else-if="detalle.estado === 'SERVIDO'"
+          color="success"
+          variant="tonal"
+          block
+          size="large"
           disabled
         >
           <v-icon start>mdi-check-all</v-icon>
           Servido
         </v-btn>
-      </template>
 
-      <!-- Botón de cancelar (siempre disponible excepto cuando ya está cancelado) -->
-      <v-btn
-        v-if="detalle.estado !== 'CANCELADO' && detalle.estado !== 'SERVIDO'"
-        color="error"
-        variant="outlined"
-        size="small"
-        icon
-        :loading="loading"
-        @click="$emit('cancelar', detalle.idDetalle)"
-      >
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
+        <!-- Botón de cancelar (siempre disponible excepto cuando ya está cancelado o servido) -->
+        <v-btn
+          v-if="detalle.estado !== 'CANCELADO' && detalle.estado !== 'SERVIDO'"
+          color="error"
+          variant="outlined"
+          block
+          :loading="loading"
+          @click="mostrarDialogoCancelar = true"
+        >
+          <v-icon start>mdi-close-circle</v-icon>
+          Cancelar Producto
+        </v-btn>
+      </div>
     </v-card-actions>
+
+    <!-- Diálogo de confirmación de cancelación -->
+    <v-dialog v-model="mostrarDialogoCancelar" max-width="400">
+      <v-card>
+        <v-card-title class="d-flex align-center gap-2 bg-error pa-4">
+          <v-icon color="white" size="large">mdi-alert-circle</v-icon>
+          <span class="text-white">Cancelar Producto</span>
+        </v-card-title>
+
+        <v-card-text class="pa-6">
+          <p class="text-body-1 mb-3">
+            ¿Estás seguro de que deseas cancelar este producto?
+          </p>
+
+          <v-alert type="warning" variant="tonal" density="compact">
+            <strong>{{ detalle.producto.nombre }}</strong> x{{
+              detalle.cantidad
+            }}
+            <br />
+            <span class="text-caption"
+              >Mesa {{ detalle.pedido?.mesa?.numeroMesa }}</span
+            >
+          </v-alert>
+
+          <p class="text-caption text-medium-emphasis mt-3 mb-0">
+            Esta acción no se puede deshacer.
+          </p>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions class="pa-4">
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="mostrarDialogoCancelar = false">
+            No, volver
+          </v-btn>
+          <v-btn
+            color="error"
+            variant="flat"
+            :loading="loading"
+            @click="confirmarCancelacion"
+          >
+            Sí, cancelar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { DetallePedidoResponseDTO } from '@/types/detallePedido';
-import type { EstadoDetallePedido } from '@/types/enums';
+import { ref } from "vue";
+import type { DetallePedidoResponseDTO } from "@/types/detallePedido";
+import type { EstadoDetallePedido } from "@/types/enums";
 
 interface Props {
   detalle: DetallePedidoResponseDTO;
@@ -128,88 +191,97 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  'iniciar-preparacion': [detalleId: number];
-  'marcar-servido': [detalleId: number];
-  'cancelar': [detalleId: number];
+  "iniciar-preparacion": [detalleId: number];
+  "marcar-servido": [detalleId: number];
+  cancelar: [detalleId: number];
 }>();
+
+// Estado del diálogo de cancelación
+const mostrarDialogoCancelar = ref(false);
+
+// Función para confirmar cancelación
+const confirmarCancelacion = () => {
+  emit("cancelar", props.detalle.idDetalle);
+  mostrarDialogoCancelar.value = false;
+};
 
 const getIcon = () => {
   switch (props.detalle.estado) {
-    case 'PEDIDO':
-      return 'mdi-clipboard-list';
-    case 'EN_PREPARACION':
-      return 'mdi-chef-hat';
-    case 'SERVIDO':
-      return 'mdi-check-circle';
-    case 'CANCELADO':
-      return 'mdi-close-circle';
+    case "PEDIDO":
+      return "mdi-clipboard-list";
+    case "EN_PREPARACION":
+      return "mdi-chef-hat";
+    case "SERVIDO":
+      return "mdi-check-circle";
+    case "CANCELADO":
+      return "mdi-close-circle";
     default:
-      return 'mdi-help-circle';
+      return "mdi-help-circle";
   }
 };
 
 const getIconColor = () => {
   switch (props.detalle.estado) {
-    case 'PEDIDO':
-      return 'warning';
-    case 'EN_PREPARACION':
-      return 'info';
-    case 'SERVIDO':
-      return 'success';
-    case 'CANCELADO':
-      return 'error';
+    case "PEDIDO":
+      return "warning";
+    case "EN_PREPARACION":
+      return "info";
+    case "SERVIDO":
+      return "success";
+    case "CANCELADO":
+      return "error";
     default:
-      return 'grey';
+      return "grey";
   }
 };
 
 const getEstadoColor = () => {
   switch (props.detalle.estado) {
-    case 'PEDIDO':
-      return 'warning';
-    case 'EN_PREPARACION':
-      return 'info';
-    case 'SERVIDO':
-      return 'success';
-    case 'CANCELADO':
-      return 'error';
+    case "PEDIDO":
+      return "warning";
+    case "EN_PREPARACION":
+      return "info";
+    case "SERVIDO":
+      return "success";
+    case "CANCELADO":
+      return "error";
     default:
-      return 'grey';
+      return "grey";
   }
 };
 
 const getEstadoLabel = () => {
   switch (props.detalle.estado) {
-    case 'PEDIDO':
-      return 'Pendiente';
-    case 'EN_PREPARACION':
-      return 'En Preparación';
-    case 'SERVIDO':
-      return 'Servido';
-    case 'CANCELADO':
-      return 'Cancelado';
+    case "PEDIDO":
+      return "Pendiente";
+    case "EN_PREPARACION":
+      return "En Preparación";
+    case "SERVIDO":
+      return "Servido";
+    case "CANCELADO":
+      return "Cancelado";
     default:
       return props.detalle.estado;
   }
 };
 
 const formatearFecha = (fecha?: string) => {
-  if (!fecha) return 'N/A';
+  if (!fecha) return "N/A";
   const date = new Date(fecha);
   const now = new Date();
   const diffMinutes = Math.floor((now.getTime() - date.getTime()) / 60000);
 
-  if (diffMinutes < 1) return 'Hace un momento';
+  if (diffMinutes < 1) return "Hace un momento";
   if (diffMinutes < 60) return `Hace ${diffMinutes} min`;
 
   const hours = Math.floor(diffMinutes / 60);
-  if (hours < 24) return `Hace ${hours} hora${hours > 1 ? 's' : ''}`;
+  if (hours < 24) return `Hace ${hours} hora${hours > 1 ? "s" : ""}`;
 
-  return date.toLocaleString('es-PE', {
-    day: '2-digit',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
+  return date.toLocaleString("es-PE", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 </script>
@@ -245,7 +317,8 @@ const formatearFecha = (fecha?: string) => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(var(--v-theme-info), 0.4);
   }
   50% {
