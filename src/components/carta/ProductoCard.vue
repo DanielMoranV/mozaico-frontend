@@ -1,53 +1,55 @@
 <template>
-  <v-card class="producto-card" elevation="2" hover>
+  <v-card class="producto-card" elevation="3" :class="{ 'no-disponible': !producto.disponible }">
     <!-- Imagen del producto -->
     <div class="producto-imagen-container">
       <v-img
         v-if="producto.imagenUrl"
         :src="imagenUrl"
         :alt="producto.nombre"
-        height="220"
+        :aspect-ratio="16/9"
         cover
         class="producto-imagen"
       >
         <template v-slot:placeholder>
-          <div class="d-flex align-center justify-center fill-height">
-            <v-progress-circular indeterminate color="primary" />
+          <div class="d-flex align-center justify-center fill-height bg-grey-lighten-3">
+            <v-progress-circular indeterminate color="primary" size="40" />
           </div>
         </template>
       </v-img>
       <div v-else class="sin-imagen">
-        <v-icon size="80" color="grey-lighten-1">mdi-silverware-fork-knife</v-icon>
+        <v-icon size="64" color="grey-lighten-1">mdi-silverware-fork-knife</v-icon>
       </div>
 
-      <!-- Badges -->
+      <!-- Overlay de no disponible -->
+      <div v-if="!producto.disponible" class="overlay-no-disponible">
+        <v-chip color="error" variant="flat" size="large" class="chip-no-disponible">
+          <v-icon start>mdi-close-circle</v-icon>
+          No disponible
+        </v-chip>
+      </div>
+
+      <!-- Badges superiores -->
       <div class="badges-container">
         <v-chip
           v-if="producto.esAlcoholico"
           size="small"
-          color="orange"
+          color="orange-darken-2"
           variant="flat"
           class="badge"
         >
-          <v-icon start size="small">mdi-glass-wine</v-icon>
+          <v-icon start size="16">mdi-glass-wine</v-icon>
           +18
-        </v-chip>
-        <v-chip
-          v-if="!producto.disponible"
-          size="small"
-          color="red"
-          variant="flat"
-          class="badge"
-        >
-          No disponible
         </v-chip>
       </div>
     </div>
 
     <!-- Contenido -->
     <v-card-text class="producto-info">
-      <!-- Nombre -->
-      <h3 class="producto-nombre">{{ producto.nombre }}</h3>
+      <!-- Nombre y Precio en la parte superior -->
+      <div class="header-info">
+        <h3 class="producto-nombre">{{ producto.nombre }}</h3>
+        <div class="precio">S/ {{ formatoPrecio(producto.precio) }}</div>
+      </div>
 
       <!-- Descripción -->
       <p v-if="producto.descripcion" class="producto-descripcion">
@@ -56,39 +58,37 @@
 
       <!-- Ingredientes -->
       <div v-if="producto.ingredientes" class="ingredientes-section">
-        <v-icon size="small" color="primary">mdi-food-variant</v-icon>
+        <v-icon size="16" color="primary">mdi-food-variant</v-icon>
         <span class="ingredientes-texto">{{ producto.ingredientes }}</span>
       </div>
 
-      <!-- Metadata -->
-      <div class="metadata-container">
-        <v-chip
-          v-if="producto.tiempoPreparacion"
-          size="small"
-          variant="text"
-          prepend-icon="mdi-clock-outline"
-        >
-          {{ producto.tiempoPreparacion }} min
-        </v-chip>
-        <v-chip
-          v-if="producto.calorias"
-          size="small"
-          variant="text"
-          prepend-icon="mdi-fire"
-        >
-          {{ producto.calorias }} kcal
-        </v-chip>
-      </div>
-
-      <!-- Footer con precio -->
-      <v-divider class="my-3" />
-
-      <div class="footer-container">
-        <div>
-          <div class="precio">S/ {{ formatoPrecio(producto.precio) }}</div>
-          <div v-if="producto.presentacion" class="presentacion">
-            {{ producto.presentacion }}
-          </div>
+      <!-- Metadata y presentación -->
+      <div class="footer-info">
+        <div class="metadata-container">
+          <v-chip
+            v-if="producto.tiempoPreparacion"
+            size="x-small"
+            variant="tonal"
+            color="primary"
+            class="metadata-chip"
+          >
+            <v-icon start size="14">mdi-clock-outline</v-icon>
+            {{ producto.tiempoPreparacion }} min
+          </v-chip>
+          <v-chip
+            v-if="producto.calorias"
+            size="x-small"
+            variant="tonal"
+            color="orange"
+            class="metadata-chip"
+          >
+            <v-icon start size="14">mdi-fire</v-icon>
+            {{ producto.calorias }} kcal
+          </v-chip>
+        </div>
+        <div v-if="producto.presentacion" class="presentacion">
+          <v-icon size="14" color="grey">mdi-package-variant</v-icon>
+          {{ producto.presentacion }}
         </div>
       </div>
     </v-card-text>
@@ -96,9 +96,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { ProductoCartaDTO } from '@/types/cartaPublica';
-import { useCartaApi } from '@/composables/useCartaApi';
+import { computed } from "vue";
+import type { ProductoCartaDTO } from "@/types/cartaPublica";
+import { useCartaApi } from "@/composables/useCartaApi";
 
 interface Props {
   producto: ProductoCartaDTO;
@@ -119,67 +119,120 @@ function formatoPrecio(precio: number): string {
   height: 100%;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease-in-out;
-  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px;
   overflow: hidden;
+  background: #fff;
+  cursor: pointer;
 }
 
 .producto-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15) !important;
+}
+
+.producto-card.no-disponible {
+  opacity: 0.85;
 }
 
 .producto-imagen-container {
   position: relative;
   width: 100%;
-  height: 220px;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.producto-imagen {
+  transition: transform 0.3s ease;
+}
+
+.producto-card:hover .producto-imagen {
+  transform: scale(1.05);
 }
 
 .sin-imagen {
   width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+  aspect-ratio: 16/9;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.producto-imagen {
-  border-radius: 0;
+.overlay-no-disponible {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 2;
+}
+
+.chip-no-disponible {
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .badges-container {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 12px;
+  right: 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  align-items: flex-end;
+  gap: 6px;
+  z-index: 1;
 }
 
 .badge {
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-weight: 600;
+  backdrop-filter: blur(4px);
 }
 
 .producto-info {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 12px;
+  padding: 16px !important;
+}
+
+.header-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .producto-nombre {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 8px 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
   line-height: 1.3;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.precio {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1976d2;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .producto-descripcion {
-  color: #666;
-  font-size: 0.9rem;
+  color: #5f6368;
+  font-size: 0.875rem;
   line-height: 1.5;
-  margin-bottom: 12px;
+  margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -190,42 +243,100 @@ function formatoPrecio(precio: number): string {
   display: flex;
   align-items: flex-start;
   gap: 6px;
-  margin-bottom: 12px;
-  padding: 8px;
-  background-color: rgba(25, 118, 210, 0.05);
+  padding: 10px 12px;
+  background: linear-gradient(135deg, rgba(25, 118, 210, 0.06) 0%, rgba(25, 118, 210, 0.02) 100%);
+  border-left: 3px solid rgba(25, 118, 210, 0.4);
   border-radius: 6px;
 }
 
 .ingredientes-texto {
-  font-size: 0.85rem;
-  color: #555;
+  font-size: 0.8rem;
+  color: #5f6368;
   line-height: 1.4;
   flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.footer-info {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .metadata-container {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
-  margin-top: auto;
 }
 
-.footer-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-
-.precio {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #1976d2;
-  line-height: 1;
+.metadata-chip {
+  font-size: 0.7rem;
+  font-weight: 600;
 }
 
 .presentacion {
-  font-size: 0.8rem;
-  color: #888;
-  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #80868b;
+  font-weight: 500;
+}
+
+/* Responsive para móviles */
+@media (max-width: 600px) {
+  .producto-card {
+    border-radius: 12px;
+  }
+
+  .producto-info {
+    padding: 12px !important;
+    gap: 10px;
+  }
+
+  .producto-nombre {
+    font-size: 1rem;
+  }
+
+  .precio {
+    font-size: 1.3rem;
+  }
+
+  .producto-descripcion {
+    font-size: 0.8rem;
+  }
+
+  .ingredientes-section {
+    padding: 8px 10px;
+  }
+
+  .ingredientes-texto {
+    font-size: 0.75rem;
+  }
+
+  .badges-container {
+    top: 8px;
+    right: 8px;
+  }
+}
+
+/* Animación de entrada */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.producto-card {
+  animation: fadeInUp 0.4s ease-out;
 }
 </style>

@@ -27,7 +27,7 @@
 
     <!-- Contenido Principal -->
     <div v-else-if="productos.length > 0" class="contenido">
-      <!-- Header -->
+      <!-- Header mejorado -->
       <header class="header">
         <div class="header-content">
           <div class="titulo-section">
@@ -35,25 +35,29 @@
             <p class="subtitulo">Descubre nuestros deliciosos productos</p>
           </div>
 
-          <!-- QR Code -->
+          <!-- QR Code optimizado para móvil -->
           <div v-if="qrUrl" class="qr-section">
-            <v-card elevation="2" class="qr-card">
-              <v-card-text class="text-center">
-                <p class="qr-titulo">Comparte nuestra carta</p>
+            <v-card elevation="4" class="qr-card">
+              <v-card-text class="qr-card-content">
+                <div class="qr-header">
+                  <v-icon color="primary" size="20">mdi-qrcode</v-icon>
+                  <span class="qr-titulo">Comparte nuestra carta</span>
+                </div>
                 <v-img
                   :src="qrUrl"
                   alt="QR Code de la Carta"
-                  width="160"
-                  height="160"
-                  class="qr-image mx-auto"
+                  :width="qrImageSize"
+                  :height="qrImageSize"
+                  class="qr-image"
                 />
                 <v-btn
                   size="small"
-                  variant="text"
+                  variant="tonal"
                   color="primary"
                   @click="compartirCarta"
                   prepend-icon="mdi-share-variant"
-                  class="mt-2"
+                  block
+                  class="qr-btn"
                 >
                   Compartir
                 </v-btn>
@@ -63,18 +67,25 @@
         </div>
       </header>
 
-      <!-- Buscador -->
+      <!-- Buscador mejorado -->
       <div class="buscador-section">
         <v-text-field
           v-model="busqueda"
-          placeholder="Buscar productos..."
+          placeholder="Buscar productos, ingredientes..."
           prepend-inner-icon="mdi-magnify"
           variant="outlined"
           density="comfortable"
           clearable
           hide-details
           class="buscador-input"
-        />
+          :class="{ 'buscador-activo': busqueda }"
+        >
+          <template v-slot:append-inner v-if="busqueda">
+            <v-chip size="x-small" color="primary" variant="tonal">
+              {{ productosFiltrados.reduce((acc, g) => acc + g.productos.length, 0) }}
+            </v-chip>
+          </template>
+        </v-text-field>
       </div>
 
       <!-- Filtros por Categorías -->
@@ -145,18 +156,23 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useDisplay } from 'vuetify';
 import { useCartaApi } from '@/composables/useCartaApi';
 import ProductoCard from '@/components/carta/ProductoCard.vue';
 import FiltrosCategorias from '@/components/carta/FiltrosCategorias.vue';
 import type { ProductoCartaDTO, ProductosPorCategoria } from '@/types/cartaPublica';
 
 const route = useRoute();
+const { mobile } = useDisplay();
 const { loading, error, obtenerCartaPorCategoria, obtenerUrlQR } = useCartaApi();
 
 const productos = ref<ProductoCartaDTO[]>([]);
 const categoriaSeleccionada = ref<number | 'todas'>('todas');
 const busqueda = ref('');
 const slug = ref('');
+
+// Tamaño del QR responsive
+const qrImageSize = computed(() => mobile.value ? 140 : 160);
 
 // Computed: Agrupar productos por categoría
 const productosPorCategoria = computed<ProductosPorCategoria[]>(() => {
@@ -267,7 +283,28 @@ async function compartirCarta() {
 <style scoped>
 .carta-digital-view {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #f5f5f5 0%, #ffffff 300px);
+  background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 400px);
+  position: relative;
+}
+
+/* Patrón de fondo sutil */
+.carta-digital-view::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 400px;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(25, 118, 210, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(25, 118, 210, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.carta-digital-view > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* Loading y Error States */
@@ -305,18 +342,18 @@ async function compartirCarta() {
 .contenido {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem 1.5rem;
 }
 
-/* Header */
+/* Header mejorado */
 .header {
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .header-content {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 2rem;
+  gap: 3rem;
   align-items: center;
 }
 
@@ -325,17 +362,22 @@ async function compartirCarta() {
 }
 
 .titulo-principal {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #1976d2;
-  margin: 0 0 0.5rem 0;
+  font-size: 2.75rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 0.75rem 0;
   line-height: 1.2;
+  letter-spacing: -0.5px;
 }
 
 .subtitulo {
-  font-size: 1.1rem;
-  color: #666;
+  font-size: 1.15rem;
+  color: #5f6368;
   margin: 0;
+  font-weight: 400;
 }
 
 .qr-section {
@@ -344,85 +386,161 @@ async function compartirCarta() {
 }
 
 .qr-card {
-  border-radius: 12px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.qr-card-content {
+  padding: 20px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.qr-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
 }
 
 .qr-titulo {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 8px;
+  font-size: 0.95rem;
+  color: #5f6368;
+  font-weight: 600;
 }
 
 .qr-image {
-  border-radius: 8px;
+  border-radius: 12px;
+  border: 3px solid #f0f0f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Buscador */
+.qr-btn {
+  margin-top: 4px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* Buscador mejorado */
 .buscador-section {
   margin-bottom: 1.5rem;
+  animation: slideDown 0.4s ease-out;
 }
 
 .buscador-input {
-  max-width: 600px;
+  max-width: 700px;
+  transition: all 0.3s ease;
 }
 
-/* Categorías */
+.buscador-input:deep(.v-field) {
+  border-radius: 28px;
+  font-size: 1rem;
+}
+
+.buscador-activo:deep(.v-field) {
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.15);
+}
+
+/* Categorías mejoradas */
 .categoria-section {
-  margin-bottom: 3rem;
+  margin-bottom: 3.5rem;
+  scroll-margin-top: 100px;
 }
 
 .categoria-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 3px solid #1976d2;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid transparent;
+  background: linear-gradient(to right, #1976d2, transparent) bottom;
+  background-size: 100% 3px;
+  background-repeat: no-repeat;
 }
 
 .categoria-titulo {
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: #333;
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #1a1a1a;
   margin: 0;
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .categoria-descripcion {
-  color: #666;
+  color: #5f6368;
   font-size: 1rem;
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
+  margin-bottom: 1.75rem;
+  line-height: 1.6;
+  font-weight: 400;
 }
 
-/* Grid de Productos */
+/* Grid de Productos mejorado */
 .productos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
 }
 
-/* Sin resultados */
+/* Sin resultados mejorado */
 .sin-resultados {
   text-align: center;
-  padding: 4rem 2rem;
+  padding: 5rem 2rem;
+  animation: fadeIn 0.5s ease-out;
 }
 
 .sin-resultados h3 {
-  margin: 1rem 0 0.5rem;
-  color: #333;
+  margin: 1.5rem 0 0.75rem;
+  color: #1a1a1a;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .sin-resultados p {
-  color: #666;
-  margin-bottom: 1rem;
+  color: #5f6368;
+  margin-bottom: 1.5rem;
+  font-size: 1.05rem;
 }
 
-/* Responsive */
+/* Animaciones */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive optimizado */
+@media (max-width: 960px) {
+  .productos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
 @media (max-width: 768px) {
   .header-content {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
     text-align: center;
   }
 
@@ -431,31 +549,104 @@ async function compartirCarta() {
   }
 
   .titulo-principal {
-    font-size: 2rem;
+    font-size: 2.25rem;
+  }
+
+  .subtitulo {
+    font-size: 1rem;
+  }
+
+  .qr-section {
+    order: -1;
+  }
+
+  .contenido {
+    padding: 1.5rem 1rem;
+  }
+
+  .buscador-input {
+    max-width: 100%;
   }
 
   .productos-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .categoria-header {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
     align-items: flex-start;
   }
 
   .categoria-titulo {
     font-size: 1.5rem;
   }
+
+  .categoria-descripcion {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    margin-bottom: 2rem;
+  }
+
+  .titulo-principal {
+    font-size: 1.85rem;
+    letter-spacing: -0.3px;
+  }
+
+  .subtitulo {
+    font-size: 0.95rem;
+  }
+
+  .contenido {
+    padding: 1rem 0.75rem;
+  }
+
+  .categoria-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .sin-resultados {
+    padding: 3rem 1.5rem;
+  }
+
+  .sin-resultados h3 {
+    font-size: 1.25rem;
+  }
+
+  .sin-resultados p {
+    font-size: 0.95rem;
+  }
 }
 
 @media (max-width: 480px) {
   .titulo-principal {
-    font-size: 1.75rem;
+    font-size: 1.65rem;
   }
 
   .contenido {
     padding: 1rem 0.5rem;
+  }
+
+  .qr-card-content {
+    padding: 16px !important;
+  }
+
+  .buscador-section {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Mejora de accesibilidad táctil en móviles */
+@media (hover: none) and (pointer: coarse) {
+  .categoria-chip,
+  .qr-btn,
+  .buscador-input {
+    min-height: 44px;
   }
 }
 </style>
