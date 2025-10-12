@@ -32,45 +32,36 @@
       </v-col>
     </v-row>
 
-    <!-- Estadísticas rápidas -->
-    <v-row class="mb-3">
-      <v-col cols="6" sm="3">
-        <v-card class="stat-card" color="success" variant="tonal">
-          <v-card-text class="text-center pa-3">
-            <v-icon size="large" class="mb-1">mdi-check-circle</v-icon>
-            <div class="stat-value">{{ availableTables }}</div>
-            <div class="stat-label">Disponibles</div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="6" sm="3">
-        <v-card class="stat-card" color="error" variant="tonal">
-          <v-card-text class="text-center pa-3">
-            <v-icon size="large" class="mb-1">mdi-account-group</v-icon>
-            <div class="stat-value">{{ occupiedTables }}</div>
-            <div class="stat-label">Ocupadas</div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="6" sm="3">
-        <v-card class="stat-card" color="warning" variant="tonal">
-          <v-card-text class="text-center pa-3">
-            <v-icon size="large" class="mb-1">mdi-clock-outline</v-icon>
-            <div class="stat-value">{{ reservedTables }}</div>
-            <div class="stat-label">Reservadas</div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="6" sm="3">
-        <v-card class="stat-card" color="info" variant="tonal">
-          <v-card-text class="text-center pa-3">
-            <v-icon size="large" class="mb-1">mdi-tools</v-icon>
-            <div class="stat-value">{{ maintenanceTables }}</div>
-            <div class="stat-label">Mantenimiento</div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+    <!-- Estadísticas rápidas compactas -->
+    <v-card class="stats-compact mb-3" variant="outlined">
+      <v-card-text class="pa-2">
+        <v-row no-gutters>
+          <v-col cols="3" class="stat-item-compact">
+            <v-icon size="small" color="success">mdi-check-circle</v-icon>
+            <span class="stat-value-compact">{{ availableTables }}</span>
+            <span class="stat-label-compact">Disponibles</span>
+          </v-col>
+          <v-divider vertical></v-divider>
+          <v-col cols="3" class="stat-item-compact">
+            <v-icon size="small" color="error">mdi-account-group</v-icon>
+            <span class="stat-value-compact">{{ occupiedTables }}</span>
+            <span class="stat-label-compact">Ocupadas</span>
+          </v-col>
+          <v-divider vertical></v-divider>
+          <v-col cols="3" class="stat-item-compact">
+            <v-icon size="small" color="warning">mdi-clock-outline</v-icon>
+            <span class="stat-value-compact">{{ reservedTables }}</span>
+            <span class="stat-label-compact">Reservadas</span>
+          </v-col>
+          <v-divider vertical></v-divider>
+          <v-col cols="3" class="stat-item-compact">
+            <v-icon size="small" color="info">mdi-tools</v-icon>
+            <span class="stat-value-compact">{{ maintenanceTables }}</span>
+            <span class="stat-label-compact">Manten.</span>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
 
     <!-- Filtros y búsqueda -->
     <v-row class="mb-3">
@@ -337,6 +328,34 @@ const formatDate = (dateString: string) => {
   margin: 0 auto;
 }
 
+/* Estadísticas compactas */
+.stats-compact {
+  border-radius: 12px;
+}
+
+.stat-item-compact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 4px;
+  text-align: center;
+}
+
+.stat-value-compact {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-label-compact {
+  font-size: 0.65rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: none;
+}
+
 .stat-card {
   transition: transform 0.2s ease-in-out;
   height: 100%;
@@ -388,6 +407,17 @@ const formatDate = (dateString: string) => {
 }
 
 /* Responsive adjustments */
+@media (min-width: 600px) {
+  .stat-label-compact {
+    display: block;
+  }
+
+  .stat-item-compact {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
 @media (max-width: 960px) {
   .pos-container {
     padding: 0 8px;
@@ -403,6 +433,15 @@ const formatDate = (dateString: string) => {
     width: 100%;
     justify-content: flex-end;
     margin-top: 8px;
+  }
+
+  .stat-item-compact {
+    padding: 6px 2px;
+    gap: 4px;
+  }
+
+  .stat-value-compact {
+    font-size: 1.1rem;
   }
 
   .stat-value {
@@ -438,6 +477,15 @@ const formatDate = (dateString: string) => {
 }
 
 @media (max-width: 400px) {
+  .stat-value-compact {
+    font-size: 1rem;
+  }
+
+  .stat-item-compact {
+    padding: 6px 0;
+    gap: 3px;
+  }
+
   .stat-value {
     font-size: 1.25rem;
   }

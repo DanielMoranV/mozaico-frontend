@@ -70,7 +70,256 @@
       </v-overlay>
 
       <v-card-text class="pa-0">
-        <v-row no-gutters class="order-content">
+        <!-- Tabs solo en móvil -->
+        <v-tabs
+          v-if="isMobile"
+          v-model="mobileTab"
+          bg-color="primary"
+          grow
+          class="mobile-tabs"
+        >
+          <v-tab value="productos">
+            <v-icon start>mdi-food</v-icon>
+            Productos
+            <v-badge
+              v-if="hasItems"
+              :content="currentPedido?.detalles?.length"
+              color="error"
+              inline
+              class="ml-2"
+            />
+          </v-tab>
+          <v-tab value="carrito">
+            <v-icon start>mdi-cart</v-icon>
+            Carrito
+            <v-chip
+              v-if="currentPedido?.total"
+              size="small"
+              color="white"
+              class="ml-2"
+            >
+              S/{{ currentPedido.total.toFixed(2) }}
+            </v-chip>
+          </v-tab>
+        </v-tabs>
+
+        <!-- Contenido con tabs en móvil -->
+        <v-window v-if="isMobile" v-model="mobileTab" class="mobile-content">
+          <!-- Tab: Productos -->
+          <v-window-item value="productos" class="pa-3">
+            <!-- Botón de búsqueda colapsable -->
+            <v-expand-transition>
+              <div v-if="showSearchMobile">
+                <v-row class="mb-3">
+                  <v-col cols="12">
+                    <v-text-field
+                      v-model="searchProduct"
+                      label="Buscar producto"
+                      prepend-inner-icon="mdi-magnify"
+                      variant="outlined"
+                      density="compact"
+                      clearable
+                      hide-details
+                      autofocus
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-select
+                      v-model="selectedCategory"
+                      :items="categoryOptions"
+                      label="Categoría"
+                      variant="outlined"
+                      density="compact"
+                      clearable
+                      hide-details
+                    ></v-select>
+                  </v-col>
+                </v-row>
+              </div>
+            </v-expand-transition>
+
+            <v-row v-if="filteredProducts.length > 0" class="product-grid-mobile">
+              <v-col
+                v-for="producto in filteredProducts"
+                :key="producto.idProducto"
+                cols="4"
+              >
+                <v-card
+                  class="product-card-mobile"
+                  :class="{
+                    'product-selected': isProductInOrder(producto.idProducto),
+                  }"
+                  @click="addProductToOrder(producto)"
+                  hover
+                >
+                  <v-card-text class="pa-2 text-center">
+                    <v-avatar size="35" color="primary" class="mb-1">
+                      <v-icon color="white" size="x-small">mdi-food-variant</v-icon>
+                    </v-avatar>
+                    <div class="product-name-mobile">
+                      {{ producto.nombre }}
+                    </div>
+                    <div class="product-price-mobile">
+                      S/{{ producto.precio.toFixed(2) }}
+                    </div>
+                    <v-chip
+                      v-if="isProductInOrder(producto.idProducto)"
+                      size="x-small"
+                      color="primary"
+                      class="mt-1"
+                    >
+                      {{ getProductQuantity(producto.idProducto) }}
+                    </v-chip>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <!-- Empty state productos -->
+            <v-card v-else class="text-center pa-6" variant="outlined">
+              <v-icon size="48" color="grey-lighten-2">mdi-food-off</v-icon>
+              <div class="text-body-2 mt-2 text-grey">
+                No se encontraron productos
+              </div>
+            </v-card>
+          </v-window-item>
+
+          <!-- Tab: Carrito -->
+          <v-window-item value="carrito" class="pa-3 carrito-tab">
+            <!-- Selección de Cliente (Opcional) en móvil compacto -->
+            <v-card variant="outlined" class="mb-3">
+              <v-card-text class="pa-2">
+                <v-autocomplete
+                  v-model="selectedClienteId"
+                  :items="clienteStore.clientes"
+                  :item-title="(item: any) => `${item.nombre} ${item.apellido}`"
+                  item-value="idCliente"
+                  label="Cliente (opcional)"
+                  prepend-inner-icon="mdi-account"
+                  variant="outlined"
+                  density="compact"
+                  clearable
+                  hide-details
+                >
+                  <template v-slot:append-item>
+                    <v-divider class="mb-1"></v-divider>
+                    <v-list-item @click="showClienteDialog = true" density="compact">
+                      <template v-slot:prepend>
+                        <v-icon color="success" size="small">mdi-plus</v-icon>
+                      </template>
+                      <v-list-item-title class="text-success text-caption">
+                        Nuevo cliente
+                      </v-list-item-title>
+                    </v-list-item>
+                  </template>
+                </v-autocomplete>
+              </v-card-text>
+            </v-card>
+
+            <!-- Lista de productos en el pedido - Móvil optimizado -->
+            <v-card variant="outlined" class="order-items-mobile mb-3">
+              <v-list v-if="currentPedido?.detalles?.length" density="compact">
+                <v-list-item
+                  v-for="(detalle, index) in currentPedido.detalles"
+                  :key="detalle.idDetallePedido || index"
+                  class="order-item-mobile"
+                >
+                  <template v-slot:prepend>
+                    <v-avatar size="32" color="primary" variant="tonal">
+                      <v-icon size="small">mdi-food-variant</v-icon>
+                    </v-avatar>
+                  </template>
+
+                  <v-list-item-title class="text-body-2 font-weight-bold">
+                    {{ detalle.producto.nombre }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle class="text-caption">
+                    <v-chip
+                      :color="getDetalleEstadoColor(detalle.estado)"
+                      size="x-small"
+                      variant="tonal"
+                      class="mr-1 mb-1"
+                    >
+                      {{ getDetalleEstadoTexto(detalle.estado) }}
+                    </v-chip>
+                    <div class="mt-1">
+                      S/{{ detalle.precioUnitario.toFixed(2) }} c/u
+                    </div>
+                  </v-list-item-subtitle>
+
+                  <template v-slot:append>
+                    <div class="d-flex align-center">
+                      <!-- Controles táctiles mejorados -->
+                      <v-btn
+                        icon
+                        size="small"
+                        variant="tonal"
+                        color="error"
+                        @click="updateDetalleCantidad(detalle, -1)"
+                        :disabled="loading"
+                      >
+                        <v-icon size="small">mdi-minus</v-icon>
+                      </v-btn>
+
+                      <div class="mx-2 text-body-1 font-weight-bold" style="min-width: 30px; text-align: center;">
+                        {{ detalle.cantidad }}
+                      </div>
+
+                      <v-btn
+                        icon
+                        size="small"
+                        variant="tonal"
+                        color="success"
+                        @click="updateDetalleCantidad(detalle, 1)"
+                        :disabled="loading"
+                      >
+                        <v-icon size="small">mdi-plus</v-icon>
+                      </v-btn>
+                    </div>
+                  </template>
+                </v-list-item>
+              </v-list>
+
+              <!-- Empty state pedido -->
+              <div v-else class="text-center pa-6">
+                <v-icon size="40" color="grey-lighten-2">mdi-cart-outline</v-icon>
+                <div class="text-body-2 mt-2 text-grey">Carrito vacío</div>
+              </div>
+            </v-card>
+
+            <!-- Totales compactos -->
+            <v-card variant="tonal" color="primary" class="totals-card-mobile mb-3">
+              <v-card-text class="pa-3">
+                <div class="d-flex justify-space-between text-caption mb-1">
+                  <span>Subtotal:</span>
+                  <span>S/{{ currentPedido?.subtotal?.toFixed(2) || "0.00" }}</span>
+                </div>
+                <div v-if="empresaStore.aplicaIgv" class="d-flex justify-space-between text-caption mb-1">
+                  <span>IGV ({{ empresaStore.porcentajeIgv }}%):</span>
+                  <span>S/{{ currentPedido?.impuestos?.toFixed(2) || "0.00" }}</span>
+                </div>
+                <v-divider class="my-2"></v-divider>
+                <div class="d-flex justify-space-between text-h6 font-weight-bold">
+                  <span>Total:</span>
+                  <span>S/{{ currentPedido?.total?.toFixed(2) || "0.00" }}</span>
+                </div>
+              </v-card-text>
+            </v-card>
+
+            <!-- Observaciones compactas -->
+            <v-textarea
+              v-model="orderObservaciones"
+              label="Observaciones"
+              variant="outlined"
+              rows="2"
+              density="compact"
+              hide-details
+            ></v-textarea>
+          </v-window-item>
+        </v-window>
+
+        <!-- Layout desktop (columnas) -->
+        <v-row v-else no-gutters class="order-content">
           <!-- Columna izquierda: Selección de productos -->
           <v-col cols="12" lg="7" class="product-selection">
             <div class="pa-4">
@@ -250,8 +499,18 @@
                       <v-list-item-title class="font-weight-bold">
                         {{ detalle.producto.nombre }}
                       </v-list-item-title>
-                      <v-list-item-subtitle v-if="detalle.observaciones">
-                        💬 {{ detalle.observaciones }}
+                      <v-list-item-subtitle>
+                        <v-chip
+                          :color="getDetalleEstadoColor(detalle.estado)"
+                          size="x-small"
+                          variant="tonal"
+                          class="mr-1"
+                        >
+                          {{ getDetalleEstadoTexto(detalle.estado) }}
+                        </v-chip>
+                        <span v-if="detalle.observaciones" class="text-caption">
+                          💬 {{ detalle.observaciones }}
+                        </span>
                       </v-list-item-subtitle>
                       <div class="text-caption text-primary">
                         S/{{ detalle.precioUnitario.toFixed(2) }} c/u
@@ -296,12 +555,12 @@
                         <v-btn
                           icon
                           size="x-small"
-                          color="error"
+                          :color="canRemoveDetalle(detalle) ? 'error' : 'grey'"
                           variant="text"
                           @click="confirmRemoveDetalle(detalle)"
-                          :disabled="loading"
+                          :disabled="loading || !canRemoveDetalle(detalle)"
                         >
-                          <v-icon>mdi-delete</v-icon>
+                          <v-icon>{{ canRemoveDetalle(detalle) ? 'mdi-delete' : 'mdi-lock' }}</v-icon>
                         </v-btn>
                       </div>
                     </div>
@@ -446,19 +705,32 @@
             {{
               currentPedido?.idPedido === 0
                 ? "Generar Pedido"
-                : "Agregar Productos"
+                : "Actualizar Pedido"
             }}
           </span>
           <span class="d-sm-none">
             {{
               currentPedido?.idPedido === 0
                 ? "Generar"
-                : "Agregar"
+                : "Actualizar"
             }}
           </span>
         </v-btn>
       </v-card-actions>
     </v-card>
+
+    <!-- FAB de búsqueda para móvil -->
+    <v-fab
+      v-if="isMobile && mobileTab === 'productos'"
+      icon="mdi-magnify"
+      color="primary"
+      size="small"
+      location="bottom end"
+      class="fab-search-mobile"
+      @click="showSearchMobile = !showSearchMobile"
+    >
+      <v-icon>{{ showSearchMobile ? 'mdi-close' : 'mdi-magnify' }}</v-icon>
+    </v-fab>
 
     <!-- Diálogos de confirmación -->
     <ConfirmDialog
@@ -471,12 +743,12 @@
     <ConfirmDialog
       v-model="showFinalizeDialog"
       :title="
-        currentPedido?.idPedido === 0 ? 'Generar Pedido' : 'Finalizar Pedido'
+        currentPedido?.idPedido === 0 ? 'Generar Pedido' : 'Actualizar Pedido'
       "
       :message="
         currentPedido?.idPedido === 0
           ? '¿Confirmas generar este pedido? La mesa quedará ocupada y se podrán agregar más productos.'
-          : '¿Deseas finalizar este pedido? Se procesará el pago y se marcará como completado.'
+          : '¿Deseas actualizar este pedido? Se agregarán los nuevos productos y/o cantidades modificadas.'
       "
       @confirm="finalizeOrder"
     />
@@ -676,6 +948,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
+import { useDisplay } from 'vuetify';
 import { useMesaStore } from "@/stores/mesaStore";
 import { usePedidoStore } from "@/stores/pedidoStore";
 import { useProductoStore } from "@/stores/productoStore";
@@ -686,8 +959,7 @@ import type { Mesa } from "@/types/mesa";
 import type { Pedido } from "@/types/pedido";
 import type { Producto } from "@/types/producto";
 import type { DetallePedido } from "@/types/detallePedido";
-import type { Cliente } from "@/types/cliente";
-import { EstadoPedido, TipoServicio, EstadoMesa } from "@/types/enums";
+import { EstadoPedido, TipoServicio, EstadoMesa, EstadoDetallePedido } from "@/types/enums";
 import ConfirmDialog from "@/components/common/ConfirmDialog.vue";
 import PaymentMethodDialog from "@/components/pos/PaymentMethodDialog.vue";
 
@@ -698,6 +970,10 @@ interface Props {
 
 const props = defineProps<Props>();
 const emit = defineEmits(["close-panel", "order-updated"]);
+
+// Vuetify display
+const { mobile } = useDisplay();
+const isMobile = computed(() => mobile.value);
 
 // Stores
 const mesaStore = useMesaStore();
@@ -710,10 +986,16 @@ const clienteStore = useClienteStore();
 // State
 const isVisible = ref(props.visible);
 const currentPedido = ref<Pedido | null>(null);
+const originalCantidades = ref<Map<number, number>>(new Map()); // Rastrear cantidades originales
+const productosEliminados = ref<Set<number>>(new Set()); // Rastrear productos eliminados para persistir en "Actualizar Pedido"
 const searchProduct = ref("");
 const selectedCategory = ref<number | "all">("all");
 const orderObservaciones = ref("");
 const loading = ref(false);
+
+// Mobile UI state
+const mobileTab = ref<'productos' | 'carrito'>('productos');
+const showSearchMobile = ref(false);
 
 // Cliente state
 const selectedClienteId = ref<number | null>(null);
@@ -822,6 +1104,11 @@ watch(showPaymentDialog, (newVal, oldVal) => {
   }
 });
 
+// Watch para cerrar búsqueda al cambiar de tab
+watch(mobileTab, () => {
+  showSearchMobile.value = false;
+});
+
 onMounted(async () => {
   productoStore.fetchProductos();
   categoriaStore.fetchCategorias();
@@ -862,11 +1149,24 @@ const loadPedidoForMesa = async (mesaId: number) => {
       if (result) {
         currentPedido.value = result as any;
         orderObservaciones.value = result.observaciones || "";
+
+        // Guardar cantidades originales para detectar cambios
+        originalCantidades.value.clear();
+        productosEliminados.value.clear(); // Limpiar productos eliminados
+        result.detalles?.forEach((detalle: any) => {
+          // El backend devuelve idDetalle en DetallePedidoResponseDTO
+          const detalleId = detalle.idDetalle || detalle.idDetallePedido;
+          if (detalleId) {
+            originalCantidades.value.set(detalleId, detalle.cantidad);
+          }
+        });
+
         console.log(
           "✅ Order loaded successfully with",
           result.detalles?.length || 0,
           "items"
         );
+        console.log("📊 Cantidades originales guardadas:", originalCantidades.value);
 
         showSuccess("Pedido cargado exitosamente");
       } else {
@@ -928,108 +1228,60 @@ const addProductToOrder = async (product: Producto) => {
     return;
   }
 
-  // Para pedidos temporales (idPedido === 0), manejar en frontend hasta crear
-  if (currentPedido.value.idPedido === 0) {
-    console.log("🆕 [DEBUG] Agregando producto a pedido temporal");
-    // Verificar si el producto ya está en el pedido temporal
-    const existingDetalle = currentPedido.value.detalles?.find(
-      (d) => d.producto.idProducto === product.idProducto
-    );
+  // SIEMPRE agregar localmente, sin importar si es nuevo o existente
+  // Verificar si el producto ya está en el pedido
+  const existingDetalle = currentPedido.value.detalles?.find(
+    (d) => d.producto.idProducto === product.idProducto
+  );
 
-    if (existingDetalle) {
-      console.log("🔄 [DEBUG] Producto existe, incrementando cantidad");
-      // Si ya existe, incrementar cantidad localmente
-      existingDetalle.cantidad += 1;
-      // existingDetalle.subtotal = existingDetalle.cantidad * existingDetalle.precioUnitario; // Calculated dynamically
-      console.log("🔄 [DEBUG] Nueva cantidad:", existingDetalle.cantidad);
-      showSuccess(`Cantidad de ${product.nombre} aumentada`);
-    } else {
-      console.log("➕ [DEBUG] Producto nuevo, agregando al pedido");
-      // Si no existe, agregarlo al pedido temporal
-      const newDetalle = {
-        idDetallePedido: Date.now(), // ID temporal único
-        producto: {
-          idProducto: product.idProducto,
-          nombre: product.nombre,
-        },
-        cantidad: 1,
-        precioUnitario: product.precio,
-        observaciones: "",
-        estado: "PENDIENTE" as any,
-      };
+  if (existingDetalle) {
+    console.log("🔄 [DEBUG] Producto existe, incrementando cantidad");
+    existingDetalle.cantidad += 1;
+    console.log("🔄 [DEBUG] Nueva cantidad:", existingDetalle.cantidad);
+    showSuccess(`Cantidad de ${product.nombre} aumentada`);
+  } else {
+    console.log("➕ [DEBUG] Producto nuevo, agregando al pedido");
+    const newDetalle = {
+      idDetallePedido: currentPedido.value.idPedido === 0 ? Date.now() : 0, // ID temporal para nuevos, 0 para existentes
+      producto: {
+        idProducto: product.idProducto,
+        nombre: product.nombre,
+      },
+      cantidad: 1,
+      precioUnitario: product.precio,
+      observaciones: "",
+      estado: "PEDIDO" as any,
+    };
 
-      console.log("➕ [DEBUG] Nuevo detalle:", newDetalle);
+    console.log("➕ [DEBUG] Nuevo detalle:", newDetalle);
 
-      if (!currentPedido.value.detalles) {
-        currentPedido.value.detalles = [];
-      }
-      currentPedido.value.detalles.push(newDetalle);
-      console.log(
-        "➕ [DEBUG] Total productos en pedido:",
-        currentPedido.value.detalles.length
-      );
-      showSuccess(`${product.nombre} agregado al pedido`);
+    if (!currentPedido.value.detalles) {
+      currentPedido.value.detalles = [];
     }
-
-    // Recalcular totales localmente
-    console.log("💰 [DEBUG] Recalculando totales");
-    recalculateTotals();
+    currentPedido.value.detalles.push(newDetalle);
     console.log(
-      "💰 [DEBUG] Pedido después de recalcular:",
-      currentPedido.value
+      "➕ [DEBUG] Total productos en pedido:",
+      currentPedido.value.detalles.length
     );
-    return;
+    showSuccess(`${product.nombre} agregado al carrito`);
   }
 
-  // Para pedidos existentes (idPedido > 0), usar el nuevo endpoint
-  loading.value = true;
-  try {
-    // Verificar si el producto ya está en el pedido
-    const existingDetalle = currentPedido.value.detalles?.find(
-      (d) => d.producto.idProducto === product.idProducto
-    );
+  // Recalcular totales localmente
+  console.log("💰 [DEBUG] Recalculando totales");
+  recalculateTotals();
+  console.log(
+    "💰 [DEBUG] Pedido después de recalcular:",
+    currentPedido.value
+  );
 
-    if (existingDetalle) {
-      // Si ya existe, incrementar cantidad usando el nuevo endpoint
-      const updateData = {
-        idProducto: product.idProducto,
-        cantidad: existingDetalle.cantidad + 1,
-        observaciones: existingDetalle.observaciones || "",
-      };
-
-      const result = await pedidoStore.agregarProductoAPedido(
-        currentPedido.value.idPedido,
-        updateData
-      );
-      if (result.success && result.data) {
-        currentPedido.value = result.data as any;
-        showSuccess(`Cantidad de ${product.nombre} aumentada`);
-      } else {
-        showError(result.error || "Error al actualizar producto");
-      }
-    } else {
-      // Si no existe, agregarlo usando el nuevo endpoint
-      const agregarData = {
-        idProducto: product.idProducto,
-        cantidad: 1,
-        observaciones: "",
-      };
-
-      const result = await pedidoStore.agregarProductoAPedido(
-        currentPedido.value.idPedido,
-        agregarData
-      );
-      if (result.success && result.data) {
-        currentPedido.value = result.data as any;
-        showSuccess(`${product.nombre} agregado al pedido`);
-      } else {
-        showError(result.error || "Error al agregar producto");
-      }
-    }
-  } catch (error) {
-    showError("Error al agregar producto al pedido");
-  } finally {
-    loading.value = false;
+  // En móvil, cambiar brevemente al tab de carrito para feedback visual
+  if (isMobile.value && !existingDetalle) {
+    setTimeout(() => {
+      mobileTab.value = 'carrito';
+      setTimeout(() => {
+        mobileTab.value = 'productos';
+      }, 800);
+    }, 100);
   }
 };
 
@@ -1071,6 +1323,19 @@ const updateDetalleCantidad = async (
 };
 
 const confirmRemoveDetalle = (detalle: DetallePedido) => {
+  // Validar si el producto puede eliminarse según su estado
+  if (!canRemoveDetalle(detalle)) {
+    const estadoTexto = getDetalleEstadoTexto(detalle.estado);
+    if (detalle.estado === EstadoDetallePedido.EN_PREPARACION) {
+      showError(`No puedes eliminar "${detalle.producto.nombre}" porque está en cocina (${estadoTexto})`);
+    } else if (detalle.estado === EstadoDetallePedido.SERVIDO) {
+      showError(`No puedes eliminar "${detalle.producto.nombre}" porque ya fue servido (${estadoTexto})`);
+    } else {
+      showError(`No puedes eliminar "${detalle.producto.nombre}" en estado ${estadoTexto}`);
+    }
+    return;
+  }
+
   itemToRemove.value = detalle;
   showRemoveItemDialog.value = true;
 };
@@ -1078,37 +1343,29 @@ const confirmRemoveDetalle = (detalle: DetallePedido) => {
 const removeDetalle = async () => {
   if (!currentPedido.value || !itemToRemove.value) return;
 
-  // Para pedidos temporales (idPedido === 0), eliminar localmente
-  if (currentPedido.value.idPedido === 0) {
-    currentPedido.value.detalles =
-      currentPedido.value.detalles?.filter(
-        (d) => d.idDetallePedido !== itemToRemove.value?.idDetallePedido
-      ) || [];
-    recalculateTotals();
-    showSuccess("Producto eliminado del pedido");
-    showRemoveItemDialog.value = false;
-    itemToRemove.value = null;
-    return;
+  const detalleId = (itemToRemove.value as any).idDetalle || itemToRemove.value.idDetallePedido;
+
+  // Para pedidos temporales Y existentes, eliminar localmente (OPCIÓN A)
+  // La persistencia se hará cuando se presione "Actualizar Pedido"
+  currentPedido.value.detalles =
+    currentPedido.value.detalles?.filter(
+      (d) => {
+        const currentDetalleId = (d as any).idDetalle || d.idDetallePedido;
+        return currentDetalleId !== detalleId;
+      }
+    ) || [];
+
+  // Si es un pedido existente con idDetalle real, marcar para eliminación
+  if (currentPedido.value.idPedido !== 0 && detalleId && detalleId !== 0) {
+    productosEliminados.value.add(detalleId);
+    console.log(`🗑️ [DEBUG] Producto marcado para eliminación. ID: ${detalleId}`);
+    console.log(`🗑️ [DEBUG] Total productos marcados para eliminar: ${productosEliminados.value.size}`);
   }
 
-  // Para pedidos existentes, usar API
-  loading.value = true;
-  try {
-    // TODO: Implementar endpoint correcto para eliminar producto
-    // Por ahora eliminamos localmente
-    currentPedido.value.detalles =
-      currentPedido.value.detalles?.filter(
-        (d) => d.idDetallePedido !== itemToRemove.value?.idDetallePedido
-      ) || [];
-    recalculateTotals();
-    showSuccess("Producto eliminado del pedido");
-  } catch (error) {
-    showError("Error al eliminar producto");
-  } finally {
-    loading.value = false;
-    showRemoveItemDialog.value = false;
-    itemToRemove.value = null;
-  }
+  recalculateTotals();
+  showSuccess("Producto eliminado del carrito. Presiona 'Actualizar Pedido' para confirmar");
+  showRemoveItemDialog.value = false;
+  itemToRemove.value = null;
 };
 
 const recalculateTotals = () => {
@@ -1216,9 +1473,131 @@ const finalizeOrder = async () => {
         showError(result.error || "Error al crear pedido");
       }
     } else {
-      console.log("🔄 [DEBUG] Actualizando pedido existente (no implementado)");
-      // TODO: Implementar finalización de pedido existente
-      showError("Funcionalidad de finalización pendiente de implementar");
+      console.log("🔄 [DEBUG] Actualizando pedido existente");
+
+      // 1. Identificar productos nuevos (idDetallePedido === 0)
+      const productosNuevos = currentPedido.value.detalles?.filter(
+        (d) => d.idDetallePedido === 0
+      ) || [];
+
+      // 2. Identificar productos con cantidades modificadas
+      const productosConCantidadModificada = currentPedido.value.detalles?.filter(
+        (d: any) => {
+          const detalleId = d.idDetalle || d.idDetallePedido;
+          if (!detalleId || detalleId === 0) return false;
+          const cantidadOriginal = originalCantidades.value.get(detalleId);
+          return cantidadOriginal !== undefined && cantidadOriginal !== d.cantidad;
+        }
+      ) || [];
+
+      console.log("📋 [DEBUG] Productos nuevos a agregar:", productosNuevos.length);
+      console.log("📋 [DEBUG] Productos con cantidades modificadas:", productosConCantidadModificada.length);
+      console.log("🗑️ [DEBUG] Productos marcados para eliminar:", productosEliminados.value.size);
+
+      if (productosNuevos.length === 0 && productosConCantidadModificada.length === 0 && productosEliminados.value.size === 0) {
+        showError("No hay cambios para actualizar");
+        return;
+      }
+
+      let todosExitosos = true;
+      let contadorAgregados = 0;
+      let contadorActualizados = 0;
+      let contadorEliminados = 0;
+
+      // 3. Eliminar productos marcados PRIMERO
+      if (productosEliminados.value.size > 0) {
+        for (const detalleId of productosEliminados.value) {
+          console.log(`🗑️ [DEBUG] Eliminando producto con ID: ${detalleId}`);
+
+          const result = await pedidoStore.eliminarProductoDePedido(
+            currentPedido.value.idPedido,
+            detalleId
+          );
+
+          if (result.success) {
+            console.log(`✅ [DEBUG] Producto ${detalleId} eliminado exitosamente`);
+            contadorEliminados++;
+          } else {
+            console.log(`❌ [DEBUG] Error al eliminar producto ${detalleId}:`, result.error);
+            todosExitosos = false;
+            showError(`Error al eliminar producto: ${result.error}`);
+            break;
+          }
+        }
+      }
+
+      // 4. Agregar productos nuevos
+      for (const detalle of productosNuevos) {
+        console.log(`📤 [DEBUG] Agregando producto ${contadorAgregados + 1}/${productosNuevos.length}:`, detalle.producto.nombre);
+
+        const result = await pedidoStore.agregarProductoAPedido(
+          currentPedido.value.idPedido,
+          {
+            idProducto: detalle.producto.idProducto,
+            cantidad: detalle.cantidad,
+            observaciones: detalle.observaciones || "",
+          }
+        );
+
+        if (result.success) {
+          console.log(`✅ [DEBUG] Producto ${detalle.producto.nombre} agregado exitosamente`);
+          contadorAgregados++;
+        } else {
+          console.log(`❌ [DEBUG] Error al agregar ${detalle.producto.nombre}:`, result.error);
+          todosExitosos = false;
+          showError(`Error al agregar ${detalle.producto.nombre}: ${result.error}`);
+          break;
+        }
+      }
+
+      // 5. Actualizar cantidades de productos existentes (solo si no hubo errores)
+      if (todosExitosos && productosConCantidadModificada.length > 0) {
+        for (const detalle of productosConCantidadModificada) {
+          const detalleId = (detalle as any).idDetalle || (detalle as any).idDetallePedido;
+          const cantidadOriginal = originalCantidades.value.get(detalleId!);
+          console.log(`🔄 [DEBUG] Actualizando cantidad de ${detalle.producto.nombre}: ${cantidadOriginal} → ${detalle.cantidad}`);
+
+          const result = await pedidoStore.actualizarCantidadProductoEnPedido(
+            currentPedido.value.idPedido,
+            detalleId!,
+            detalle.cantidad
+          );
+
+          if (result.success) {
+            console.log(`✅ [DEBUG] Cantidad de ${detalle.producto.nombre} actualizada exitosamente`);
+            contadorActualizados++;
+          } else {
+            console.log(`❌ [DEBUG] Error al actualizar cantidad de ${detalle.producto.nombre}:`, result.error);
+            todosExitosos = false;
+            showError(`Error al actualizar ${detalle.producto.nombre}: ${result.error}`);
+            break;
+          }
+        }
+      }
+
+      // 6. Mostrar resultado final
+      if (todosExitosos) {
+        const mensajes: string[] = [];
+        if (contadorEliminados > 0) {
+          mensajes.push(`${contadorEliminados} producto${contadorEliminados > 1 ? 's' : ''} eliminado${contadorEliminados > 1 ? 's' : ''}`);
+        }
+        if (contadorAgregados > 0) {
+          mensajes.push(`${contadorAgregados} producto${contadorAgregados > 1 ? 's' : ''} agregado${contadorAgregados > 1 ? 's' : ''}`);
+        }
+        if (contadorActualizados > 0) {
+          mensajes.push(`${contadorActualizados} cantidad${contadorActualizados > 1 ? 'es' : ''} actualizada${contadorActualizados > 1 ? 's' : ''}`);
+        }
+
+        // Limpiar productos eliminados después de persistir
+        productosEliminados.value.clear();
+
+        console.log(`✅ [DEBUG] Pedido actualizado: ${mensajes.join(', ')}`);
+        showSuccess(`Pedido actualizado: ${mensajes.join(', ')}`);
+        emit("order-updated");
+        closePanel();
+      } else {
+        console.log(`⚠️ [DEBUG] Actualización parcial: ${contadorEliminados} eliminados, ${contadorAgregados} agregados, ${contadorActualizados} actualizados`);
+      }
     }
   } catch (error) {
     console.error("💥 [DEBUG] Error en finalizeOrder:", error);
@@ -1299,6 +1678,13 @@ const isProductInOrder = (productId: number) => {
   );
 };
 
+const getProductQuantity = (productId: number): number => {
+  const detalle = currentPedido.value?.detalles?.find(
+    (d) => d.producto.idProducto === productId
+  );
+  return detalle?.cantidad || 0;
+};
+
 const getPedidoEstadoColor = (estado: EstadoPedido) => {
   switch (estado) {
     case EstadoPedido.ABIERTO:
@@ -1345,6 +1731,58 @@ const getPedidoEstadoTexto = (estado: EstadoPedido) => {
     default:
       return "Desconocido";
   }
+};
+
+// Funciones para estado de detalle de pedido
+const getDetalleEstadoColor = (estado: EstadoDetallePedido) => {
+  switch (estado) {
+    case EstadoDetallePedido.PEDIDO:
+      return 'info';
+    case EstadoDetallePedido.EN_PREPARACION:
+      return 'warning';
+    case EstadoDetallePedido.SERVIDO:
+      return 'success';
+    case EstadoDetallePedido.CANCELADO:
+      return 'error';
+    // Estados legacy
+    case EstadoDetallePedido.PENDIENTE:
+      return 'orange';
+    case EstadoDetallePedido.LISTO:
+      return 'green';
+    case EstadoDetallePedido.ENTREGADO:
+      return 'success';
+    default:
+      return 'grey';
+  }
+};
+
+const getDetalleEstadoTexto = (estado: EstadoDetallePedido) => {
+  switch (estado) {
+    case EstadoDetallePedido.PEDIDO:
+      return 'Pedido';
+    case EstadoDetallePedido.EN_PREPARACION:
+      return 'En Cocina';
+    case EstadoDetallePedido.SERVIDO:
+      return 'Servido';
+    case EstadoDetallePedido.CANCELADO:
+      return 'Cancelado';
+    // Estados legacy
+    case EstadoDetallePedido.PENDIENTE:
+      return 'Pendiente';
+    case EstadoDetallePedido.LISTO:
+      return 'Listo';
+    case EstadoDetallePedido.ENTREGADO:
+      return 'Entregado';
+    default:
+      return 'Desconocido';
+  }
+};
+
+// Validar si un producto puede eliminarse según su estado
+const canRemoveDetalle = (detalle: DetallePedido): boolean => {
+  // Solo se pueden eliminar productos en estado PEDIDO
+  return detalle.estado === EstadoDetallePedido.PEDIDO ||
+         detalle.estado === EstadoDetallePedido.PENDIENTE; // legacy
 };
 
 const showSuccess = (message: string) => {
@@ -1648,6 +2086,82 @@ const crearCliente = async () => {
   background: rgba(var(--v-theme-surface), 0.95);
 }
 
+/* Mobile tabs styles */
+.mobile-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.mobile-content {
+  min-height: calc(100vh - 200px);
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+/* Mobile product grid */
+.product-grid-mobile {
+  margin: 0 -4px;
+}
+
+.product-card-mobile {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 120px;
+  border-radius: 12px !important;
+}
+
+.product-card-mobile:active {
+  transform: scale(0.95);
+}
+
+.product-name-mobile {
+  font-size: 0.65rem;
+  font-weight: 600;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  margin: 4px 0;
+  min-height: 28px;
+}
+
+.product-price-mobile {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgb(var(--v-theme-primary));
+}
+
+/* Mobile carrito tab */
+.carrito-tab {
+  padding-bottom: 80px !important;
+}
+
+.order-items-mobile {
+  max-height: 45vh;
+  overflow-y: auto;
+}
+
+.order-item-mobile {
+  padding: 8px 12px !important;
+  min-height: 60px;
+}
+
+.totals-card-mobile .v-card-text {
+  padding: 12px !important;
+}
+
+/* FAB search button */
+.fab-search-mobile {
+  position: fixed !important;
+  bottom: 80px !important;
+  right: 16px !important;
+  z-index: 100;
+}
+
 /* Responsive design */
 @media (max-width: 1024px) {
   .product-selection {
@@ -1694,6 +2208,7 @@ const crearCliente = async () => {
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
   }
 
@@ -1731,8 +2246,16 @@ const crearCliente = async () => {
     height: 100px;
   }
 
+  .product-card-mobile {
+    height: 110px;
+  }
+
   .product-name {
     font-size: 0.65rem !important;
+  }
+
+  .product-name-mobile {
+    font-size: 0.6rem !important;
   }
 
   .order-actions .v-btn {

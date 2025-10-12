@@ -27,42 +27,11 @@
 
       <v-spacer></v-spacer>
 
-      <!-- Breadcrumbs para contexto -->
-      <v-breadcrumbs
-        v-if="!$vuetify.display.mobile"
-        :items="breadcrumbs"
-        class="pa-0"
-        color="white"
-        divider="/"
-      >
-        <template v-slot:item="{ item }">
-          <v-breadcrumbs-item
-            :to="item.to"
-            :disabled="item.disabled"
-            class="text-white-70"
-          >
-            {{ item.title }}
-          </v-breadcrumbs-item>
-        </template>
-      </v-breadcrumbs>
-
       <!-- Actions Bar -->
-      <div class="d-flex align-center">
-        <!-- Search - Solo en desktop -->
-        <v-btn v-if="!isMobile" icon variant="text" class="me-2">
-          <v-icon>mdi-magnify</v-icon>
-        </v-btn>
-
+      <div class="d-flex align-center gap-2">
         <!-- Theme Toggle -->
-        <v-btn icon variant="text" class="me-2" @click="toggleTheme">
+        <v-btn icon variant="text" @click="toggleTheme">
           <v-icon>{{ isDark ? 'mdi-white-balance-sunny' : 'mdi-moon-waning-crescent' }}</v-icon>
-        </v-btn>
-
-        <!-- Notifications with badge -->
-        <v-btn icon variant="text" class="me-2">
-          <v-badge color="error" content="3" offset-x="10" offset-y="10">
-            <v-icon>mdi-bell</v-icon>
-          </v-badge>
         </v-btn>
 
         <!-- User Menu -->
@@ -363,12 +332,6 @@ const toggleTheme = () => {
   theme.global.name.value = theme.current.value.dark ? "light" : "dark";
 };
 
-// Breadcrumbs dinámicos
-const breadcrumbs = ref([
-  { title: "Dashboard", to: "/dashboard", disabled: false },
-  { title: "Gestión", disabled: true },
-]);
-
 const menuItems = computed((): MenuItem[] => [
   // Dashboard
   {
@@ -589,6 +552,10 @@ onMounted(async () => {
 .app-bar-modern {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gap-2 {
+  gap: 8px;
 }
 
 /* Navigation Drawer */

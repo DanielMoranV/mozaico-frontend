@@ -4,8 +4,7 @@
       <v-btn
         v-bind="props"
         variant="text"
-        class="text-none"
-        icon="mdi-account-circle"
+        class="text-none user-menu-btn"
       >
         <v-icon>mdi-account-circle</v-icon>
         <span class="d-none d-md-inline ms-2">{{ user?.nombre }}</span>
@@ -239,5 +238,14 @@ async function confirmLogout() {
 <style scoped>
 .gap-1 {
   gap: 4px;
+}
+
+.user-menu-btn {
+  padding: 0 12px !important;
+  min-width: auto !important;
+}
+
+.user-menu-btn .v-icon {
+  margin: 0 !important;
 }
 </style>
