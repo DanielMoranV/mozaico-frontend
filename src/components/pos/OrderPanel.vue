@@ -224,59 +224,55 @@
                   :key="detalle.idDetallePedido || index"
                   class="order-item-mobile"
                 >
-                  <template v-slot:prepend>
-                    <v-avatar size="32" color="primary" variant="tonal">
+                  <div class="d-flex align-start">
+                    <v-avatar size="32" color="primary" variant="tonal" class="mr-3 mt-1">
                       <v-icon size="small">mdi-food-variant</v-icon>
                     </v-avatar>
-                  </template>
-
-                  <v-list-item-title class="text-body-2 font-weight-bold">
-                    {{ detalle.producto.nombre }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle class="text-caption">
-                    <v-chip
-                      :color="getDetalleEstadoColor(detalle.estado)"
-                      size="x-small"
-                      variant="tonal"
-                      class="mr-1 mb-1"
-                    >
-                      {{ getDetalleEstadoTexto(detalle.estado) }}
-                    </v-chip>
-                    <div class="mt-1">
-                      S/{{ detalle.precioUnitario.toFixed(2) }} c/u
-                    </div>
-                  </v-list-item-subtitle>
-
-                  <template v-slot:append>
-                    <div class="d-flex align-center">
-                      <!-- Controles táctiles mejorados -->
-                      <v-btn
-                        icon
-                        size="small"
-                        variant="tonal"
-                        color="error"
-                        @click="updateDetalleCantidad(detalle, -1)"
-                        :disabled="loading"
-                      >
-                        <v-icon size="small">mdi-minus</v-icon>
-                      </v-btn>
-
-                      <div class="mx-2 text-body-1 font-weight-bold" style="min-width: 30px; text-align: center;">
-                        {{ detalle.cantidad }}
+                    <div class="flex-grow-1">
+                      <div class="text-body-2 font-weight-bold">{{ detalle.producto.nombre }}</div>
+                      <div class="text-caption text-medium-emphasis">
+                        <span>S/{{ detalle.precioUnitario.toFixed(2) }} c/u</span>
+                        <v-chip
+                          :color="getDetalleEstadoColor(detalle.estado)"
+                          size="x-small"
+                          variant="tonal"
+                          class="ml-2"
+                        >
+                          {{ getDetalleEstadoTexto(detalle.estado) }}
+                        </v-chip>
                       </div>
-
-                      <v-btn
-                        icon
-                        size="small"
-                        variant="tonal"
-                        color="success"
-                        @click="updateDetalleCantidad(detalle, 1)"
-                        :disabled="loading"
-                      >
-                        <v-icon size="small">mdi-plus</v-icon>
-                      </v-btn>
+                      <div class="d-flex align-center justify-space-between mt-2">
+                        <div class="d-flex align-center">
+                          <v-btn
+                            icon
+                            size="x-small"
+                            variant="tonal"
+                            color="error"
+                            @click="updateDetalleCantidad(detalle, -1)"
+                            :disabled="loading"
+                          >
+                            <v-icon size="small">mdi-minus</v-icon>
+                          </v-btn>
+                          <div class="mx-2 text-body-1 font-weight-medium" style="min-width: 24px; text-align: center;">
+                            {{ detalle.cantidad }}
+                          </div>
+                          <v-btn
+                            icon
+                            size="x-small"
+                            variant="tonal"
+                            color="success"
+                            @click="updateDetalleCantidad(detalle, 1)"
+                            :disabled="loading"
+                          >
+                            <v-icon size="small">mdi-plus</v-icon>
+                          </v-btn>
+                        </div>
+                        <div class="text-body-1 font-weight-bold">
+                          S/{{ (detalle.cantidad * detalle.precioUnitario).toFixed(2) }}
+                        </div>
+                      </div>
                     </div>
-                  </template>
+                  </div>
                 </v-list-item>
               </v-list>
 
