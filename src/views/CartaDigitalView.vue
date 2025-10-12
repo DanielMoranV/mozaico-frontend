@@ -31,38 +31,21 @@
       <header class="header">
         <div class="header-content">
           <div class="titulo-section">
-            <h1 class="titulo-principal">Nuestra Carta Digital</h1>
-            <p class="subtitulo">Descubre nuestros deliciosos productos</p>
+            <h1 class="titulo-principal">{{ empresa?.nombre || 'Nuestra Carta Digital' }}</h1>
+            <p class="subtitulo">{{ empresa?.descripcion || 'Descubre nuestros deliciosos productos' }}</p>
           </div>
 
-          <!-- QR Code optimizado para móvil -->
-          <div v-if="qrUrl" class="qr-section">
-            <v-card elevation="4" class="qr-card">
-              <v-card-text class="qr-card-content">
-                <div class="qr-header">
-                  <v-icon color="primary" size="20">mdi-qrcode</v-icon>
-                  <span class="qr-titulo">Comparte nuestra carta</span>
-                </div>
-                <v-img
-                  :src="qrUrl"
-                  alt="QR Code de la Carta"
-                  :width="qrImageSize"
-                  :height="qrImageSize"
-                  class="qr-image"
-                />
-                <v-btn
-                  size="small"
-                  variant="tonal"
-                  color="primary"
-                  @click="compartirCarta"
-                  prepend-icon="mdi-share-variant"
-                  block
-                  class="qr-btn"
-                >
-                  Compartir
-                </v-btn>
-              </v-card-text>
-            </v-card>
+          <!-- Botón compartir -->
+          <div class="compartir-section">
+            <v-btn
+              variant="tonal"
+              color="primary"
+              @click="compartirCarta"
+              prepend-icon="mdi-share-variant"
+              class="compartir-btn"
+            >
+              Compartir
+            </v-btn>
           </div>
         </div>
       </header>
@@ -89,13 +72,15 @@
       </div>
 
       <!-- Filtros por Categorías -->
-      <FiltrosCategorias
-        v-if="categoriasConConteo.length > 0"
-        :categorias="categoriasConConteo"
-        :categoria-seleccionada="categoriaSeleccionada"
-        :total-productos="productos.length"
-        @update:categoria-seleccionada="categoriaSeleccionada = $event"
-      />
+      <div ref="filtrosRef">
+        <FiltrosCategorias
+          v-if="categoriasConConteo.length > 0"
+          :categorias="categoriasConConteo"
+          :categoria-seleccionada="categoriaSeleccionada"
+          :total-productos="productos.length"
+          @update:categoria-seleccionada="categoriaSeleccionada = $event"
+        />
+      </div>
 
       <!-- Productos Agrupados por Categoría -->
       <div class="productos-container">
@@ -150,29 +135,116 @@
       <h2>No hay productos disponibles</h2>
       <p>Por el momento no hay productos en nuestro menú</p>
     </div>
+
+    <!-- Snackbar para notificaciones -->
+    <v-snackbar
+      v-model="snackbar"
+      :timeout="3000"
+      color="success"
+      location="bottom"
+    >
+      {{ snackbarText }}
+    </v-snackbar>
+
+    <!-- Botón flotante de filtros -->
+    <v-fab
+      v-if="showFloatingFilter"
+      icon="mdi-filter-variant"
+      color="primary"
+      size="large"
+      class="floating-filter-btn"
+      @click="mostrarDialogFiltros"
+      elevation="8"
+    />
+
+    <!-- Dialog de filtros -->
+    <v-dialog
+      v-model="dialogFiltros"
+      max-width="600"
+      scrollable
+    >
+      <v-card>
+        <v-card-title class="dialog-header">
+          <v-icon class="mr-2">mdi-filter-variant</v-icon>
+          Filtrar por categoría
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="dialog-content">
+          <v-chip-group
+            v-model="categoriaSeleccionada"
+            column
+            mandatory
+            selected-class="categoria-activa-dialog"
+            @update:model-value="dialogFiltros = false"
+          >
+            <v-chip
+              value="todas"
+              filter
+              variant="elevated"
+              size="large"
+              class="categoria-chip-dialog"
+            >
+              <v-icon start size="20">mdi-view-grid-outline</v-icon>
+              <span>Todas</span>
+              <v-spacer />
+              <v-chip
+                size="x-small"
+                color="primary"
+                variant="flat"
+                class="ml-2"
+              >
+                {{ productos.length }}
+              </v-chip>
+            </v-chip>
+
+            <v-chip
+              v-for="categoria in categoriasConConteo"
+              :key="categoria.idCategoria"
+              :value="categoria.idCategoria"
+              filter
+              variant="elevated"
+              size="large"
+              class="categoria-chip-dialog"
+            >
+              <v-icon start size="20">mdi-food</v-icon>
+              <span>{{ categoria.nombre }}</span>
+              <v-spacer />
+              <v-chip
+                size="x-small"
+                color="primary"
+                variant="flat"
+                class="ml-2"
+              >
+                {{ categoria.count }}
+              </v-chip>
+            </v-chip>
+          </v-chip-group>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useDisplay } from 'vuetify';
 import { useCartaApi } from '@/composables/useCartaApi';
 import ProductoCard from '@/components/carta/ProductoCard.vue';
 import FiltrosCategorias from '@/components/carta/FiltrosCategorias.vue';
 import type { ProductoCartaDTO, ProductosPorCategoria } from '@/types/cartaPublica';
 
 const route = useRoute();
-const { mobile } = useDisplay();
-const { loading, error, obtenerCartaPorCategoria, obtenerUrlQR } = useCartaApi();
+const { loading, error, empresa, obtenerCartaPorCategoria } = useCartaApi();
 
 const productos = ref<ProductoCartaDTO[]>([]);
 const categoriaSeleccionada = ref<number | 'todas'>('todas');
 const busqueda = ref('');
 const slug = ref('');
-
-// Tamaño del QR responsive
-const qrImageSize = computed(() => mobile.value ? 140 : 160);
+const snackbar = ref(false);
+const snackbarText = ref('');
+const showFloatingFilter = ref(false);
+const dialogFiltros = ref(false);
+const filtrosRef = ref<HTMLElement | null>(null);
 
 // Computed: Agrupar productos por categoría
 const productosPorCategoria = computed<ProductosPorCategoria[]>(() => {
@@ -229,14 +301,29 @@ const productosFiltrados = computed(() => {
   return grupos;
 });
 
-// Computed: URL del QR
-const qrUrl = computed(() => {
-  return slug.value ? obtenerUrlQR(slug.value) : null;
-});
+// Manejar scroll para mostrar/ocultar botón flotante
+function handleScroll() {
+  if (!filtrosRef.value) return;
+
+  const filtrosRect = filtrosRef.value.getBoundingClientRect();
+  const filtrosBottom = filtrosRect.bottom;
+
+  // Mostrar botón flotante cuando los filtros ya no están visibles
+  showFloatingFilter.value = filtrosBottom < 0;
+}
+
+function mostrarDialogFiltros() {
+  dialogFiltros.value = true;
+}
 
 // Cargar carta al montar
 onMounted(() => {
   cargarCarta();
+  window.addEventListener('scroll', handleScroll);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
 });
 
 async function cargarCarta() {
@@ -249,6 +336,7 @@ async function cargarCarta() {
 
   try {
     productos.value = await obtenerCartaPorCategoria(slug.value);
+    console.log('Carta cargada:', productos.value);
   } catch (err) {
     console.error('Error al cargar la carta:', err);
   }
@@ -261,12 +349,14 @@ function limpiarFiltros() {
 
 async function compartirCarta() {
   const url = window.location.href;
+  const nombreEmpresa = empresa.value?.nombre || 'Nuestra Carta Digital';
+  const descripcionEmpresa = empresa.value?.descripcion || 'Descubre nuestros productos';
 
   if (navigator.share) {
     try {
       await navigator.share({
-        title: 'Nuestra Carta Digital',
-        text: 'Descubre nuestros productos',
+        title: nombreEmpresa,
+        text: descripcionEmpresa,
         url: url
       });
     } catch (err) {
@@ -274,8 +364,13 @@ async function compartirCarta() {
     }
   } else {
     // Fallback: copiar al portapapeles
-    navigator.clipboard.writeText(url);
-    alert('Enlace copiado al portapapeles');
+    try {
+      await navigator.clipboard.writeText(url);
+      snackbarText.value = 'Enlace copiado al portapapeles';
+      snackbar.value = true;
+    } catch (err) {
+      console.error('Error al copiar:', err);
+    }
   }
 }
 </script>
@@ -380,49 +475,17 @@ async function compartirCarta() {
   font-weight: 400;
 }
 
-.qr-section {
+.compartir-section {
   display: flex;
   justify-content: center;
-}
-
-.qr-card {
-  border-radius: 16px;
-  overflow: hidden;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-}
-
-.qr-card-content {
-  padding: 20px !important;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
   align-items: center;
 }
 
-.qr-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  justify-content: center;
-}
-
-.qr-titulo {
-  font-size: 0.95rem;
-  color: #5f6368;
-  font-weight: 600;
-}
-
-.qr-image {
-  border-radius: 12px;
-  border: 3px solid #f0f0f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.qr-btn {
-  margin-top: 4px;
+.compartir-btn {
   font-weight: 600;
   letter-spacing: 0.3px;
+  padding: 0 24px !important;
+  height: 44px;
 }
 
 /* Buscador mejorado */
@@ -488,6 +551,13 @@ async function compartirCarta() {
   gap: 1.5rem;
 }
 
+@media (max-width: 768px) and (min-width: 481px) {
+  .productos-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
 /* Sin resultados mejorado */
 .sin-resultados {
   text-align: center;
@@ -540,7 +610,7 @@ async function compartirCarta() {
 @media (max-width: 768px) {
   .header-content {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1rem;
     text-align: center;
   }
 
@@ -556,8 +626,8 @@ async function compartirCarta() {
     font-size: 1rem;
   }
 
-  .qr-section {
-    order: -1;
+  .compartir-section {
+    justify-content: center;
   }
 
   .contenido {
@@ -569,8 +639,8 @@ async function compartirCarta() {
   }
 
   .productos-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.875rem;
   }
 
   .categoria-header {
@@ -610,6 +680,11 @@ async function compartirCarta() {
     margin-bottom: 2.5rem;
   }
 
+  .productos-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
   .sin-resultados {
     padding: 3rem 1.5rem;
   }
@@ -632,8 +707,9 @@ async function compartirCarta() {
     padding: 1rem 0.5rem;
   }
 
-  .qr-card-content {
-    padding: 16px !important;
+  .productos-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.625rem;
   }
 
   .buscador-section {
@@ -644,9 +720,91 @@ async function compartirCarta() {
 /* Mejora de accesibilidad táctil en móviles */
 @media (hover: none) and (pointer: coarse) {
   .categoria-chip,
-  .qr-btn,
+  .compartir-btn,
   .buscador-input {
     min-height: 44px;
+  }
+}
+
+/* Botón flotante de filtros */
+.floating-filter-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dialog de filtros */
+.dialog-header {
+  font-size: 1.25rem;
+  font-weight: 700;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  color: white;
+}
+
+.dialog-header .v-icon {
+  color: white;
+}
+
+.dialog-content {
+  padding: 24px;
+  min-height: 200px;
+}
+
+.categoria-chip-dialog {
+  width: 100%;
+  height: 56px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  margin-bottom: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.categoria-chip-dialog:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+:deep(.categoria-activa-dialog) {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4) !important;
+}
+
+:deep(.categoria-activa-dialog .v-icon) {
+  color: white !important;
+}
+
+:deep(.categoria-activa-dialog .v-chip) {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+}
+
+@media (max-width: 600px) {
+  .floating-filter-btn {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .categoria-chip-dialog {
+    height: 52px;
+    font-size: 0.9rem;
   }
 }
 </style>

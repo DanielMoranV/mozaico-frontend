@@ -15,6 +15,25 @@ export interface ApiResponse<T> {
   errors?: any;
 }
 
+// Información de la empresa
+export interface EmpresaDTO {
+  nombre: string;
+  slug: string;
+  descripcion: string | null;
+  direccion: string | null;
+  telefono: string | null;
+  email: string | null;
+  logoUrl: string | null;
+  paginaWeb: string | null;
+  moneda: string;
+}
+
+// Respuesta de la carta con información de empresa
+export interface CartaResponseDTO {
+  empresa: EmpresaDTO;
+  productos: ProductoCartaDTO[];
+}
+
 // Categoría de productos
 export interface CategoriaResponseDTO {
   idCategoria: number;
