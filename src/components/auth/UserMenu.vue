@@ -5,10 +5,10 @@
         v-bind="props"
         variant="text"
         class="text-none"
-        prepend-icon="mdi-account-circle"
+        icon="mdi-account-circle"
       >
-        <span class="d-none d-sm-inline">{{ user?.nombre }}</span>
-        <v-icon class="d-sm-none">mdi-account-circle</v-icon>
+        <v-icon>mdi-account-circle</v-icon>
+        <span class="d-none d-md-inline ms-2">{{ user?.nombre }}</span>
       </v-btn>
     </template>
 

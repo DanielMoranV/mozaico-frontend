@@ -6,7 +6,7 @@
       color="primary"
       dark
       elevation="0"
-      height="64"
+      :height="isMobile ? '56' : '64'"
       class="app-bar-modern"
     >
       <v-btn icon @click="toggleDrawer" class="me-3" variant="text">
@@ -21,7 +21,7 @@
           <v-app-bar-title class="text-h6 font-weight-bold"
             >Mozaico</v-app-bar-title
           >
-          <div class="text-caption text-white-70">Gestión de Restaurante</div>
+          <div v-if="!isMobile" class="text-caption text-white-70">Gestión de Restaurante</div>
         </div>
       </div>
 
@@ -48,9 +48,14 @@
 
       <!-- Actions Bar -->
       <div class="d-flex align-center">
-        <!-- Search -->
-        <v-btn icon variant="text" class="me-2">
+        <!-- Search - Solo en desktop -->
+        <v-btn v-if="!isMobile" icon variant="text" class="me-2">
           <v-icon>mdi-magnify</v-icon>
+        </v-btn>
+
+        <!-- Theme Toggle -->
+        <v-btn icon variant="text" class="me-2" @click="toggleTheme">
+          <v-icon>{{ isDark ? 'mdi-white-balance-sunny' : 'mdi-moon-waning-crescent' }}</v-icon>
         </v-btn>
 
         <!-- Notifications with badge -->
@@ -69,24 +74,25 @@
     <v-navigation-drawer
       v-model="drawer"
       app
-      :rail="rail"
+      :rail="rail && !isMobile"
       rail-width="72"
-      permanent
+      :permanent="!isMobile"
+      :temporary="isMobile"
       class="navigation-drawer-modern"
       color="surface"
     >
       <!-- User Profile Section -->
-      <div class="pa-4 user-profile-section">
-        <v-card v-if="!rail" flat color="primary" class="pa-3 rounded-lg" dark>
+      <div :class="isMobile ? 'pa-3' : 'pa-4'" class="user-profile-section">
+        <v-card v-if="!rail || isMobile" flat color="primary" :class="isMobile ? 'pa-2' : 'pa-3'" class="rounded-lg" dark>
           <div class="d-flex align-center">
-            <v-avatar class="me-3" color="white" size="40">
+            <v-avatar class="me-3" color="white" :size="isMobile ? '36' : '40'">
               <v-icon color="primary">mdi-account</v-icon>
             </v-avatar>
             <div class="flex-grow-1">
-              <div class="text-subtitle2 font-weight-bold">{{ user?.nombre || 'Usuario' }}</div>
-              <div class="text-caption text-white-70">{{ user?.email || '' }}</div>
+              <div :class="isMobile ? 'text-body-2' : 'text-subtitle2'" class="font-weight-bold">{{ user?.nombre || 'Usuario' }}</div>
+              <div v-if="!isMobile" class="text-caption text-white-70">{{ user?.email || '' }}</div>
             </div>
-            <v-chip size="x-small" color="success" variant="flat">
+            <v-chip v-if="!isMobile" size="x-small" color="success" variant="flat">
               <v-icon start size="12">mdi-circle</v-icon>
               Online
             </v-chip>
@@ -224,22 +230,10 @@
         </template>
       </v-list>
 
-      <!-- Bottom Actions -->
+      <!-- Bottom Actions - Solo en desktop -->
       <template v-slot:append>
-        <div class="pa-3">
-          <!-- Theme Toggle -->
-          <v-btn
-            v-if="!rail"
-            block
-            variant="text"
-            prepend-icon="mdi-theme-light-dark"
-            class="mb-2 justify-start"
-            @click="toggleTheme"
-          >
-            Tema {{ isDark ? "Claro" : "Oscuro" }}
-          </v-btn>
-
-          <!-- Rail Toggle -->
+        <div v-if="!isMobile" class="pa-3">
+          <!-- Rail Toggle - Solo en desktop -->
           <v-btn
             block
             @click="rail = !rail"
@@ -262,10 +256,21 @@
       <div class="content-wrapper">
         <router-view />
       </div>
+
+      <!-- Botón flotante del menú - Solo móviles -->
+      <v-fab
+        v-if="isMobile"
+        icon="mdi-menu"
+        color="primary"
+        size="large"
+        class="floating-menu-btn"
+        @click="toggleDrawer"
+        elevation="8"
+      />
     </v-main>
 
-    <!-- Footer -->
-    <v-footer app color="surface" border class="footer-modern px-4">
+    <!-- Footer - Oculto en móviles -->
+    <v-footer v-if="!isMobile" app color="surface" border class="footer-modern px-4">
       <div class="d-flex align-center justify-space-between w-100">
         <span class="text-caption">
           &copy; {{ new Date().getFullYear() }} Mozaico - Sistema de Gestión Restaurante
@@ -304,8 +309,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { useTheme } from "vuetify";
+import { ref, computed, onMounted, watch } from "vue";
+import { useTheme, useDisplay } from "vuetify";
+import { useRoute } from "vue-router";
 import { useClienteStore } from "@/stores/clienteStore";
 import { useAuth } from "@/stores/authStore";
 import { useConditionalRender } from "@/composables/useConditionalRender";
@@ -323,6 +329,8 @@ interface MenuItem {
 }
 
 const theme = useTheme();
+const { mobile } = useDisplay();
+const route = useRoute();
 const drawer = ref(true);
 const rail = ref(false);
 const clienteStore = useClienteStore();
@@ -332,9 +340,19 @@ const { user, isAuthenticated } = useAuth();
 const { getMenuItemVisibility } = useConditionalRender();
 
 const isDark = computed(() => theme.current.value.dark);
+const isMobile = computed(() => mobile.value);
+
+// Cerrar drawer automáticamente en móviles al cambiar de ruta
+watch(() => route.path, () => {
+  if (isMobile.value) {
+    drawer.value = false;
+  }
+});
 
 const toggleDrawer = () => {
-  if (rail.value) {
+  if (isMobile.value) {
+    drawer.value = !drawer.value;
+  } else if (rail.value) {
     rail.value = false;
   } else {
     drawer.value = !drawer.value;
@@ -714,12 +732,55 @@ onMounted(async () => {
     rgba(var(--v-theme-surface), 1) 0%,
     rgba(var(--v-theme-background), 1) 100%
   );
+  position: relative;
 }
 
 .content-wrapper {
   padding: 24px;
   max-width: 100%;
   margin: 0 auto;
+}
+
+/* Botón flotante del menú */
+.floating-menu-btn {
+  position: fixed !important;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  animation: fadeInUp 0.3s ease-out;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-radius: 50% !important;
+  overflow: hidden;
+}
+
+.floating-menu-btn :deep(.v-btn__content) {
+  border-radius: 50%;
+}
+
+.floating-menu-btn :deep(.v-btn__overlay),
+.floating-menu-btn :deep(.v-ripple__container) {
+  border-radius: 50% !important;
+}
+
+.floating-menu-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.floating-menu-btn:active {
+  transform: scale(0.95);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Footer */
@@ -765,11 +826,91 @@ onMounted(async () => {
   .content-wrapper {
     padding: 16px;
   }
+
+  /* App bar más compacto en tablets */
+  .app-bar-modern {
+    height: 60px !important;
+  }
+
+  /* Ajustar tamaño de avatar */
+  .user-profile-section .v-avatar {
+    width: 36px !important;
+    height: 36px !important;
+  }
 }
 
 @media (max-width: 600px) {
   .content-wrapper {
-    padding: 12px;
+    padding: 8px;
+  }
+
+  /* App bar más compacto en móviles */
+  .app-bar-modern {
+    height: 56px !important;
+  }
+
+  .app-bar-modern .v-toolbar__content {
+    padding: 4px 8px !important;
+  }
+
+  /* Ajustar espaciado de botones en app bar */
+  .app-bar-modern .v-btn {
+    margin: 0 2px;
+  }
+
+  /* Hacer los items del menú más grandes para mejor touch */
+  .nav-item,
+  .nav-sub-item {
+    min-height: 48px !important;
+    padding: 8px 12px !important;
+  }
+
+  /* Reducir padding del drawer */
+  .navigation-drawer-modern .v-list {
+    padding: 8px 8px !important;
+  }
+
+  /* Chips más pequeños en móvil */
+  .nav-item .v-chip,
+  .nav-sub-item .v-chip {
+    font-size: 0.6rem !important;
+    height: 18px !important;
+    min-width: 18px !important;
+  }
+
+  /* Ajustar divider */
+  .user-profile-section + .v-divider {
+    margin: 8px 12px !important;
+  }
+
+  /* Botón flotante en móviles */
+  .floating-menu-btn {
+    bottom: 20px !important;
+    right: 20px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .content-wrapper {
+    padding: 4px;
+  }
+
+  /* Ultra compacto para pantallas muy pequeñas */
+  .app-bar-modern .me-3 {
+    margin-right: 8px !important;
+  }
+
+  .app-bar-modern .v-avatar {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* Botón flotante más cerca del borde en pantallas pequeñas */
+  .floating-menu-btn {
+    bottom: 16px !important;
+    right: 16px !important;
+    width: 56px !important;
+    height: 56px !important;
   }
 }
 
