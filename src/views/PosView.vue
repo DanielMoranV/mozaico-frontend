@@ -1,78 +1,80 @@
 <template>
   <v-container fluid class="pos-container">
     <!-- Header con acciones rápidas -->
-    <v-row class="mb-4">
-      <v-col cols="12" md="8">
-        <div class="d-flex align-center">
-          <v-icon class="mr-3" color="primary" size="large">mdi-storefront</v-icon>
-          <h1 class="text-h4 font-weight-bold">Punto de Venta</h1>
-        </div>
-      </v-col>
-      <v-col cols="12" md="4" class="d-flex justify-end align-center">
-        <v-btn-toggle v-model="viewMode" variant="outlined" class="mr-3">
-          <v-btn value="grid" size="small">
-            <v-icon>mdi-view-grid</v-icon>
-          </v-btn>
-          <v-btn value="list" size="small">
-            <v-icon>mdi-view-list</v-icon>
-          </v-btn>
-        </v-btn-toggle>
+    <v-row class="mb-3">
+      <v-col cols="12">
+        <div class="d-flex align-center justify-space-between flex-wrap">
+          <div class="d-flex align-center mb-2 mb-md-0">
+            <v-icon class="mr-2" color="primary" size="large">mdi-storefront</v-icon>
+            <h1 class="text-h5 text-md-h4 font-weight-bold">Punto de Venta</h1>
+          </div>
 
-        <v-btn
-          color="primary"
-          variant="elevated"
-          prepend-icon="mdi-refresh"
-          @click="refreshMesas"
-          :loading="mesaStore.loading"
-        >
-          Actualizar
-        </v-btn>
+          <div class="d-flex align-center header-actions">
+            <v-btn-toggle v-model="viewMode" variant="outlined" class="mr-2" density="compact">
+              <v-btn value="grid" size="small">
+                <v-icon>mdi-view-grid</v-icon>
+              </v-btn>
+              <v-btn value="list" size="small">
+                <v-icon>mdi-view-list</v-icon>
+              </v-btn>
+            </v-btn-toggle>
+
+            <v-btn
+              color="primary"
+              variant="elevated"
+              size="small"
+              icon="mdi-refresh"
+              @click="refreshMesas"
+              :loading="mesaStore.loading"
+            />
+          </div>
+        </div>
       </v-col>
     </v-row>
 
     <!-- Estadísticas rápidas -->
-    <v-row class="mb-4">
+    <v-row class="mb-3">
       <v-col cols="6" sm="3">
         <v-card class="stat-card" color="success" variant="tonal">
-          <v-card-text class="text-center">
-            <v-icon size="x-large" class="mb-2">mdi-check-circle</v-icon>
-            <div class="text-h4 font-weight-bold">{{ availableTables }}</div>
-            <div class="text-caption">Disponibles</div>
+          <v-card-text class="text-center pa-3">
+            <v-icon size="large" class="mb-1">mdi-check-circle</v-icon>
+            <div class="stat-value">{{ availableTables }}</div>
+            <div class="stat-label">Disponibles</div>
           </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="6" sm="3">
         <v-card class="stat-card" color="error" variant="tonal">
-          <v-card-text class="text-center">
-            <v-icon size="x-large" class="mb-2">mdi-account-group</v-icon>
-            <div class="text-h4 font-weight-bold">{{ occupiedTables }}</div>
-            <div class="text-caption">Ocupadas</div>
+          <v-card-text class="text-center pa-3">
+            <v-icon size="large" class="mb-1">mdi-account-group</v-icon>
+            <div class="stat-value">{{ occupiedTables }}</div>
+            <div class="stat-label">Ocupadas</div>
           </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="6" sm="3">
         <v-card class="stat-card" color="warning" variant="tonal">
-          <v-card-text class="text-center">
-            <v-icon size="x-large" class="mb-2">mdi-clock-outline</v-icon>
-            <div class="text-h4 font-weight-bold">{{ reservedTables }}</div>
-            <div class="text-caption">Reservadas</div>
+          <v-card-text class="text-center pa-3">
+            <v-icon size="large" class="mb-1">mdi-clock-outline</v-icon>
+            <div class="stat-value">{{ reservedTables }}</div>
+            <div class="stat-label">Reservadas</div>
           </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="6" sm="3">
         <v-card class="stat-card" color="info" variant="tonal">
-          <v-card-text class="text-center">
-            <v-icon size="x-large" class="mb-2">mdi-tools</v-icon>
-            <div class="text-h4 font-weight-bold">{{ maintenanceTables }}</div>
-            <div class="text-caption">Mantenimiento</div>
+          <v-card-text class="text-center pa-3">
+            <v-icon size="large" class="mb-1">mdi-tools</v-icon>
+            <div class="stat-value">{{ maintenanceTables }}</div>
+            <div class="stat-label">Mantenimiento</div>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
 
     <!-- Filtros y búsqueda -->
-    <v-row class="mb-4">
-      <v-col cols="12" md="6">
+    <v-row class="mb-3">
+      <v-col cols="12" sm="6">
         <v-text-field
           v-model="searchMesa"
           label="Buscar mesa"
@@ -83,7 +85,7 @@
           hide-details
         ></v-text-field>
       </v-col>
-      <v-col cols="12" md="6">
+      <v-col cols="12" sm="6">
         <v-select
           v-model="filterEstado"
           :items="estadoOptions"
@@ -116,7 +118,7 @@
           <v-col
             v-for="mesa in filteredMesas"
             :key="mesa.idMesa"
-            cols="12" sm="6" md="4" lg="3" xl="2"
+            cols="6" sm="6" md="4" lg="3" xl="2"
           >
             <MesaCard :mesa="mesa" @select-mesa="handleSelectMesa" />
           </v-col>
@@ -337,10 +339,25 @@ const formatDate = (dateString: string) => {
 
 .stat-card {
   transition: transform 0.2s ease-in-out;
+  height: 100%;
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 4px 0;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.9;
 }
 
 .mesa-list-item {
@@ -361,6 +378,10 @@ const formatDate = (dateString: string) => {
   height: 40px;
 }
 
+.header-actions {
+  gap: 8px;
+}
+
 /* Animaciones suaves */
 .v-row {
   transition: opacity 0.3s ease;
@@ -371,21 +392,62 @@ const formatDate = (dateString: string) => {
   .pos-container {
     padding: 0 8px;
   }
-
-  .stat-card .text-h4 {
-    font-size: 1.5rem !important;
-  }
 }
 
 @media (max-width: 600px) {
-  .d-flex.justify-end {
-    justify-content: flex-start !important;
-    margin-top: 16px;
+  .pos-container {
+    padding: 0 4px;
   }
 
-  .v-btn-toggle {
+  .header-actions {
     width: 100%;
-    margin-bottom: 12px;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+  }
+
+  .stat-card .v-card-text {
+    padding: 8px !important;
+  }
+
+  .stat-card .v-icon {
+    font-size: 1.25rem !important;
+  }
+
+  /* Ajustar título del card */
+  .v-card-title {
+    font-size: 0.95rem !important;
+    padding: 12px !important;
+  }
+
+  /* Reducir gap en rows */
+  .v-row {
+    margin: -4px;
+  }
+
+  .v-row > .v-col {
+    padding: 4px;
+  }
+}
+
+@media (max-width: 400px) {
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+  }
+
+  .header-actions {
+    flex-wrap: nowrap;
   }
 }
 </style>

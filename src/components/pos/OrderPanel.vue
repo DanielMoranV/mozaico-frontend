@@ -9,21 +9,20 @@
     <v-card v-if="selectedMesa" class="order-panel-card">
       <!-- Header mejorado -->
       <v-toolbar color="primary" dark class="order-toolbar">
-        <v-avatar color="white" class="mr-3">
+        <v-avatar color="white" class="mr-2 d-none d-sm-flex" size="40">
           <v-icon color="primary">mdi-table-furniture</v-icon>
         </v-avatar>
-        <div>
-          <v-toolbar-title class="text-h6"
+        <div class="flex-grow-1">
+          <v-toolbar-title class="text-h6 text-sm-h5"
             >Mesa #{{ selectedMesa.numeroMesa }}</v-toolbar-title
           >
-          <div class="text-caption">
+          <div class="text-caption d-none d-sm-block">
             Capacidad: {{ selectedMesa.capacidad }} personas
           </div>
-          <div v-if="selectedMesa.ubicacion" class="text-caption">
+          <div v-if="selectedMesa.ubicacion" class="text-caption d-none d-sm-block">
             📍 {{ selectedMesa.ubicacion }}
           </div>
         </div>
-        <v-spacer></v-spacer>
 
         <!-- Indicador de estado del pedido -->
         <v-chip
@@ -34,16 +33,25 @@
               : getPedidoEstadoColor(currentPedido.estado)
           "
           size="small"
-          class="mr-3"
+          class="mr-2"
         >
-          {{
-            currentPedido.idPedido === 0
-              ? "Borrador"
-              : getPedidoEstadoTexto(currentPedido.estado)
-          }}
+          <span class="d-none d-sm-inline">
+            {{
+              currentPedido.idPedido === 0
+                ? "Borrador"
+                : getPedidoEstadoTexto(currentPedido.estado)
+            }}
+          </span>
+          <span class="d-sm-none">
+            {{
+              currentPedido.idPedido === 0
+                ? "Borr."
+                : getPedidoEstadoTexto(currentPedido.estado).substring(0, 4)
+            }}
+          </span>
         </v-chip>
 
-        <v-btn icon @click="closePanel">
+        <v-btn icon size="small" @click="closePanel">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-toolbar>
@@ -72,8 +80,8 @@
               </div>
 
               <!-- Búsqueda y filtros -->
-              <v-row class="mb-4">
-                <v-col cols="12" md="8">
+              <v-row class="mb-3">
+                <v-col cols="12" sm="8">
                   <v-text-field
                     v-model="searchProduct"
                     label="Buscar producto"
@@ -84,7 +92,7 @@
                     hide-details
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12" md="4">
+                <v-col cols="12" sm="4">
                   <v-select
                     v-model="selectedCategory"
                     :items="categoryOptions"
@@ -114,14 +122,14 @@
                     @click="addProductToOrder(producto)"
                     hover
                   >
-                    <v-card-text class="pa-3 text-center">
-                      <v-avatar size="50" color="primary" class="mb-2">
-                        <v-icon color="white">mdi-food-variant</v-icon>
+                    <v-card-text class="pa-2 pa-sm-3 text-center">
+                      <v-avatar size="40" color="primary" class="mb-1 mb-sm-2">
+                        <v-icon color="white" size="small">mdi-food-variant</v-icon>
                       </v-avatar>
-                      <div class="text-body-2 font-weight-bold mb-1">
+                      <div class="text-caption text-sm-body-2 font-weight-bold mb-1 product-name">
                         {{ producto.nombre }}
                       </div>
-                      <div class="text-h6 text-primary">
+                      <div class="text-body-2 text-sm-h6 text-primary">
                         S/{{ producto.precio.toFixed(2) }}
                       </div>
                     </v-card-text>
@@ -144,10 +152,10 @@
 
           <!-- Columna derecha: Resumen del pedido -->
           <v-col cols="12" lg="5" class="order-summary">
-            <div class="pa-4 order-summary-content">
-              <div class="d-flex align-center mb-4">
-                <v-icon class="mr-2" color="primary">mdi-receipt</v-icon>
-                <h3 class="text-h6">Detalle del Pedido</h3>
+            <div class="pa-3 pa-sm-4 order-summary-content">
+              <div class="d-flex align-center mb-3">
+                <v-icon class="mr-2" color="primary" size="small">mdi-receipt</v-icon>
+                <h3 class="text-subtitle-1 text-sm-h6">Detalle del Pedido</h3>
                 <v-spacer></v-spacer>
                 <v-chip
                   v-if="currentPedido?.detalles?.length"
@@ -372,18 +380,20 @@
       </v-card-text>
 
       <!-- Footer con acciones -->
-      <v-card-actions class="order-actions pa-4">
+      <v-card-actions class="order-actions pa-3 pa-sm-4">
         <v-btn
           color="error"
           variant="outlined"
+          size="small"
           @click="confirmCancelOrder"
           :disabled="loading"
-          prepend-icon="mdi-close"
+          class="flex-grow-1 flex-sm-grow-0"
         >
-          Cancelar
+          <v-icon class="d-sm-none">mdi-close</v-icon>
+          <span class="d-none d-sm-inline">Cancelar</span>
         </v-btn>
 
-        <v-spacer></v-spacer>
+        <v-spacer class="d-none d-sm-flex"></v-spacer>
 
         <!-- Botón para marcar como atendido (solo para pedidos abiertos) -->
         <v-btn
@@ -393,13 +403,14 @@
           "
           color="warning"
           variant="flat"
+          size="small"
           @click="marcarComoAtendido"
           :disabled="loading || !hasItems"
           :loading="loading"
-          prepend-icon="mdi-account-check"
-          class="mr-2"
+          class="flex-grow-1 flex-sm-grow-0"
         >
-          Marcar Atendido
+          <v-icon class="d-sm-none">mdi-account-check</v-icon>
+          <span class="d-none d-sm-inline">Marcar Atendido</span>
         </v-btn>
 
         <!-- Botón para procesar pago (solo para pedidos atendidos) -->
@@ -410,29 +421,41 @@
           "
           color="success"
           variant="flat"
+          size="small"
           @click="confirmarPago"
           :disabled="loading || !hasItems"
           :loading="loading"
-          prepend-icon="mdi-cash"
-          class="mr-2"
+          class="flex-grow-1 flex-sm-grow-0"
         >
-          Procesar Pago
+          <v-icon class="d-sm-none">mdi-cash</v-icon>
+          <span class="d-none d-sm-inline">Procesar Pago</span>
         </v-btn>
 
         <!-- Botón para crear/abrir pedido -->
         <v-btn
           color="primary"
           variant="flat"
+          size="small"
           @click="confirmFinalizeOrder"
           :disabled="loading || !hasItems"
           :loading="loading"
-          prepend-icon="mdi-plus"
+          class="flex-grow-1 flex-sm-grow-0"
         >
-          {{
-            currentPedido?.idPedido === 0
-              ? "Generar Pedido"
-              : "Agregar Productos"
-          }}
+          <v-icon class="d-sm-none">mdi-plus</v-icon>
+          <span class="d-none d-sm-inline">
+            {{
+              currentPedido?.idPedido === 0
+                ? "Generar Pedido"
+                : "Agregar Productos"
+            }}
+          </span>
+          <span class="d-sm-none">
+            {{
+              currentPedido?.idPedido === 0
+                ? "Generar"
+                : "Agregar"
+            }}
+          </span>
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -1644,13 +1667,76 @@ const crearCliente = async () => {
     border-radius: 0;
   }
 
+  .order-panel-card {
+    min-height: 100vh;
+  }
+
+  .order-toolbar {
+    padding: 8px 12px !important;
+  }
+
+  .product-selection {
+    padding: 12px 8px !important;
+  }
+
+  .product-selection .pa-4 {
+    padding: 12px !important;
+  }
+
   .product-card {
-    height: 120px;
+    height: 110px;
+  }
+
+  .product-name {
+    font-size: 0.7rem !important;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .order-items {
+    max-height: 250px;
   }
 
   .order-actions {
-    flex-wrap: wrap;
-    gap: 8px;
+    display: flex;
+    gap: 6px;
+    padding: 12px !important;
+    position: sticky;
+    bottom: 0;
+    background: white;
+    z-index: 10;
+  }
+
+  .order-actions .v-btn {
+    min-width: 0 !important;
+    padding: 0 8px !important;
+  }
+
+  .totals-card .v-card-text {
+    padding: 12px !important;
+    font-size: 0.875rem;
+  }
+
+  .totals-card .text-h6 {
+    font-size: 1.1rem !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .product-card {
+    height: 100px;
+  }
+
+  .product-name {
+    font-size: 0.65rem !important;
+  }
+
+  .order-actions .v-btn {
+    padding: 0 6px !important;
   }
 }
 
