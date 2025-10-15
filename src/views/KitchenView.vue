@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="kitchen-view pa-4">
+  <v-container fluid class="kitchen-view pa-md-4 pa-2">
     <!-- Header -->
     <v-row class="mb-4">
       <v-col cols="12">
@@ -8,31 +8,46 @@
             <div class="d-flex align-center gap-3">
               <v-icon size="x-large" color="primary">mdi-chef-hat</v-icon>
               <div>
-                <h1 class="text-h4 font-weight-bold">Kitchen Display System</h1>
-                <p class="text-body-2 text-medium-emphasis mb-0">
+                <h1
+                  :class="['font-weight-bold', mobile ? 'text-h5' : 'text-h4']"
+                >
+                  Despacho Cocina
+                </h1>
+                <p v-if="!mobile" class="text-body-2 text-medium-emphasis mb-0">
                   Gestión de preparación de pedidos
                 </p>
               </div>
             </div>
 
-            <div class="d-flex align-center gap-2">
+            <!-- Desktop Controls -->
+            <div v-if="!mobile" class="d-flex align-center gap-2">
               <!-- Filtro: Solo productos que requieren preparación -->
               <v-tooltip location="bottom">
                 <template v-slot:activator="{ props }">
                   <v-btn
                     v-bind="props"
-                    :color="kdsStore.filtroRequierePreparacion ? 'primary' : 'grey'"
+                    :color="
+                      kdsStore.filtroRequierePreparacion ? 'primary' : 'grey'
+                    "
                     variant="tonal"
                     icon
                     @click="toggleFiltroPreparacion"
                   >
                     <v-icon>
-                      {{ kdsStore.filtroRequierePreparacion ? 'mdi-chef-hat' : 'mdi-food' }}
+                      {{
+                        kdsStore.filtroRequierePreparacion
+                          ? "mdi-chef-hat"
+                          : "mdi-food"
+                      }}
                     </v-icon>
                   </v-btn>
                 </template>
                 <span>
-                  {{ kdsStore.filtroRequierePreparacion ? 'Mostrando solo cocina' : 'Mostrando todos los productos' }}
+                  {{
+                    kdsStore.filtroRequierePreparacion
+                      ? "Mostrando solo cocina"
+                      : "Mostrando todos los productos"
+                  }}
                 </span>
               </v-tooltip>
 
@@ -47,12 +62,19 @@
                     @click="toggleAutoRefresh"
                   >
                     <v-icon>
-                      {{ kdsStore.autoRefreshEnabled ? 'mdi-sync' : 'mdi-sync-off' }}
+                      {{
+                        kdsStore.autoRefreshEnabled
+                          ? "mdi-sync"
+                          : "mdi-sync-off"
+                      }}
                     </v-icon>
                   </v-btn>
                 </template>
                 <span>
-                  {{ kdsStore.autoRefreshEnabled ? 'Desactivar' : 'Activar' }} actualización automática
+                  {{
+                    kdsStore.autoRefreshEnabled ? "Desactivar" : "Activar"
+                  }}
+                  actualización automática
                 </span>
               </v-tooltip>
 
@@ -83,7 +105,105 @@
                 {{ kdsStore.totalServidos }} Listos
               </v-chip>
             </div>
+
+            <!-- Mobile Controls -->
+            <div v-else class="d-flex align-center gap-2">
+              <!-- Stats -->
+              <v-chip color="warning" label size="small">
+                <v-icon start>mdi-clipboard-list</v-icon>
+                {{ kdsStore.totalPedidos }}
+              </v-chip>
+              <v-chip color="info" label size="small">
+                <v-icon start>mdi-chef-hat</v-icon>
+                {{ kdsStore.totalEnPreparacion }}
+              </v-chip>
+              <v-chip color="success" label size="small">
+                <v-icon start>mdi-check-circle</v-icon>
+                {{ kdsStore.totalServidos }}
+              </v-chip>
+
+              <v-menu offset-y>
+                <template v-slot:activator="{ props }">
+                  <v-btn icon v-bind="props" variant="text" size="small">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </template>
+                <v-list density="compact">
+                  <!-- Refresh Action -->
+                  <v-list-item
+                    @click="refreshData"
+                    :disabled="kdsStore.loading"
+                  >
+                    <template #prepend>
+                      <v-icon>mdi-refresh</v-icon>
+                    </template>
+                    <v-list-item-title>Actualizar</v-list-item-title>
+                  </v-list-item>
+
+                  <!-- Filtro Action -->
+                  <v-list-item @click="toggleFiltroPreparacion">
+                    <template #prepend>
+                      <v-icon>
+                        {{
+                          kdsStore.filtroRequierePreparacion
+                            ? "mdi-chef-hat"
+                            : "mdi-food"
+                        }}
+                      </v-icon>
+                    </template>
+                    <v-list-item-title>
+                      {{
+                        kdsStore.filtroRequierePreparacion
+                          ? "Ver todos"
+                          : "Solo cocina"
+                      }}
+                    </v-list-item-title>
+                  </v-list-item>
+
+                  <!-- Auto-refresh Action -->
+                  <v-list-item @click="toggleAutoRefresh">
+                    <template #prepend>
+                      <v-icon
+                        :color="
+                          kdsStore.autoRefreshEnabled ? 'success' : 'grey'
+                        "
+                      >
+                        {{
+                          kdsStore.autoRefreshEnabled
+                            ? "mdi-sync"
+                            : "mdi-sync-off"
+                        }}
+                      </v-icon>
+                    </template>
+                    <v-list-item-title>
+                      {{
+                        kdsStore.autoRefreshEnabled
+                          ? "Desactivar Sync"
+                          : "Activar Sync"
+                      }}
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </div>
           </v-card-title>
+
+          <!-- Mobile subtitle -->
+          <v-card-subtitle
+            v-if="mobile"
+            class="d-flex justify-space-between align-center pt-0"
+          >
+            <span>Última act: {{ lastUpdateTime }}</span>
+            <div class="d-flex align-center text-caption">
+              <v-icon size="small" class="mr-1"
+                >{{
+                  kdsStore.autoRefreshEnabled ? "mdi-sync" : "mdi-sync-off"
+                }} </v-icon
+              ><span>{{
+                kdsStore.autoRefreshEnabled ? "Auto" : "Manual"
+              }}</span>
+            </div>
+          </v-card-subtitle>
 
           <!-- Error alert -->
           <v-alert
@@ -108,15 +228,17 @@
     </v-row>
 
     <!-- Footer info -->
-    <v-row class="mt-2">
+    <v-row class="mt-2" v-if="!mobile">
       <v-col cols="12">
         <v-card variant="tonal" color="grey-lighten-4" class="py-1">
-          <v-card-text class="d-flex justify-center align-center text-caption text-medium-emphasis pa-2">
+          <v-card-text
+            class="d-flex justify-center align-center text-caption text-medium-emphasis pa-2"
+          >
             <v-icon size="small" class="mr-1">mdi-sync</v-icon>
-            Auto-refresh 30s
+            Auto-refresh cada 30s
             <v-divider vertical class="mx-3"></v-divider>
             <v-icon size="small" class="mr-1">mdi-clock-outline</v-icon>
-            {{ lastUpdateTime }}
+            Última act: {{ lastUpdateTime }}
           </v-card-text>
         </v-card>
       </v-col>
@@ -125,12 +247,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { useKDSStore } from '@/stores/kdsStore';
-import KitchenBoard from '@/components/kds/KitchenBoard.vue';
+import { ref, onMounted, onUnmounted } from "vue";
+import { useDisplay } from "vuetify";
+import { useKDSStore } from "@/stores/kdsStore";
+import KitchenBoard from "@/components/kds/KitchenBoard.vue";
 
+const { mobile } = useDisplay();
 const kdsStore = useKDSStore();
-const lastUpdateTime = ref<string>('Nunca');
+const lastUpdateTime = ref<string>("Nunca");
 
 // Cargar datos al montar
 onMounted(async () => {
@@ -170,10 +294,10 @@ const toggleFiltroPreparacion = async () => {
 
 const updateLastUpdateTime = () => {
   const now = new Date();
-  lastUpdateTime.value = now.toLocaleTimeString('es-PE', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
+  lastUpdateTime.value = now.toLocaleTimeString("es-PE", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
   });
 };
 </script>

@@ -51,6 +51,7 @@ export interface DetallePedidoResponseDTO {
   producto: {
     idProducto: number;
     nombre: string;
+    requierePreparacion?: boolean | null;
   };
   cantidad: number;
   precioUnitario: number;

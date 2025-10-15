@@ -1,6 +1,7 @@
 <template>
   <div class="kitchen-board">
-    <v-row>
+    <!-- Desktop: 3-column layout -->
+    <v-row v-if="!mobile">
       <!-- Columna PEDIDOS (Pendientes) -->
       <v-col cols="12" md="4">
         <v-card class="column-card" elevation="0">
@@ -13,23 +14,14 @@
               {{ pedidos.length }}
             </v-chip>
           </v-card-title>
-
-          <v-divider></v-divider>
-
+          <v-divider />
           <v-card-text class="column-content pa-2">
             <div v-if="pedidos.length === 0" class="empty-state text-center pa-4">
               <v-icon size="64" color="grey-lighten-2">mdi-tray</v-icon>
-              <p class="text-body-2 text-medium-emphasis mt-2">
-                No hay pedidos pendientes
-              </p>
+              <p class="text-body-2 text-medium-emphasis mt-2">No hay pedidos pendientes</p>
             </div>
-
             <v-fade-transition group>
-              <div
-                v-for="detalle in pedidos"
-                :key="`pedido-${detalle.idDetalle}`"
-                class="mb-3"
-              >
+              <div v-for="detalle in pedidos" :key="`pedido-${detalle.idDetalle}`" class="mb-3">
                 <KitchenOrderCard
                   :detalle="detalle"
                   :loading="loadingDetalle === detalle.idDetalle"
@@ -54,23 +46,14 @@
               {{ enPreparacion.length }}
             </v-chip>
           </v-card-title>
-
-          <v-divider></v-divider>
-
+          <v-divider />
           <v-card-text class="column-content pa-2">
             <div v-if="enPreparacion.length === 0" class="empty-state text-center pa-4">
               <v-icon size="64" color="grey-lighten-2">mdi-tray</v-icon>
-              <p class="text-body-2 text-medium-emphasis mt-2">
-                No hay productos en preparación
-              </p>
+              <p class="text-body-2 text-medium-emphasis mt-2">No hay productos en preparación</p>
             </div>
-
             <v-fade-transition group>
-              <div
-                v-for="detalle in enPreparacion"
-                :key="`prep-${detalle.idDetalle}`"
-                class="mb-3"
-              >
+              <div v-for="detalle in enPreparacion" :key="`prep-${detalle.idDetalle}`" class="mb-3">
                 <KitchenOrderCard
                   :detalle="detalle"
                   :loading="loadingDetalle === detalle.idDetalle"
@@ -95,27 +78,15 @@
               {{ servidos.length }}
             </v-chip>
           </v-card-title>
-
-          <v-divider></v-divider>
-
+          <v-divider />
           <v-card-text class="column-content pa-2">
             <div v-if="servidos.length === 0" class="empty-state text-center pa-4">
               <v-icon size="64" color="grey-lighten-2">mdi-tray</v-icon>
-              <p class="text-body-2 text-medium-emphasis mt-2">
-                No hay productos listos
-              </p>
+              <p class="text-body-2 text-medium-emphasis mt-2">No hay productos listos</p>
             </div>
-
             <v-fade-transition group>
-              <div
-                v-for="detalle in servidos"
-                :key="`servido-${detalle.idDetalle}`"
-                class="mb-3"
-              >
-                <KitchenOrderCard
-                  :detalle="detalle"
-                  :loading="loadingDetalle === detalle.idDetalle"
-                />
+              <div v-for="detalle in servidos" :key="`servido-${detalle.idDetalle}`" class="mb-3">
+                <KitchenOrderCard :detalle="detalle" :loading="loadingDetalle === detalle.idDetalle" />
               </div>
             </v-fade-transition>
           </v-card-text>
@@ -123,18 +94,105 @@
       </v-col>
     </v-row>
 
+    <!-- Mobile: Horizontal Scroll Carousel -->
+    <div v-else class="mobile-carousel">
+      <!-- Columna PEDIDOS (Pendientes) -->
+      <div class="mobile-column">
+        <v-card class="column-card" elevation="0">
+          <v-card-title class="d-flex justify-space-between align-center pa-4 bg-warning">
+            <div class="d-flex align-center gap-2">
+              <v-icon color="white" size="large">mdi-clipboard-list</v-icon>
+              <span class="text-h6 text-white">Pendientes</span>
+            </div>
+            <v-chip color="white" variant="flat" size="small">
+              {{ pedidos.length }}
+            </v-chip>
+          </v-card-title>
+          <v-divider />
+          <v-card-text class="column-content pa-2">
+            <div v-if="pedidos.length === 0" class="empty-state text-center pa-4">
+              <v-icon size="64" color="grey-lighten-2">mdi-tray</v-icon>
+              <p class="text-body-2 text-medium-emphasis mt-2">No hay pedidos pendientes</p>
+            </div>
+            <v-fade-transition group>
+              <div v-for="detalle in pedidos" :key="`pedido-${detalle.idDetalle}`" class="mb-3">
+                <KitchenOrderCard
+                  :detalle="detalle"
+                  :loading="loadingDetalle === detalle.idDetalle"
+                  @iniciar-preparacion="handleIniciarPreparacion"
+                  @cancelar="handleCancelar"
+                />
+              </div>
+            </v-fade-transition>
+          </v-card-text>
+        </v-card>
+      </div>
+
+      <!-- Columna EN_PREPARACION -->
+      <div class="mobile-column">
+        <v-card class="column-card" elevation="0">
+          <v-card-title class="d-flex justify-space-between align-center pa-4 bg-info">
+            <div class="d-flex align-center gap-2">
+              <v-icon color="white" size="large">mdi-chef-hat</v-icon>
+              <span class="text-h6 text-white">En Preparación</span>
+            </div>
+            <v-chip color="white" variant="flat" size="small">
+              {{ enPreparacion.length }}
+            </v-chip>
+          </v-card-title>
+          <v-divider />
+          <v-card-text class="column-content pa-2">
+            <div v-if="enPreparacion.length === 0" class="empty-state text-center pa-4">
+              <v-icon size="64" color="grey-lighten-2">mdi-tray</v-icon>
+              <p class="text-body-2 text-medium-emphasis mt-2">No hay productos en preparación</p>
+            </div>
+            <v-fade-transition group>
+              <div v-for="detalle in enPreparacion" :key="`prep-${detalle.idDetalle}`" class="mb-3">
+                <KitchenOrderCard
+                  :detalle="detalle"
+                  :loading="loadingDetalle === detalle.idDetalle"
+                  @marcar-servido="handleMarcarServido"
+                  @cancelar="handleCancelar"
+                />
+              </div>
+            </v-fade-transition>
+          </v-card-text>
+        </v-card>
+      </div>
+
+      <!-- Columna SERVIDOS -->
+      <div class="mobile-column">
+        <v-card class="column-card" elevation="0">
+          <v-card-title class="d-flex justify-space-between align-center pa-4 bg-success">
+            <div class="d-flex align-center gap-2">
+              <v-icon color="white" size="large">mdi-check-circle</v-icon>
+              <span class="text-h6 text-white">Listos</span>
+            </div>
+            <v-chip color="white" variant="flat" size="small">
+              {{ servidos.length }}
+            </v-chip>
+          </v-card-title>
+          <v-divider />
+          <v-card-text class="column-content pa-2">
+            <div v-if="servidos.length === 0" class="empty-state text-center pa-4">
+              <v-icon size="64" color="grey-lighten-2">mdi-tray</v-icon>
+              <p class="text-body-2 text-medium-emphasis mt-2">No hay productos listos</p>
+            </div>
+            <v-fade-transition group>
+              <div v-for="detalle in servidos" :key="`servido-${detalle.idDetalle}`" class="mb-3">
+                <KitchenOrderCard :detalle="detalle" :loading="loadingDetalle === detalle.idDetalle" />
+              </div>
+            </v-fade-transition>
+          </v-card-text>
+        </v-card>
+      </div>
+    </div>
+
     <!-- Snackbar para notificaciones -->
-    <v-snackbar
-      v-model="snackbar.show"
-      :color="snackbar.color"
-      :timeout="3000"
-      location="top"
-    >
+    <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="3000" location="top">
       {{ snackbar.message }}
       <template v-slot:actions>
-        <v-btn variant="text" @click="snackbar.show = false">
-          Cerrar
-        </v-btn>
+        <v-btn variant="text" @click="snackbar.show = false">Cerrar</v-btn>
       </template>
     </v-snackbar>
   </div>
@@ -142,12 +200,14 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useDisplay } from 'vuetify';
 import { useKDSStore } from '@/stores/kdsStore';
 import KitchenOrderCard from './KitchenOrderCard.vue';
-import type { DetallePedidoResponseDTO } from '@/types/detallePedido';
 
+const { mobile } = useDisplay();
 const kdsStore = useKDSStore();
 const loadingDetalle = ref<number | null>(null);
+const activeTab = ref('pedidos');
 
 const snackbar = ref({
   show: false,
@@ -190,7 +250,6 @@ const handleMarcarServido = async (detalleId: number) => {
 };
 
 const handleCancelar = async (detalleId: number) => {
-  // La confirmación ahora se maneja en el componente KitchenOrderCard
   loadingDetalle.value = detalleId;
   try {
     const result = await kdsStore.cancelarProducto(detalleId);
@@ -228,7 +287,8 @@ const showNotification = (message: string, color: string) => {
 .column-content {
   flex: 1;
   overflow-y: auto;
-  max-height: calc(100vh - 250px);
+  /* Ajuste de altura para móvil y escritorio */
+  max-height: calc(100vh - 200px);
 }
 
 .column-content::-webkit-scrollbar {
@@ -259,5 +319,28 @@ const showNotification = (message: string, color: string) => {
 
 .gap-2 {
   gap: 8px;
+}
+
+/* Estilos para el carrusel móvil */
+.mobile-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 16px; /* Espacio entre columnas */
+}
+
+.mobile-column {
+  flex: 0 0 90%; /* Cada columna ocupa el 90% del ancho */
+  scroll-snap-align: start;
+}
+
+/* Ocultar la barra de scroll horizontal del carrusel */
+.mobile-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-carousel {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 </style>

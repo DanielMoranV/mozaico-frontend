@@ -118,7 +118,12 @@ export const useKDSStore = defineStore("kds", () => {
     try {
       setLoading(true);
       clearError();
-      const filtro = requierePreparacion !== undefined ? requierePreparacion : filtroRequierePreparacion.value;
+      const filtro =
+        requierePreparacion !== undefined
+          ? requierePreparacion
+          : filtroRequierePreparacion.value;
+
+      // Cargar el tablero completo con el filtro del usuario
       const response = await KDSService.obtenerTableroCompleto(filtro);
 
       if (response.status === "SUCCESS") {
@@ -131,7 +136,8 @@ export const useKDSStore = defineStore("kds", () => {
         return { success: false, error: response.message };
       }
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || "Error al cargar tablero KDS";
+      const errorMsg =
+        err.response?.data?.message || "Error al cargar tablero KDS";
       setError(errorMsg);
       return { success: false, error: errorMsg };
     } finally {

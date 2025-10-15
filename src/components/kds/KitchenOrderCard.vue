@@ -2,29 +2,30 @@
   <v-card
     :class="['kitchen-order-card', `estado-${detalle.estado.toLowerCase()}`]"
     elevation="3"
+    density="compact"
   >
-    <v-card-title class="d-flex justify-space-between align-center pa-3">
+    <v-card-title class="d-flex justify-space-between align-center pa-2">
       <div class="d-flex align-center gap-2">
         <v-icon :color="getIconColor()" size="small">{{ getIcon() }}</v-icon>
-        <span class="text-h6"
+        <span class="text-subtitle-1 font-weight-bold"
           >Mesa {{ detalle.pedido?.mesa?.numeroMesa || "N/A" }}</span
         >
       </div>
-      <v-chip :color="getEstadoColor()" size="small" variant="flat">
+      <v-chip :color="getEstadoColor()" size="x-small" variant="flat">
         {{ getEstadoLabel() }}
       </v-chip>
     </v-card-title>
 
     <v-divider></v-divider>
 
-    <v-card-text class="pa-3">
+    <v-card-text class="pa-2">
       <!-- Información del producto -->
-      <div class="product-info mb-3">
-        <div class="d-flex justify-space-between align-center mb-2">
-          <h3 class="text-h5 font-weight-bold">
+      <div class="product-info mb-2">
+        <div class="d-flex justify-space-between align-center mb-1">
+          <h3 class="text-h6 font-weight-bold">
             {{ detalle.producto.nombre }}
           </h3>
-          <v-chip color="primary" size="large" variant="tonal">
+          <v-chip color="primary" size="default" variant="tonal">
             x{{ detalle.cantidad }}
           </v-chip>
         </div>
@@ -35,10 +36,10 @@
           density="compact"
           type="info"
           variant="tonal"
-          class="mt-2"
+          class="mt-2 text-caption"
         >
           <v-icon size="small" class="mr-2">mdi-note-text</v-icon>
-          <strong>Observaciones:</strong> {{ detalle.observaciones }}
+          <strong>Obs:</strong> {{ detalle.observaciones }}
         </v-alert>
       </div>
 
@@ -71,15 +72,17 @@
     <v-divider></v-divider>
 
     <!-- Botones de acción -->
-    <v-card-actions class="pa-3">
-      <div class="d-flex flex-column gap-2 w-100">
+    <v-card-actions class="pa-2">
+      <div class="d-flex flex-column gap-1 w-100">
         <!-- Botón principal según estado -->
         <v-btn
-          v-if="detalle.estado === 'PEDIDO'"
+          v-if="
+            detalle.estado === 'PEDIDO' && detalle.producto.requierePreparacion
+          "
           color="success"
           variant="flat"
           block
-          size="large"
+          size="default"
           :loading="loading"
           @click="$emit('iniciar-preparacion', detalle.idDetalle)"
         >
@@ -88,11 +91,26 @@
         </v-btn>
 
         <v-btn
+          v-else-if="
+            detalle.estado === 'PEDIDO' && !detalle.producto.requierePreparacion
+          "
+          color="primary"
+          variant="flat"
+          block
+          size="default"
+          :loading="loading"
+          @click="$emit('marcar-servido', detalle.idDetalle)"
+        >
+          <v-icon start>mdi-check-circle</v-icon>
+          Marcar como Listo
+        </v-btn>
+
+        <v-btn
           v-else-if="detalle.estado === 'EN_PREPARACION'"
           color="primary"
           variant="flat"
           block
-          size="large"
+          size="default"
           :loading="loading"
           @click="$emit('marcar-servido', detalle.idDetalle)"
         >
@@ -105,7 +123,7 @@
           color="success"
           variant="tonal"
           block
-          size="large"
+          size="default"
           disabled
         >
           <v-icon start>mdi-check-all</v-icon>
@@ -118,6 +136,7 @@
           color="error"
           variant="outlined"
           block
+          density="compact"
           :loading="loading"
           @click="mostrarDialogoCancelar = true"
         >
@@ -129,13 +148,13 @@
 
     <!-- Diálogo de confirmación de cancelación -->
     <v-dialog v-model="mostrarDialogoCancelar" max-width="400">
-      <v-card>
-        <v-card-title class="d-flex align-center gap-2 bg-error pa-4">
+      <v-card density="compact">
+        <v-card-title class="d-flex align-center gap-2 bg-error pa-3">
           <v-icon color="white" size="large">mdi-alert-circle</v-icon>
-          <span class="text-white">Cancelar Producto</span>
+          <span class="text-white text-h6">Cancelar Producto</span>
         </v-card-title>
 
-        <v-card-text class="pa-6">
+        <v-card-text class="pa-4">
           <p class="text-body-1 mb-3">
             ¿Estás seguro de que deseas cancelar este producto?
           </p>
@@ -157,7 +176,7 @@
 
         <v-divider></v-divider>
 
-        <v-card-actions class="pa-4">
+        <v-card-actions class="pa-3">
           <v-spacer></v-spacer>
           <v-btn variant="text" @click="mostrarDialogoCancelar = false">
             No, volver
@@ -327,7 +346,7 @@ const formatearFecha = (fecha?: string) => {
 }
 
 .product-info {
-  min-height: 60px;
+  min-height: auto; /* Reducido para compactar */
 }
 
 .gap-1 {
