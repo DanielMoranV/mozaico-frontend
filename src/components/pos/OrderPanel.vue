@@ -1797,6 +1797,42 @@ const showError = (message: string) => {
 const marcarComoAtendido = async () => {
   if (!currentPedido.value || loading.value) return;
 
+  // Validar que todos los productos estén en estado SERVIDO
+  const todosServidos = currentPedido.value.detalles?.every(
+    (detalle) => detalle.estado === EstadoDetallePedido.SERVIDO
+  );
+
+  if (!todosServidos) {
+    // Contar cuántos productos faltan por servir
+    const pendientesDeServir = currentPedido.value.detalles?.filter(
+      (detalle) => detalle.estado !== EstadoDetallePedido.SERVIDO
+    ) || [];
+
+    const estadosCount = {
+      PEDIDO: 0,
+      EN_PREPARACION: 0,
+      LISTO: 0,
+      SERVIDO: 0,
+    };
+
+    pendientesDeServir.forEach((detalle) => {
+      const estado = detalle.estado;
+      if (estado === EstadoDetallePedido.PEDIDO) estadosCount.PEDIDO++;
+      else if (estado === EstadoDetallePedido.EN_PREPARACION) estadosCount.EN_PREPARACION++;
+      else if (estado === EstadoDetallePedido.LISTO) estadosCount.LISTO++;
+    });
+
+    const mensajes: string[] = [];
+    if (estadosCount.PEDIDO > 0) mensajes.push(`${estadosCount.PEDIDO} pendiente${estadosCount.PEDIDO > 1 ? 's' : ''}`);
+    if (estadosCount.EN_PREPARACION > 0) mensajes.push(`${estadosCount.EN_PREPARACION} en cocina`);
+    if (estadosCount.LISTO > 0) mensajes.push(`${estadosCount.LISTO} listo${estadosCount.LISTO > 1 ? 's' : ''} para servir`);
+
+    showError(
+      `No se puede marcar como atendido. ${pendientesDeServir.length} producto${pendientesDeServir.length > 1 ? 's' : ''} sin servir: ${mensajes.join(', ')}`
+    );
+    return;
+  }
+
   loading.value = true;
   try {
     const result = await pedidoStore.actualizarPedido(

@@ -46,8 +46,12 @@ export const useKDSStore = defineStore("kds", () => {
   const detallesListosOrdenados = computed(() => {
     return [...detallesListos.value].sort((a, b) => {
       // Ordenar por fechaEstadoActualizado si existe, sino por fechaCreacion
-      const dateA = new Date(a.fechaEstadoActualizado || a.fechaCreacion).getTime();
-      const dateB = new Date(b.fechaEstadoActualizado || b.fechaCreacion).getTime();
+      const dateA = new Date(
+        a.fechaEstadoActualizado || a.fechaCreacion
+      ).getTime();
+      const dateB = new Date(
+        b.fechaEstadoActualizado || b.fechaCreacion
+      ).getTime();
       return dateB - dateA; // Más nuevo primero (LIFO)
     });
   });
@@ -55,8 +59,12 @@ export const useKDSStore = defineStore("kds", () => {
   const detallesServidosOrdenados = computed(() => {
     return [...detallesServidos.value].sort((a, b) => {
       // Ordenar por fechaEstadoActualizado si existe, sino por fechaCreacion
-      const dateA = new Date(a.fechaEstadoActualizado || a.fechaCreacion).getTime();
-      const dateB = new Date(b.fechaEstadoActualizado || b.fechaCreacion).getTime();
+      const dateA = new Date(
+        a.fechaEstadoActualizado || a.fechaCreacion
+      ).getTime();
+      const dateB = new Date(
+        b.fechaEstadoActualizado || b.fechaCreacion
+      ).getTime();
       return dateB - dateA; // Más nuevo primero (DESC)
     });
   });
@@ -122,8 +130,14 @@ export const useKDSStore = defineStore("kds", () => {
     try {
       setLoading(true);
       clearError();
-      const filtro = requierePreparacion !== undefined ? requierePreparacion : filtroRequierePreparacion.value;
-      const response = await KDSService.obtenerDetallesPorEstado(estado, filtro);
+      const filtro =
+        requierePreparacion !== undefined
+          ? requierePreparacion
+          : filtroRequierePreparacion.value;
+      const response = await KDSService.obtenerDetallesPorEstado(
+        estado,
+        filtro
+      );
 
       if (response.status === "SUCCESS") {
         switch (estado) {
@@ -146,7 +160,8 @@ export const useKDSStore = defineStore("kds", () => {
         return { success: false, error: response.message };
       }
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || "Error al cargar detalles";
+      const errorMsg =
+        err.response?.data?.message || "Error al cargar detalles";
       setError(errorMsg);
       return { success: false, error: errorMsg };
     } finally {
@@ -199,7 +214,10 @@ export const useKDSStore = defineStore("kds", () => {
   ) => {
     try {
       clearError();
-      const response = await KDSService.cambiarEstadoDetalle(detalleId, nuevoEstado);
+      const response = await KDSService.cambiarEstadoDetalle(
+        detalleId,
+        nuevoEstado
+      );
 
       if (response.status === "SUCCESS") {
         // Actualizar el estado local moviendo el detalle entre listas
