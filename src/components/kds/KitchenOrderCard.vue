@@ -1,31 +1,31 @@
 <template>
   <v-card
     :class="['kitchen-order-card', `estado-${detalle.estado.toLowerCase()}`]"
-    elevation="3"
+    elevation="2"
     density="compact"
   >
-    <v-card-title class="d-flex justify-space-between align-center pa-2">
-      <div class="d-flex align-center gap-2">
-        <v-icon :color="getIconColor()" size="small">{{ getIcon() }}</v-icon>
-        <span class="text-subtitle-1 font-weight-bold"
+    <v-card-title class="d-flex justify-space-between align-center pa-1 px-2">
+      <div class="d-flex align-center gap-1">
+        <v-icon :color="getIconColor()" size="x-small">{{ getIcon() }}</v-icon>
+        <span class="text-subtitle-2 font-weight-bold"
           >Mesa {{ detalle.pedido?.mesa?.numeroMesa || "N/A" }}</span
         >
       </div>
-      <v-chip :color="getEstadoColor()" size="x-small" variant="flat">
+      <v-chip :color="getEstadoColor()" size="x-small" variant="flat" class="text-caption">
         {{ getEstadoLabel() }}
       </v-chip>
     </v-card-title>
 
     <v-divider></v-divider>
 
-    <v-card-text class="pa-2">
+    <v-card-text class="pa-2 py-1">
       <!-- Información del producto -->
-      <div class="product-info mb-2">
-        <div class="d-flex justify-space-between align-center mb-1">
-          <h3 class="text-h6 font-weight-bold">
+      <div class="product-info mb-1">
+        <div class="d-flex justify-space-between align-center">
+          <h3 class="text-subtitle-1 font-weight-bold mb-0">
             {{ detalle.producto.nombre }}
           </h3>
-          <v-chip color="primary" size="default" variant="tonal">
+          <v-chip color="primary" size="small" variant="tonal" class="ml-2">
             x{{ detalle.cantidad }}
           </v-chip>
         </div>
@@ -36,22 +36,24 @@
           density="compact"
           type="info"
           variant="tonal"
-          class="mt-2 text-caption"
+          class="mt-1 pa-1 text-caption"
         >
-          <v-icon size="small" class="mr-2">mdi-note-text</v-icon>
-          <strong>Obs:</strong> {{ detalle.observaciones }}
+          <div class="d-flex align-center">
+            <v-icon size="x-small" class="mr-1">mdi-note-text</v-icon>
+            <span><strong>Obs:</strong> {{ detalle.observaciones }}</span>
+          </div>
         </v-alert>
       </div>
 
       <!-- Información adicional del pedido -->
       <div class="order-metadata text-caption text-medium-emphasis">
-        <div class="d-flex align-center gap-1 mb-1">
+        <div class="d-flex align-center gap-1">
           <v-icon size="x-small">mdi-clock-outline</v-icon>
           <span>{{ formatearFecha(detalle.pedido?.fechaPedido) }}</span>
         </div>
         <div
           v-if="detalle.pedido?.cliente"
-          class="d-flex align-center gap-1 mb-1"
+          class="d-flex align-center gap-1"
         >
           <v-icon size="x-small">mdi-account</v-icon>
           <span
@@ -72,9 +74,10 @@
     <v-divider></v-divider>
 
     <!-- Botones de acción -->
-    <v-card-actions class="pa-2">
-      <div class="d-flex flex-column gap-1 w-100">
+    <v-card-actions class="pa-1 px-2">
+      <div class="d-flex flex-column w-100" style="gap: 4px">
         <!-- Botón principal según estado -->
+        <!-- PEDIDO: Productos que requieren preparación → Iniciar Preparación -->
         <v-btn
           v-if="
             detalle.estado === 'PEDIDO' && detalle.producto.requierePreparacion
@@ -82,14 +85,15 @@
           color="success"
           variant="flat"
           block
-          size="default"
+          size="small"
           :loading="loading"
           @click="$emit('iniciar-preparacion', detalle.idDetalle)"
         >
-          <v-icon start>mdi-chef-hat</v-icon>
-          Iniciar Preparación
+          <v-icon start size="small">mdi-chef-hat</v-icon>
+          <span class="text-caption">Iniciar</span>
         </v-btn>
 
+        <!-- PEDIDO: Productos que NO requieren preparación → Marcar como Listo directamente -->
         <v-btn
           v-else-if="
             detalle.estado === 'PEDIDO' && !detalle.producto.requierePreparacion
@@ -97,51 +101,67 @@
           color="primary"
           variant="flat"
           block
-          size="default"
+          size="small"
           :loading="loading"
-          @click="$emit('marcar-servido', detalle.idDetalle)"
+          @click="$emit('marcar-listo', detalle.idDetalle)"
         >
-          <v-icon start>mdi-check-circle</v-icon>
-          Marcar como Listo
+          <v-icon start size="small">mdi-room-service</v-icon>
+          <span class="text-caption">Listo</span>
         </v-btn>
 
+        <!-- EN_PREPARACION: Cocina terminó → Marcar como Listo -->
         <v-btn
           v-else-if="detalle.estado === 'EN_PREPARACION'"
           color="primary"
           variant="flat"
           block
-          size="default"
+          size="small"
+          :loading="loading"
+          @click="$emit('marcar-listo', detalle.idDetalle)"
+        >
+          <v-icon start size="small">mdi-room-service</v-icon>
+          <span class="text-caption">Listo</span>
+        </v-btn>
+
+        <!-- LISTO: Mesero recoge → Marcar como Servido -->
+        <v-btn
+          v-else-if="detalle.estado === 'LISTO'"
+          color="success"
+          variant="flat"
+          block
+          size="small"
           :loading="loading"
           @click="$emit('marcar-servido', detalle.idDetalle)"
         >
-          <v-icon start>mdi-check-circle</v-icon>
-          Marcar como Listo
+          <v-icon start size="small">mdi-check-all</v-icon>
+          <span class="text-caption">Servido</span>
         </v-btn>
 
+        <!-- SERVIDO: Estado final -->
         <v-btn
           v-else-if="detalle.estado === 'SERVIDO'"
           color="success"
           variant="tonal"
           block
-          size="default"
+          size="small"
           disabled
         >
-          <v-icon start>mdi-check-all</v-icon>
-          Servido
+          <v-icon start size="small">mdi-check-all</v-icon>
+          <span class="text-caption">Servido</span>
         </v-btn>
 
         <!-- Botón de cancelar (siempre disponible excepto cuando ya está cancelado o servido) -->
         <v-btn
           v-if="detalle.estado !== 'CANCELADO' && detalle.estado !== 'SERVIDO'"
           color="error"
-          variant="outlined"
+          variant="text"
           block
-          density="compact"
+          size="x-small"
           :loading="loading"
           @click="mostrarDialogoCancelar = true"
         >
-          <v-icon start>mdi-close-circle</v-icon>
-          Cancelar Producto
+          <v-icon start size="x-small">mdi-close-circle</v-icon>
+          <span class="text-caption">Cancelar</span>
         </v-btn>
       </div>
     </v-card-actions>
@@ -211,6 +231,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   "iniciar-preparacion": [detalleId: number];
+  "marcar-listo": [detalleId: number];
   "marcar-servido": [detalleId: number];
   cancelar: [detalleId: number];
 }>();
@@ -230,8 +251,10 @@ const getIcon = () => {
       return "mdi-clipboard-list";
     case "EN_PREPARACION":
       return "mdi-chef-hat";
+    case "LISTO":
+      return "mdi-room-service";
     case "SERVIDO":
-      return "mdi-check-circle";
+      return "mdi-check-all";
     case "CANCELADO":
       return "mdi-close-circle";
     default:
@@ -245,6 +268,8 @@ const getIconColor = () => {
       return "warning";
     case "EN_PREPARACION":
       return "info";
+    case "LISTO":
+      return "primary";
     case "SERVIDO":
       return "success";
     case "CANCELADO":
@@ -260,6 +285,8 @@ const getEstadoColor = () => {
       return "warning";
     case "EN_PREPARACION":
       return "info";
+    case "LISTO":
+      return "primary";
     case "SERVIDO":
       return "success";
     case "CANCELADO":
@@ -275,6 +302,8 @@ const getEstadoLabel = () => {
       return "Pendiente";
     case "EN_PREPARACION":
       return "En Preparación";
+    case "LISTO":
+      return "Listo";
     case "SERVIDO":
       return "Servido";
     case "CANCELADO":
@@ -318,6 +347,10 @@ const formatearFecha = (fecha?: string) => {
 .kitchen-order-card.estado-en_preparacion {
   border-left-color: rgb(var(--v-theme-info));
   animation: pulse 2s infinite;
+}
+
+.kitchen-order-card.estado-listo {
+  border-left-color: rgb(var(--v-theme-primary));
 }
 
 .kitchen-order-card.estado-servido {

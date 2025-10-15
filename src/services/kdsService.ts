@@ -63,17 +63,21 @@ export class KDSService {
    */
   static async obtenerTableroCompleto(
     requierePreparacion: boolean = true
-  ): Promise<
-    ApiResponse<{
+  ): Promise<{
+    status: "SUCCESS" | "ERROR";
+    message: string;
+    data: {
       pedidos: DetallePedidoResponseDTO[];
       enPreparacion: DetallePedidoResponseDTO[];
+      listos: DetallePedidoResponseDTO[];
       servidos: DetallePedidoResponseDTO[];
-    }>
-  > {
+    };
+  }> {
     try {
-      const [pedidosRes, enPrepRes, servidosRes] = await Promise.all([
+      const [pedidosRes, enPrepRes, listosRes, servidosRes] = await Promise.all([
         this.obtenerDetallesPorEstado("PEDIDO", requierePreparacion),
         this.obtenerDetallesPorEstado("EN_PREPARACION", requierePreparacion),
+        this.obtenerDetallesPorEstado("LISTO", requierePreparacion),
         this.obtenerDetallesPorEstado("SERVIDO", requierePreparacion),
       ]);
 
@@ -83,6 +87,7 @@ export class KDSService {
         data: {
           pedidos: pedidosRes.data || [],
           enPreparacion: enPrepRes.data || [],
+          listos: listosRes.data || [],
           servidos: servidosRes.data || [],
         },
       };

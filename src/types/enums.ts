@@ -62,11 +62,11 @@ export type TipoServicio = (typeof TipoServicio)[keyof typeof TipoServicio];
 export const EstadoDetallePedido = {
   PEDIDO: 'PEDIDO',             // Cliente pidió el producto
   EN_PREPARACION: 'EN_PREPARACION', // Cocina preparando
+  LISTO: 'LISTO',               // Cocina terminó, listo para servir
   SERVIDO: 'SERVIDO',           // Producto entregado al cliente
   CANCELADO: 'CANCELADO',       // Producto cancelado
   // Estados legacy para compatibilidad
   PENDIENTE: 'PENDIENTE',
-  LISTO: 'LISTO',
   ENTREGADO: 'ENTREGADO',
 } as const;
 

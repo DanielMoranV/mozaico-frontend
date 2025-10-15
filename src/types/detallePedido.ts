@@ -51,6 +51,7 @@ export interface DetallePedidoResponseDTO {
   producto: {
     idProducto: number;
     nombre: string;
+    precio: number;
     requierePreparacion?: boolean | null;
   };
   cantidad: number;
@@ -58,6 +59,8 @@ export interface DetallePedidoResponseDTO {
   subtotal: number;
   observaciones?: string;
   estado: EstadoDetallePedido;
+  fechaCreacion: string; // ISO 8601 format - Cuándo se creó el detalle
+  fechaEstadoActualizado: string | null; // ISO 8601 format - Cuándo cambió de estado por última vez
 }
 
 export interface DetallePedidoUpdateDTO {

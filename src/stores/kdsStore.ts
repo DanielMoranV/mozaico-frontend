@@ -8,6 +8,7 @@ export const useKDSStore = defineStore("kds", () => {
   // State
   const detallesPedido = ref<DetallePedidoResponseDTO[]>([]);
   const detallesEnPreparacion = ref<DetallePedidoResponseDTO[]>([]);
+  const detallesListos = ref<DetallePedidoResponseDTO[]>([]);
   const detallesServidos = ref<DetallePedidoResponseDTO[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
@@ -15,10 +16,50 @@ export const useKDSStore = defineStore("kds", () => {
   const refreshInterval = ref<number | null>(null);
   const filtroRequierePreparacion = ref(true); // Por defecto solo productos que requieren preparación
 
-  // Getters
+  // Getters con ordenamiento defensivo
+  // PEDIDO y EN_PREPARACION: Más antiguo primero (FIFO - First In First Out)
+  // LISTO: Más nuevo primero (LIFO - Last In First Out) - Mostrar recién terminados arriba
+  // SERVIDO: Más nuevo primero (DESC) - Ver últimos productos entregados
+
   const totalPedidos = computed(() => detallesPedido.value.length);
   const totalEnPreparacion = computed(() => detallesEnPreparacion.value.length);
+  const totalListos = computed(() => detallesListos.value.length);
   const totalServidos = computed(() => detallesServidos.value.length);
+
+  // Detalles ordenados según la documentación
+  const detallesPedidoOrdenados = computed(() => {
+    return [...detallesPedido.value].sort((a, b) => {
+      const dateA = new Date(a.fechaCreacion).getTime();
+      const dateB = new Date(b.fechaCreacion).getTime();
+      return dateA - dateB; // Más antiguo primero (FIFO)
+    });
+  });
+
+  const detallesEnPreparacionOrdenados = computed(() => {
+    return [...detallesEnPreparacion.value].sort((a, b) => {
+      const dateA = new Date(a.fechaCreacion).getTime();
+      const dateB = new Date(b.fechaCreacion).getTime();
+      return dateA - dateB; // Más antiguo primero (FIFO)
+    });
+  });
+
+  const detallesListosOrdenados = computed(() => {
+    return [...detallesListos.value].sort((a, b) => {
+      // Ordenar por fechaEstadoActualizado si existe, sino por fechaCreacion
+      const dateA = new Date(a.fechaEstadoActualizado || a.fechaCreacion).getTime();
+      const dateB = new Date(b.fechaEstadoActualizado || b.fechaCreacion).getTime();
+      return dateB - dateA; // Más nuevo primero (LIFO)
+    });
+  });
+
+  const detallesServidosOrdenados = computed(() => {
+    return [...detallesServidos.value].sort((a, b) => {
+      // Ordenar por fechaEstadoActualizado si existe, sino por fechaCreacion
+      const dateA = new Date(a.fechaEstadoActualizado || a.fechaCreacion).getTime();
+      const dateB = new Date(b.fechaEstadoActualizado || b.fechaCreacion).getTime();
+      return dateB - dateA; // Más nuevo primero (DESC)
+    });
+  });
 
   // Agrupar por mesa para mejor visualización
   const detallesPorMesa = computed(() => {
@@ -92,6 +133,9 @@ export const useKDSStore = defineStore("kds", () => {
           case "EN_PREPARACION":
             detallesEnPreparacion.value = response.data;
             break;
+          case "LISTO":
+            detallesListos.value = response.data;
+            break;
           case "SERVIDO":
             detallesServidos.value = response.data;
             break;
@@ -129,6 +173,7 @@ export const useKDSStore = defineStore("kds", () => {
       if (response.status === "SUCCESS") {
         detallesPedido.value = response.data.pedidos;
         detallesEnPreparacion.value = response.data.enPreparacion;
+        detallesListos.value = response.data.listos;
         detallesServidos.value = response.data.servidos;
         return { success: true, data: response.data };
       } else {
@@ -179,7 +224,14 @@ export const useKDSStore = defineStore("kds", () => {
   };
 
   /**
-   * Marca un producto como servido
+   * Marca un producto como listo (cocina terminó)
+   */
+  const marcarComoListo = async (detalleId: number) => {
+    return await cambiarEstadoDetalle(detalleId, "LISTO");
+  };
+
+  /**
+   * Marca un producto como servido (mesero entregó)
    */
   const marcarComoServido = async (detalleId: number) => {
     return await cambiarEstadoDetalle(detalleId, "SERVIDO");
@@ -232,16 +284,18 @@ export const useKDSStore = defineStore("kds", () => {
   const resetStore = () => {
     detallesPedido.value = [];
     detallesEnPreparacion.value = [];
+    detallesListos.value = [];
     detallesServidos.value = [];
     error.value = null;
     disableAutoRefresh();
   };
 
   return {
-    // State
-    detallesPedido,
-    detallesEnPreparacion,
-    detallesServidos,
+    // State (versiones ordenadas para usar en los componentes)
+    detallesPedido: detallesPedidoOrdenados,
+    detallesEnPreparacion: detallesEnPreparacionOrdenados,
+    detallesListos: detallesListosOrdenados,
+    detallesServidos: detallesServidosOrdenados,
     loading,
     error,
     autoRefreshEnabled,
@@ -250,6 +304,7 @@ export const useKDSStore = defineStore("kds", () => {
     // Getters
     totalPedidos,
     totalEnPreparacion,
+    totalListos,
     totalServidos,
     detallesPorMesa,
     detallesEnPreparacionPorMesa,
@@ -259,6 +314,7 @@ export const useKDSStore = defineStore("kds", () => {
     fetchTableroCompleto,
     cambiarEstadoDetalle,
     iniciarPreparacion,
+    marcarComoListo,
     marcarComoServido,
     cancelarProducto,
     setFiltroRequierePreparacion,

@@ -1,9 +1,9 @@
 <template>
   <div class="kitchen-board">
-    <!-- Desktop: 3-column layout -->
+    <!-- Desktop: 4-column layout -->
     <v-row v-if="!mobile">
       <!-- Columna PEDIDOS (Pendientes) -->
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="3">
         <v-card class="column-card" elevation="0">
           <v-card-title class="d-flex justify-space-between align-center pa-4 bg-warning">
             <div class="d-flex align-center gap-2">
@@ -21,11 +21,12 @@
               <p class="text-body-2 text-medium-emphasis mt-2">No hay pedidos pendientes</p>
             </div>
             <v-fade-transition group>
-              <div v-for="detalle in pedidos" :key="`pedido-${detalle.idDetalle}`" class="mb-3">
+              <div v-for="detalle in pedidos" :key="`pedido-${detalle.idDetalle}`" class="mb-2">
                 <KitchenOrderCard
                   :detalle="detalle"
                   :loading="loadingDetalle === detalle.idDetalle"
                   @iniciar-preparacion="handleIniciarPreparacion"
+                  @marcar-listo="handleMarcarListo"
                   @cancelar="handleCancelar"
                 />
               </div>
@@ -35,7 +36,7 @@
       </v-col>
 
       <!-- Columna EN_PREPARACION -->
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="3">
         <v-card class="column-card" elevation="0">
           <v-card-title class="d-flex justify-space-between align-center pa-4 bg-info">
             <div class="d-flex align-center gap-2">
@@ -53,11 +54,11 @@
               <p class="text-body-2 text-medium-emphasis mt-2">No hay productos en preparación</p>
             </div>
             <v-fade-transition group>
-              <div v-for="detalle in enPreparacion" :key="`prep-${detalle.idDetalle}`" class="mb-3">
+              <div v-for="detalle in enPreparacion" :key="`prep-${detalle.idDetalle}`" class="mb-2">
                 <KitchenOrderCard
                   :detalle="detalle"
                   :loading="loadingDetalle === detalle.idDetalle"
-                  @marcar-servido="handleMarcarServido"
+                  @marcar-listo="handleMarcarListo"
                   @cancelar="handleCancelar"
                 />
               </div>
@@ -66,13 +67,44 @@
         </v-card>
       </v-col>
 
+      <!-- Columna LISTOS -->
+      <v-col cols="12" md="3">
+        <v-card class="column-card" elevation="0">
+          <v-card-title class="d-flex justify-space-between align-center pa-4 bg-primary">
+            <div class="d-flex align-center gap-2">
+              <v-icon color="white" size="large">mdi-room-service</v-icon>
+              <span class="text-h6 text-white">Listos</span>
+            </div>
+            <v-chip color="white" variant="flat" size="small">
+              {{ listos.length }}
+            </v-chip>
+          </v-card-title>
+          <v-divider />
+          <v-card-text class="column-content pa-2">
+            <div v-if="listos.length === 0" class="empty-state text-center pa-4">
+              <v-icon size="64" color="grey-lighten-2">mdi-tray</v-icon>
+              <p class="text-body-2 text-medium-emphasis mt-2">No hay productos listos para servir</p>
+            </div>
+            <v-fade-transition group>
+              <div v-for="detalle in listos" :key="`listo-${detalle.idDetalle}`" class="mb-2">
+                <KitchenOrderCard
+                  :detalle="detalle"
+                  :loading="loadingDetalle === detalle.idDetalle"
+                  @marcar-servido="handleMarcarServido"
+                />
+              </div>
+            </v-fade-transition>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
       <!-- Columna SERVIDOS -->
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="3">
         <v-card class="column-card" elevation="0">
           <v-card-title class="d-flex justify-space-between align-center pa-4 bg-success">
             <div class="d-flex align-center gap-2">
-              <v-icon color="white" size="large">mdi-check-circle</v-icon>
-              <span class="text-h6 text-white">Listos</span>
+              <v-icon color="white" size="large">mdi-check-all</v-icon>
+              <span class="text-h6 text-white">Servidos</span>
             </div>
             <v-chip color="white" variant="flat" size="small">
               {{ servidos.length }}
@@ -85,7 +117,7 @@
               <p class="text-body-2 text-medium-emphasis mt-2">No hay productos listos</p>
             </div>
             <v-fade-transition group>
-              <div v-for="detalle in servidos" :key="`servido-${detalle.idDetalle}`" class="mb-3">
+              <div v-for="detalle in servidos" :key="`servido-${detalle.idDetalle}`" class="mb-2">
                 <KitchenOrderCard :detalle="detalle" :loading="loadingDetalle === detalle.idDetalle" />
               </div>
             </v-fade-transition>
@@ -115,11 +147,12 @@
               <p class="text-body-2 text-medium-emphasis mt-2">No hay pedidos pendientes</p>
             </div>
             <v-fade-transition group>
-              <div v-for="detalle in pedidos" :key="`pedido-${detalle.idDetalle}`" class="mb-3">
+              <div v-for="detalle in pedidos" :key="`pedido-${detalle.idDetalle}`" class="mb-2">
                 <KitchenOrderCard
                   :detalle="detalle"
                   :loading="loadingDetalle === detalle.idDetalle"
                   @iniciar-preparacion="handleIniciarPreparacion"
+                  @marcar-listo="handleMarcarListo"
                   @cancelar="handleCancelar"
                 />
               </div>
@@ -147,12 +180,43 @@
               <p class="text-body-2 text-medium-emphasis mt-2">No hay productos en preparación</p>
             </div>
             <v-fade-transition group>
-              <div v-for="detalle in enPreparacion" :key="`prep-${detalle.idDetalle}`" class="mb-3">
+              <div v-for="detalle in enPreparacion" :key="`prep-${detalle.idDetalle}`" class="mb-2">
+                <KitchenOrderCard
+                  :detalle="detalle"
+                  :loading="loadingDetalle === detalle.idDetalle"
+                  @marcar-listo="handleMarcarListo"
+                  @cancelar="handleCancelar"
+                />
+              </div>
+            </v-fade-transition>
+          </v-card-text>
+        </v-card>
+      </div>
+
+      <!-- Columna LISTOS -->
+      <div class="mobile-column">
+        <v-card class="column-card" elevation="0">
+          <v-card-title class="d-flex justify-space-between align-center pa-4 bg-primary">
+            <div class="d-flex align-center gap-2">
+              <v-icon color="white" size="large">mdi-room-service</v-icon>
+              <span class="text-h6 text-white">Listos</span>
+            </div>
+            <v-chip color="white" variant="flat" size="small">
+              {{ listos.length }}
+            </v-chip>
+          </v-card-title>
+          <v-divider />
+          <v-card-text class="column-content pa-2">
+            <div v-if="listos.length === 0" class="empty-state text-center pa-4">
+              <v-icon size="64" color="grey-lighten-2">mdi-tray</v-icon>
+              <p class="text-body-2 text-medium-emphasis mt-2">No hay productos listos para servir</p>
+            </div>
+            <v-fade-transition group>
+              <div v-for="detalle in listos" :key="`listo-${detalle.idDetalle}`" class="mb-2">
                 <KitchenOrderCard
                   :detalle="detalle"
                   :loading="loadingDetalle === detalle.idDetalle"
                   @marcar-servido="handleMarcarServido"
-                  @cancelar="handleCancelar"
                 />
               </div>
             </v-fade-transition>
@@ -165,8 +229,8 @@
         <v-card class="column-card" elevation="0">
           <v-card-title class="d-flex justify-space-between align-center pa-4 bg-success">
             <div class="d-flex align-center gap-2">
-              <v-icon color="white" size="large">mdi-check-circle</v-icon>
-              <span class="text-h6 text-white">Listos</span>
+              <v-icon color="white" size="large">mdi-check-all</v-icon>
+              <span class="text-h6 text-white">Servidos</span>
             </div>
             <v-chip color="white" variant="flat" size="small">
               {{ servidos.length }}
@@ -179,7 +243,7 @@
               <p class="text-body-2 text-medium-emphasis mt-2">No hay productos listos</p>
             </div>
             <v-fade-transition group>
-              <div v-for="detalle in servidos" :key="`servido-${detalle.idDetalle}`" class="mb-3">
+              <div v-for="detalle in servidos" :key="`servido-${detalle.idDetalle}`" class="mb-2">
                 <KitchenOrderCard :detalle="detalle" :loading="loadingDetalle === detalle.idDetalle" />
               </div>
             </v-fade-transition>
@@ -207,7 +271,6 @@ import KitchenOrderCard from './KitchenOrderCard.vue';
 const { mobile } = useDisplay();
 const kdsStore = useKDSStore();
 const loadingDetalle = ref<number | null>(null);
-const activeTab = ref('pedidos');
 
 const snackbar = ref({
   show: false,
@@ -218,6 +281,7 @@ const snackbar = ref({
 // Getters del store
 const pedidos = computed(() => kdsStore.detallesPedido);
 const enPreparacion = computed(() => kdsStore.detallesEnPreparacion);
+const listos = computed(() => kdsStore.detallesListos);
 const servidos = computed(() => kdsStore.detallesServidos);
 
 // Handlers de eventos
@@ -235,14 +299,28 @@ const handleIniciarPreparacion = async (detalleId: number) => {
   }
 };
 
+const handleMarcarListo = async (detalleId: number) => {
+  loadingDetalle.value = detalleId;
+  try {
+    const result = await kdsStore.marcarComoListo(detalleId);
+    if (result.success) {
+      showNotification('Producto marcado como listo para servir', 'success');
+    } else {
+      showNotification(result.error || 'Error al marcar como listo', 'error');
+    }
+  } finally {
+    loadingDetalle.value = null;
+  }
+};
+
 const handleMarcarServido = async (detalleId: number) => {
   loadingDetalle.value = detalleId;
   try {
     const result = await kdsStore.marcarComoServido(detalleId);
     if (result.success) {
-      showNotification('Producto marcado como listo', 'success');
+      showNotification('Producto marcado como servido al cliente', 'success');
     } else {
-      showNotification(result.error || 'Error al marcar como listo', 'error');
+      showNotification(result.error || 'Error al marcar como servido', 'error');
     }
   } finally {
     loadingDetalle.value = null;

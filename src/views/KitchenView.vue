@@ -100,9 +100,14 @@
                 {{ kdsStore.totalEnPreparacion }} En Prep.
               </v-chip>
 
+              <v-chip color="primary" variant="flat">
+                <v-icon start>mdi-room-service</v-icon>
+                {{ kdsStore.totalListos }} Listos
+              </v-chip>
+
               <v-chip color="success" variant="flat">
-                <v-icon start>mdi-check-circle</v-icon>
-                {{ kdsStore.totalServidos }} Listos
+                <v-icon start>mdi-check-all</v-icon>
+                {{ kdsStore.totalServidos }} Servidos
               </v-chip>
             </div>
 
@@ -117,8 +122,12 @@
                 <v-icon start>mdi-chef-hat</v-icon>
                 {{ kdsStore.totalEnPreparacion }}
               </v-chip>
+              <v-chip color="primary" label size="small">
+                <v-icon start>mdi-room-service</v-icon>
+                {{ kdsStore.totalListos }}
+              </v-chip>
               <v-chip color="success" label size="small">
-                <v-icon start>mdi-check-circle</v-icon>
+                <v-icon start>mdi-check-all</v-icon>
                 {{ kdsStore.totalServidos }}
               </v-chip>
 
