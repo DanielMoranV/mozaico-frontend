@@ -38,7 +38,7 @@ export const useInventarioStore = defineStore('inventario', () => {
       setLoading(true);
       clearError();
       const response = await InventarioService.obtenerTodoElInventario();
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         inventario.value = response.data;
       } else {
         setError(response.message);
@@ -55,7 +55,7 @@ export const useInventarioStore = defineStore('inventario', () => {
       setLoading(true);
       clearError();
       const response = await InventarioService.crearInventario(data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         inventario.value.push(response.data);
         return { success: true, data: response.data };
       } else {
@@ -75,7 +75,7 @@ export const useInventarioStore = defineStore('inventario', () => {
       setLoading(true);
       clearError();
       const response = await InventarioService.actualizarInventario(id, data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = inventario.value.findIndex((i) => i.idInventario === id);
         if (index !== -1) {
           inventario.value[index] = response.data;
@@ -98,7 +98,7 @@ export const useInventarioStore = defineStore('inventario', () => {
       setLoading(true);
       clearError();
       const response = await InventarioService.eliminarInventario(id);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         inventario.value = inventario.value.filter((i) => i.idInventario !== id);
         return { success: true };
       } else {
@@ -118,7 +118,7 @@ export const useInventarioStore = defineStore('inventario', () => {
       setLoading(true);
       clearError();
       const response = await InventarioService.ajustarStock(id, data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = inventario.value.findIndex((i) => i.idInventario === id);
         if (index !== -1) {
           inventario.value[index] = response.data;
@@ -141,7 +141,7 @@ export const useInventarioStore = defineStore('inventario', () => {
       setLoading(true);
       clearError();
       const response = await InventarioService.buscarInventario(busquedaParams.value);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         inventario.value = response.data;
         return { success: true, data: response.data };
       } else {

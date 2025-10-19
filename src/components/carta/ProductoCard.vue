@@ -3,7 +3,7 @@
     <!-- Imagen del producto -->
     <div class="producto-imagen-container">
       <v-img
-        v-if="producto.imagenUrl"
+        v-if="producto.imagenUrl && imagenUrl"
         :src="imagenUrl"
         :alt="producto.nombre"
         :aspect-ratio="16/9"
@@ -107,7 +107,7 @@ interface Props {
 const props = defineProps<Props>();
 const { obtenerUrlImagen } = useCartaApi();
 
-const imagenUrl = computed(() => obtenerUrlImagen(props.producto.imagenUrl));
+const imagenUrl = computed(() => props.producto.imagenUrl ? obtenerUrlImagen(props.producto.imagenUrl) : undefined);
 
 function formatoPrecio(precio: number): string {
   return precio.toFixed(2);

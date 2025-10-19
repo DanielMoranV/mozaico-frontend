@@ -1,7 +1,7 @@
 import { apiClient } from './api';
 import type { ComprobanteDTO } from '@/types/pago';
-import type { Comprobante, ComprobanteListItem } from '@/types/comprobante';
-import type { ApiResponse, LegacyApiResponse } from '@/types/api';
+import type { ComprobanteListItem } from '@/types/comprobante';
+import type { ApiResponse } from '@/types/api';
 
 export class ComprobanteService {
   private static readonly BASE_URL = '/comprobantes';
@@ -22,10 +22,12 @@ export class ComprobanteService {
       console.error('❌ Error al obtener comprobantes:', error);
 
       return {
-        status: 'ERROR',
-        code: error.response?.status || 500,
+        success: false,
         message: error.response?.data?.message || 'Error al obtener comprobantes',
-        data: [] as ComprobanteListItem[]
+        error: {
+          code: error.response?.status || 500,
+          message: error.response?.data?.message || 'Error al obtener comprobantes'
+        }
       };
     }
   }
@@ -113,10 +115,12 @@ export class ComprobanteService {
       console.error('❌ Error al obtener comprobante:', error);
 
       return {
-        status: 'ERROR',
-        code: error.response?.status || 500,
+        success: false,
         message: error.response?.data?.message || 'Error al obtener comprobante',
-        data: null as any
+        error: {
+          code: error.response?.status || 500,
+          message: error.response?.data?.message || 'Error al obtener comprobante'
+        }
       };
     }
   }
@@ -139,10 +143,12 @@ export class ComprobanteService {
       console.error('❌ Error al reimprimir comprobante:', error);
 
       return {
-        status: 'ERROR',
-        code: error.response?.status || 500,
+        success: false,
         message: error.response?.data?.message || 'Error al reimprimir comprobante',
-        data: null as any
+        error: {
+          code: error.response?.status || 500,
+          message: error.response?.data?.message || 'Error al reimprimir comprobante'
+        }
       };
     }
   }
@@ -169,10 +175,12 @@ export class ComprobanteService {
       console.error('❌ Error al anular comprobante:', error);
 
       return {
-        status: 'ERROR',
-        code: error.response?.status || 500,
+        success: false,
         message: error.response?.data?.message || 'Error al anular comprobante',
-        data: null as any
+        error: {
+          code: error.response?.status || 500,
+          message: error.response?.data?.message || 'Error al anular comprobante'
+        }
       };
     }
   }

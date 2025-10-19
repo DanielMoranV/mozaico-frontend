@@ -50,7 +50,6 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const {
-  hasPermission,
   hasAnyPermission,
   hasAllPermissions,
   canPerformAction,

@@ -36,7 +36,7 @@ export const useMenuStore = defineStore('menu', () => {
       setLoading(true);
       clearError();
       const response = await MenuService.obtenerTodosLosMenus();
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         menus.value = response.data;
       } else {
         setError(response.message);
@@ -53,7 +53,7 @@ export const useMenuStore = defineStore('menu', () => {
       setLoading(true);
       clearError();
       const response = await MenuService.crearMenu(data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         menus.value.push(response.data);
         return { success: true, data: response.data };
       } else {
@@ -73,7 +73,7 @@ export const useMenuStore = defineStore('menu', () => {
       setLoading(true);
       clearError();
       const response = await MenuService.actualizarMenu(id, data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = menus.value.findIndex((m) => m.idMenu === id);
         if (index !== -1) {
           menus.value[index] = response.data!;
@@ -96,7 +96,7 @@ export const useMenuStore = defineStore('menu', () => {
       setLoading(true);
       clearError();
       const response = await MenuService.eliminarMenu(id);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         menus.value = menus.value.filter((m) => m.idMenu !== id);
         return { success: true };
       } else {
@@ -116,7 +116,7 @@ export const useMenuStore = defineStore('menu', () => {
       setLoading(true);
       clearError();
       const response = await MenuService.agregarProductoAMenu(id, productoId);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = menus.value.findIndex((m) => m.idMenu === id);
         if (index !== -1) {
           menus.value[index] = response.data!;
@@ -139,7 +139,7 @@ export const useMenuStore = defineStore('menu', () => {
       setLoading(true);
       clearError();
       const response = await MenuService.eliminarProductoDeMenu(id, productoId);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = menus.value.findIndex((m) => m.idMenu === id);
         if (index !== -1) {
           menus.value[index] = response.data!;
@@ -162,7 +162,7 @@ export const useMenuStore = defineStore('menu', () => {
       setLoading(true);
       clearError();
       const response = await MenuService.buscarMenus(busquedaParams.value);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         menus.value = response.data;
         return { success: true, data: response.data };
       } else {

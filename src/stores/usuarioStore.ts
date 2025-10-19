@@ -56,7 +56,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
 
       const response = await UsuarioService.obtenerUsuarios();
 
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         usuarios.value = response.data;
       } else {
         setError(response.message);
@@ -77,7 +77,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
 
       const response = await UsuarioService.obtenerUsuarioPorId(id);
 
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         usuarioActual.value = response.data;
         return response.data;
       } else {
@@ -101,7 +101,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
 
       const response = await UsuarioService.crearUsuario(usuario);
 
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         usuarios.value.push(response.data);
         return { success: true, data: response.data };
       } else {
@@ -139,7 +139,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
 
       console.log("Actualizar response:", response);
 
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         const index = usuarios.value.findIndex(
           (u: UsuarioResponseDTO) => u.idUsuario === id
         );
@@ -178,7 +178,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
 
       const response = await UsuarioService.eliminarUsuario(id);
 
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         usuarios.value = usuarios.value.filter(
           (u: UsuarioResponseDTO) => u.idUsuario !== id
         );
@@ -210,7 +210,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
 
       console.log("Busqueda response:", response);
 
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         usuarios.value = response.data;
         return { success: true, data: response.data };
       } else {
@@ -236,7 +236,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
 
       const response = await UsuarioService.activarUsuario(id);
 
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         const index = usuarios.value.findIndex((u) => u.idUsuario === id);
         if (index !== -1) {
           usuarios.value[index] = response.data;
@@ -267,7 +267,7 @@ export const useUsuarioStore = defineStore("usuario", () => {
 
       console.log("Desactivar response:", response);
 
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         const index = usuarios.value.findIndex((u) => u.idUsuario === id);
         if (index !== -1) {
           usuarios.value[index] = response.data;

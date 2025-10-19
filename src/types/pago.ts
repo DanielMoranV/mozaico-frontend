@@ -1,5 +1,5 @@
 // Importar desde enums.ts y metodoPago.ts para evitar duplicación
-import type { EstadoPago } from './enums';
+import type { EstadoPago, TipoComprobante, EstadoComprobante } from './enums';
 import type { MetodoPagoResponseDTO } from './metodoPago';
 
 export interface PagoRequestDTO {
@@ -31,24 +31,7 @@ export interface PagoCompletoResponseDTO extends PagoResponseDTO {
   comprobante: ComprobanteDTO;
 }
 
-// Tipos de comprobante
-export const TIPOS_COMPROBANTE = {
-  BOLETA: 'BOLETA',
-  FACTURA: 'FACTURA',
-  NOTA_CREDITO: 'NOTA_CREDITO',
-  NOTA_DEBITO: 'NOTA_DEBITO'
-} as const;
-
-export type TipoComprobante = typeof TIPOS_COMPROBANTE[keyof typeof TIPOS_COMPROBANTE];
-
-// Estados de comprobante
-export const ESTADOS_COMPROBANTE = {
-  EMITIDO: 'EMITIDO',
-  ANULADO: 'ANULADO',
-  REIMPRESO: 'REIMPRESO'
-} as const;
-
-export type EstadoComprobante = typeof ESTADOS_COMPROBANTE[keyof typeof ESTADOS_COMPROBANTE];
+// Tipos y estados de comprobante ahora se importan desde enums.ts para evitar duplicación
 
 // Interfaz del comprobante
 export interface ComprobanteDTO {
@@ -66,7 +49,7 @@ export interface ComprobanteDTO {
 }
 
 // Re-exportar para compatibilidad
-export type { EstadoPago, MetodoPagoResponseDTO };
+export type { EstadoPago, MetodoPagoResponseDTO, TipoComprobante, EstadoComprobante };
 
 // Interfaz para parámetros de búsqueda de pagos (compatibilidad con archivos existentes)
 export interface PagoSearchParams {

@@ -79,4 +79,14 @@ export class MesaService {
     );
     return response.data;
   }
+
+  // ============ Métodos helper ============
+
+  /**
+   * Obtener todas las mesas (devuelve solo el data)
+   */
+  static async obtenerTodas(): Promise<Mesa[]> {
+    const response = await this.obtenerTodasLasMesas();
+    return response.data || [];
+  }
 }

@@ -327,7 +327,7 @@ const loadMetodosPago = async () => {
     const response = await PagoService.getMetodosPago();
     console.log("🔍 [PaymentMethodDialog] Respuesta recibida:", response);
 
-    if (response.status === "SUCCESS" && response.data) {
+    if (response.success && response.data) {
       console.log(
         "✅ [PaymentMethodDialog] Métodos de pago cargados exitosamente:",
         response.data
@@ -340,8 +340,7 @@ const loadMetodosPago = async () => {
     } else {
       // Usar métodos por defecto si hay error
       console.warn(
-        "⚠️ [PaymentMethodDialog] Usando métodos de pago por defecto. Status:",
-        response.status
+        "⚠️ [PaymentMethodDialog] Usando métodos de pago por defecto."
       );
       metodosPago.value = METODOS_PAGO_DEFAULT.map((m) => ({
         idMetodo: m.idMetodo,
@@ -458,7 +457,7 @@ const procesarPago = async () => {
     // Crear el pago completo con comprobante
     const response = await PagoService.crearPagoCompleto(pagoData);
 
-    if (response.status === "SUCCESS") {
+    if (response.success && response.data) {
       console.log(
         "✅ [PaymentMethodDialog] Pago procesado exitosamente:",
         response.data
@@ -487,9 +486,10 @@ const procesarPago = async () => {
           console.log("🖨️ [PaymentMethodDialog] Iniciando impresión automática del ticket...");
 
           // Esperar un momento para asegurar que el archivo esté listo
+          const comprobante = response.data.comprobante;
           setTimeout(async () => {
             try {
-              await imprimirTicket(response.data.comprobante.idComprobante, true);
+              await imprimirTicket(comprobante.idComprobante, true);
               console.log("✅ [PaymentMethodDialog] Ticket enviado a impresión");
             } catch (error) {
               console.error("❌ [PaymentMethodDialog] Error al imprimir ticket automáticamente:", error);
@@ -601,35 +601,6 @@ const descargarTicket = async () => {
     emit("pago-error", "Error al descargar el ticket");
   } finally {
     descargandoTicket.value = false;
-  }
-};
-
-const descargarPdf = async () => {
-  console.log("📄 [PaymentMethodDialog] descargarPdf llamado");
-  console.log(
-    "📄 [PaymentMethodDialog] ultimoComprobante.value:",
-    ultimoComprobante.value
-  );
-
-  if (!ultimoComprobante.value) {
-    console.error("❌ [PaymentMethodDialog] No hay comprobante disponible");
-    return;
-  }
-
-  try {
-    descargandoPdf.value = true;
-    console.log("📄 [PaymentMethodDialog] Iniciando descarga de PDF...");
-    console.log(
-      "📄 [PaymentMethodDialog] ID Comprobante:",
-      ultimoComprobante.value.idComprobante
-    );
-    await ComprobanteService.descargarYGuardarPdf(ultimoComprobante.value);
-    console.log("✅ [PaymentMethodDialog] PDF descargado exitosamente");
-  } catch (error) {
-    console.error("❌ [PaymentMethodDialog] Error al descargar PDF:", error);
-    emit("pago-error", "Error al descargar el PDF");
-  } finally {
-    descargandoPdf.value = false;
   }
 };
 

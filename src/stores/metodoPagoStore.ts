@@ -34,7 +34,7 @@ export const useMetodoPagoStore = defineStore('metodoPago', () => {
       setLoading(true);
       clearError();
       const response = await MetodoPagoService.obtenerTodosLosMetodosPago();
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         metodosPago.value = response.data;
       } else {
         setError(response.message);
@@ -51,7 +51,7 @@ export const useMetodoPagoStore = defineStore('metodoPago', () => {
       setLoading(true);
       clearError();
       const response = await MetodoPagoService.crearMetodoPago(data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         metodosPago.value.push(response.data);
         return { success: true, data: response.data };
       } else {
@@ -71,7 +71,7 @@ export const useMetodoPagoStore = defineStore('metodoPago', () => {
       setLoading(true);
       clearError();
       const response = await MetodoPagoService.actualizarMetodoPago(id, data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = metodosPago.value.findIndex((mp) => mp.idMetodo === id);
         if (index !== -1) {
           metodosPago.value[index] = response.data;
@@ -94,7 +94,7 @@ export const useMetodoPagoStore = defineStore('metodoPago', () => {
       setLoading(true);
       clearError();
       const response = await MetodoPagoService.eliminarMetodoPago(id);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         metodosPago.value = metodosPago.value.filter((mp) => mp.idMetodo !== id);
         return { success: true };
       } else {

@@ -134,7 +134,7 @@ const rules = {
   },
 };
 
-const onFileChange = (event: Event) => {
+const onFileChange = () => {
   if (file.value) {
     const selectedFile = Array.isArray(file.value) ? file.value[0] : file.value;
 

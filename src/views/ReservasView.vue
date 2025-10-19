@@ -97,8 +97,8 @@ const searchCriteria = reactive<Omit<ReservaSearchParams, 'searchTerm'>>({
   idCliente: undefined,
   idMesa: undefined,
   estado: undefined,
-  fechaReservaDesde: undefined,
-  fechaReservaHasta: undefined,
+  fechaHoraReservaDesde: undefined,
+  fechaHoraReservaHasta: undefined,
   logic: 'AND',
 });
 

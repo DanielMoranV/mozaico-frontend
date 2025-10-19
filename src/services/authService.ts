@@ -22,6 +22,10 @@ export class AuthService {
         password
       } as AuthRequest);
 
+      if (!response.data.data) {
+        throw new Error('No se recibió respuesta del servidor');
+      }
+
       const authData = response.data.data;
 
       // Guardar tokens en localStorage
@@ -56,6 +60,10 @@ export class AuthService {
         refreshToken
       } as RefreshTokenRequest);
 
+      if (!response.data.data) {
+        throw new Error('No se recibió respuesta del servidor');
+      }
+
       const authData = response.data.data;
 
       // Actualizar tokens
@@ -89,6 +97,9 @@ export class AuthService {
    */
   async getCurrentUser(): Promise<UserInfo> {
     const response = await apiClient.get<ApiResponse<UserInfo>>('/auth/me');
+    if (!response.data.data) {
+      throw new Error('No se pudo obtener información del usuario');
+    }
     return response.data.data;
   }
 
@@ -98,7 +109,7 @@ export class AuthService {
   async validateToken(): Promise<boolean> {
     try {
       const response = await apiClient.get<ApiResponse<boolean>>('/auth/validate');
-      return response.data.data;
+      return response.data.data ?? false;
     } catch (error) {
       return false;
     }
@@ -210,7 +221,7 @@ export class AuditService {
     const response = await apiClient.get<ApiResponse<Page<AuditLogResponse>>>(
       `/audit?page=${page}&size=${size}&sort=${sort}`
     );
-    return response.data.data;
+    return response.data.data!;
   }
 
   /**
@@ -220,7 +231,7 @@ export class AuditService {
     const response = await apiClient.get<ApiResponse<Page<AuditLogResponse>>>(
       `/audit/user/${usuarioId}?page=${page}&size=${size}`
     );
-    return response.data.data;
+    return response.data.data!;
   }
 
   /**
@@ -230,7 +241,7 @@ export class AuditService {
     const response = await apiClient.get<ApiResponse<Page<AuditLogResponse>>>(
       `/audit/entity/${entidad}/${entidadId}?page=${page}&size=${size}`
     );
-    return response.data.data;
+    return response.data.data!;
   }
 }
 

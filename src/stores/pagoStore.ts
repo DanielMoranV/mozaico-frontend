@@ -36,7 +36,7 @@ export const usePagoStore = defineStore('pago', () => {
       setLoading(true);
       clearError();
       const response = await PagoService.getTodosPagos();
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         pagos.value = response.data;
       } else {
         setError(response.message);
@@ -53,7 +53,7 @@ export const usePagoStore = defineStore('pago', () => {
       setLoading(true);
       clearError();
       const response = await PagoService.crearPago(data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         pagos.value.push(response.data);
         return { success: true, data: response.data };
       } else {
@@ -73,7 +73,7 @@ export const usePagoStore = defineStore('pago', () => {
       setLoading(true);
       clearError();
       const response = await PagoService.actualizarPago(id, data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = pagos.value.findIndex((p) => p.idPago === id);
         if (index !== -1) {
           pagos.value[index] = response.data;
@@ -96,7 +96,7 @@ export const usePagoStore = defineStore('pago', () => {
       setLoading(true);
       clearError();
       const response = await PagoService.eliminarPago(id);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         pagos.value = pagos.value.filter((p) => p.idPago !== id);
         return { success: true };
       } else {
@@ -116,7 +116,7 @@ export const usePagoStore = defineStore('pago', () => {
       setLoading(true);
       clearError();
       const response = await PagoService.buscarPagos(busquedaParams.value);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         pagos.value = response.data;
         return { success: true, data: response.data };
       } else {

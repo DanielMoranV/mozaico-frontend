@@ -20,7 +20,7 @@
             </v-col>
             <v-col cols="12" md="6">
               <v-select
-                v-model.number="form.idMetodoPago"
+                v-model.number="form.idMetodo"
                 :items="metodoPagoStore.metodosPago"
                 item-title="nombre"
                 item-value="idMetodo"

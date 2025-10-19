@@ -235,7 +235,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import type { Empresa, TipoOperacion } from "@/types/empresa";
 
 interface Props {
@@ -244,7 +243,7 @@ interface Props {
   canChangeState?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   canEdit: false,
   canChangeState: false,
 });

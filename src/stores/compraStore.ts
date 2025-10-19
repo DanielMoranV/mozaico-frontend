@@ -38,7 +38,7 @@ export const useCompraStore = defineStore('compra', () => {
       setLoading(true);
       clearError();
       const response = await CompraService.obtenerTodasLasCompras();
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         compras.value = response.data;
       } else {
         setError(response.message);
@@ -55,7 +55,7 @@ export const useCompraStore = defineStore('compra', () => {
       setLoading(true);
       clearError();
       const response = await CompraService.crearCompra(data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         compras.value.push(response.data);
         return { success: true, data: response.data };
       } else {
@@ -75,7 +75,7 @@ export const useCompraStore = defineStore('compra', () => {
       setLoading(true);
       clearError();
       const response = await CompraService.actualizarCompra(id, data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = compras.value.findIndex((c) => c.idCompra === id);
         if (index !== -1) {
           compras.value[index] = response.data;
@@ -98,7 +98,7 @@ export const useCompraStore = defineStore('compra', () => {
       setLoading(true);
       clearError();
       const response = await CompraService.eliminarCompra(id);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         compras.value = compras.value.filter((c) => c.idCompra !== id);
         return { success: true };
       } else {
@@ -118,7 +118,7 @@ export const useCompraStore = defineStore('compra', () => {
       setLoading(true);
       clearError();
       const response = await CompraService.buscarCompras(busquedaParams.value);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         compras.value = response.data;
         return { success: true, data: response.data };
       } else {
@@ -138,7 +138,7 @@ export const useCompraStore = defineStore('compra', () => {
       setLoading(true);
       clearError();
       const response = await CompraService.obtenerDetallesPorCompraId(compraId);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         selectedCompraDetalles.value = response.data;
         return { success: true, data: response.data };
       } else {

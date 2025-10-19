@@ -40,10 +40,10 @@
               ></v-select>
             </v-col>
             <v-col cols="12" md="6">
-              <v-text-field v-model="criteria.fechaReservaDesde" label="Fecha Reserva Desde" variant="outlined" dense clearable type="date"></v-text-field>
+              <v-text-field v-model="criteria.fechaHoraReservaDesde" label="Fecha Reserva Desde" variant="outlined" dense clearable type="date"></v-text-field>
             </v-col>
             <v-col cols="12" md="6">
-              <v-text-field v-model="criteria.fechaReservaHasta" label="Fecha Reserva Hasta" variant="outlined" dense clearable type="date"></v-text-field>
+              <v-text-field v-model="criteria.fechaHoraReservaHasta" label="Fecha Reserva Hasta" variant="outlined" dense clearable type="date"></v-text-field>
             </v-col>
             <v-col cols="12" md="6">
               <v-btn-toggle v-model="criteria.logic" mandatory dense variant="outlined">

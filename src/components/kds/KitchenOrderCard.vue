@@ -218,7 +218,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { DetallePedidoResponseDTO } from "@/types/detallePedido";
-import type { EstadoDetallePedido } from "@/types/enums";
 
 interface Props {
   detalle: DetallePedidoResponseDTO;

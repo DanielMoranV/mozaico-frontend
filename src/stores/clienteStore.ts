@@ -36,7 +36,7 @@ export const useClienteStore = defineStore('cliente', () => {
       setLoading(true);
       clearError();
       const response = await ClienteService.obtenerTodosLosClientes();
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         clientes.value = response.data;
       } else {
         setError(response.message);
@@ -53,7 +53,7 @@ export const useClienteStore = defineStore('cliente', () => {
       setLoading(true);
       clearError();
       const response = await ClienteService.crearCliente(data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         clientes.value.push(response.data);
         return { success: true, data: response.data };
       } else {
@@ -73,7 +73,7 @@ export const useClienteStore = defineStore('cliente', () => {
       setLoading(true);
       clearError();
       const response = await ClienteService.actualizarCliente(id, data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = clientes.value.findIndex((c) => c.idCliente === id);
         if (index !== -1) {
           clientes.value[index] = response.data;
@@ -96,7 +96,7 @@ export const useClienteStore = defineStore('cliente', () => {
       setLoading(true);
       clearError();
       const response = await ClienteService.eliminarCliente(id);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         clientes.value = clientes.value.filter((c) => c.idCliente !== id);
         return { success: true };
       } else {
@@ -116,7 +116,7 @@ export const useClienteStore = defineStore('cliente', () => {
       setLoading(true);
       clearError();
       const response = await ClienteService.buscarClientes(criteria);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         clientes.value = response.data;
         return { success: true, data: response.data };
       } else {
@@ -136,7 +136,7 @@ export const useClienteStore = defineStore('cliente', () => {
       setLoading(true);
       clearError();
       const response = await ClienteService.activarCliente(id);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = clientes.value.findIndex((c) => c.idCliente === id);
         if (index !== -1) {
           clientes.value[index] = response.data;
@@ -159,7 +159,7 @@ export const useClienteStore = defineStore('cliente', () => {
       setLoading(true);
       clearError();
       const response = await ClienteService.desactivarCliente(id);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = clientes.value.findIndex((c) => c.idCliente === id);
         if (index !== -1) {
           clientes.value[index] = response.data;

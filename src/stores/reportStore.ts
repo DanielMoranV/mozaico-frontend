@@ -37,7 +37,7 @@ export const useReportStore = defineStore('report', () => {
       setLoading(true);
       clearError();
       const response = await ReportService.getSalesSummary(params);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         salesSummary.value = response.data;
         return { success: true, data: response.data };
       } else {
@@ -57,7 +57,7 @@ export const useReportStore = defineStore('report', () => {
       setLoading(true);
       clearError();
       const response = await ReportService.getProductSales(params);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         productSales.value = response.data;
         return { success: true, data: response.data };
       } else {
@@ -77,7 +77,7 @@ export const useReportStore = defineStore('report', () => {
       setLoading(true);
       clearError();
       const response = await ReportService.getLowStockInventory();
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         lowStockInventory.value = response.data;
         return { success: true, data: response.data };
       } else {

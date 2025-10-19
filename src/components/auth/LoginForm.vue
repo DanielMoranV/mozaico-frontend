@@ -84,7 +84,6 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue';
-import { useRouter } from 'vue-router';
 import { useAuth } from '../../stores/authStore';
 
 // Refs del template
@@ -92,8 +91,7 @@ const formRef = ref();
 const valid = ref(false);
 const showPassword = ref(false);
 
-// Router
-const router = useRouter();
+// Router (no se usa directamente, la redirección la maneja App.vue)
 
 // Store de autenticación
 const { login, isLoading, error, clearError } = useAuth();
@@ -171,11 +169,6 @@ async function handleLogin() {
   }
 }
 
-// Función para limpiar errores
-function clearFieldErrors() {
-  fieldErrors.username = [];
-  fieldErrors.password = [];
-}
 
 // Limpiar errores cuando el usuario empiece a escribir
 function onUsernameInput() {

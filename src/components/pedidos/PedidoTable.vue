@@ -8,7 +8,7 @@
     items-per-page="10"
     class="elevation-0"
     show-expand
-    :expanded="selectedPedidoId ? [selectedPedidoId] : []"
+    :expanded="selectedPedidoId ? [String(selectedPedidoId)] : []"
     item-value="idPedido"
     @update:expanded="
       (expanded) =>

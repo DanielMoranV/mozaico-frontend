@@ -33,10 +33,12 @@ export class PagoService {
       const errorMessage = error.response?.data?.message || 'Error al procesar el pago';
 
       return {
-        status: 'ERROR',
-        code: error.response?.status || 500,
+        success: false,
         message: errorMessage,
-        data: null as any
+        error: {
+          code: error.response?.status || 500,
+          message: errorMessage
+        }
       };
     }
   }
@@ -52,10 +54,12 @@ export class PagoService {
       console.error('❌ Error al obtener métodos de pago:', error);
 
       return {
-        status: 'ERROR',
-        code: error.response?.status || 500,
+        success: false,
         message: 'Error al cargar métodos de pago',
-        data: [] as any
+        error: {
+          code: error.response?.status || 500,
+          message: 'Error al cargar métodos de pago'
+        }
       };
     }
   }
@@ -81,10 +85,12 @@ export class PagoService {
       const errorMessage = error.response?.data?.message || 'Error al procesar el pago completo';
 
       return {
-        status: 'ERROR',
-        code: error.response?.status || 500,
+        success: false,
         message: errorMessage,
-        data: null as any
+        error: {
+          code: error.response?.status || 500,
+          message: errorMessage
+        }
       };
     }
   }
@@ -101,10 +107,12 @@ export class PagoService {
       console.error('❌ Error al obtener todos los pagos:', error);
 
       return {
-        status: 'ERROR',
-        code: error.response?.status || 500,
+        success: false,
         message: 'Error al cargar pagos',
-        data: [] as any
+        error: {
+          code: error.response?.status || 500,
+          message: 'Error al cargar pagos'
+        }
       };
     }
   }
@@ -121,10 +129,12 @@ export class PagoService {
       console.error('❌ Error al obtener pago por ID:', error);
 
       return {
-        status: 'ERROR',
-        code: error.response?.status || 500,
+        success: false,
         message: 'Error al cargar pago',
-        data: null as any
+        error: {
+          code: error.response?.status || 500,
+          message: 'Error al cargar pago'
+        }
       };
     }
   }
@@ -148,10 +158,12 @@ export class PagoService {
       console.error('❌ Error al actualizar pago:', error);
 
       return {
-        status: 'ERROR',
-        code: error.response?.status || 500,
+        success: false,
         message: error.response?.data?.message || 'Error al actualizar pago',
-        data: null as any
+        error: {
+          code: error.response?.status || 500,
+          message: error.response?.data?.message || 'Error al actualizar pago'
+        }
       };
     }
   }
@@ -172,10 +184,12 @@ export class PagoService {
       console.error('❌ Error al eliminar pago:', error);
 
       return {
-        status: 'ERROR',
-        code: error.response?.status || 500,
+        success: false,
         message: error.response?.data?.message || 'Error al eliminar pago',
-        data: null
+        error: {
+          code: error.response?.status || 500,
+          message: error.response?.data?.message || 'Error al eliminar pago'
+        }
       };
     }
   }
@@ -198,10 +212,12 @@ export class PagoService {
       console.error('❌ Error al cambiar estado de pago:', error);
 
       return {
-        status: 'ERROR',
-        code: error.response?.status || 500,
+        success: false,
         message: error.response?.data?.message || 'Error al cambiar estado de pago',
-        data: null as any
+        error: {
+          code: error.response?.status || 500,
+          message: error.response?.data?.message || 'Error al cambiar estado de pago'
+        }
       };
     }
   }
@@ -232,10 +248,12 @@ export class PagoService {
       console.error('❌ Error al buscar pagos:', error);
 
       return {
-        status: 'ERROR',
-        code: error.response?.status || 500,
+        success: false,
         message: error.response?.data?.message || 'Error al buscar pagos',
-        data: [] as any
+        error: {
+          code: error.response?.status || 500,
+          message: error.response?.data?.message || 'Error al buscar pagos'
+        }
       };
     }
   }
@@ -251,10 +269,12 @@ export class PagoService {
       console.error('❌ Error al obtener pagos del pedido:', error);
 
       return {
-        status: 'ERROR',
-        code: error.response?.status || 500,
+        success: false,
         message: 'Error al cargar historial de pagos',
-        data: [] as any
+        error: {
+          code: error.response?.status || 500,
+          message: 'Error al cargar historial de pagos'
+        }
       };
     }
   }

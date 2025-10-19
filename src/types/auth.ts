@@ -1,5 +1,5 @@
 // Tipos para autenticación JWT y sistema de seguridad empresarial
-import type { TipoUsuario, EstadoUsuario } from './enums';
+import type { TipoUsuario } from './enums';
 
 export interface AuthRequest {
   username: string;        // Requerido, 1-50 caracteres

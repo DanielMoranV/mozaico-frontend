@@ -34,7 +34,7 @@ export const useCategoriaStore = defineStore("categoria", () => {
       setLoading(true);
       clearError();
       const response = await CategoriaService.obtenerTodasLasCategorias();
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         categorias.value = response.data;
       } else {
         setError(response.message);
@@ -60,7 +60,7 @@ export const useCategoriaStore = defineStore("categoria", () => {
       setLoading(true);
       clearError();
       const response = await CategoriaService.obtenerCategoriaPorId(id);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         categoriaActual.value = response.data;
         return response.data;
       } else {
@@ -89,7 +89,7 @@ export const useCategoriaStore = defineStore("categoria", () => {
       setLoading(true);
       clearError();
       const response = await CategoriaService.crearCategoria(data);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         categorias.value.push(response.data);
         return { success: true, data: response.data };
       } else {
@@ -118,7 +118,7 @@ export const useCategoriaStore = defineStore("categoria", () => {
       setLoading(true);
       clearError();
       const response = await CategoriaService.actualizarCategoria(id, data);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         const index = categorias.value.findIndex((c) => c.idCategoria === id);
         if (index !== -1) {
           categorias.value[index] = response.data;
@@ -150,7 +150,7 @@ export const useCategoriaStore = defineStore("categoria", () => {
       setLoading(true);
       clearError();
       const response = await CategoriaService.eliminarCategoria(id);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         categorias.value = categorias.value.filter((c) => c.idCategoria !== id);
         return { success: true };
       } else {

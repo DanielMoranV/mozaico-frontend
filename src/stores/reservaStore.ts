@@ -37,7 +37,7 @@ export const useReservaStore = defineStore('reserva', () => {
       setLoading(true);
       clearError();
       const response = await ReservaService.obtenerTodasLasReservas();
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         reservas.value = response.data;
       } else {
         setError(response.message);
@@ -54,7 +54,7 @@ export const useReservaStore = defineStore('reserva', () => {
       setLoading(true);
       clearError();
       const response = await ReservaService.crearReserva(data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         reservas.value.push(response.data);
         return { success: true, data: response.data };
       } else {
@@ -74,7 +74,7 @@ export const useReservaStore = defineStore('reserva', () => {
       setLoading(true);
       clearError();
       const response = await ReservaService.actualizarReserva(id, data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = reservas.value.findIndex((r) => r.idReserva === id);
         if (index !== -1) {
           reservas.value[index] = response.data;
@@ -97,7 +97,7 @@ export const useReservaStore = defineStore('reserva', () => {
       setLoading(true);
       clearError();
       const response = await ReservaService.eliminarReserva(id);
-      if (response.status === 'SUCCESS') {
+      if (response.success) {
         reservas.value = reservas.value.filter((r) => r.idReserva !== id);
         return { success: true };
       } else {
@@ -117,7 +117,7 @@ export const useReservaStore = defineStore('reserva', () => {
       setLoading(true);
       clearError();
       const response = await ReservaService.actualizarEstadoReserva(id, nuevoEstado);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = reservas.value.findIndex((r) => r.idReserva === id);
         if (index !== -1) {
           reservas.value[index] = response.data;
@@ -140,7 +140,7 @@ export const useReservaStore = defineStore('reserva', () => {
       setLoading(true);
       clearError();
       const response = await ReservaService.buscarReservas(busquedaParams.value);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         reservas.value = response.data;
         return { success: true, data: response.data };
       } else {

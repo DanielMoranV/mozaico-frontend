@@ -19,7 +19,7 @@ export const useProveedorStore = defineStore('proveedor', () => {
       setLoading(true);
       clearError();
       const response = await ProveedorService.obtenerTodosLosProveedores();
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         proveedores.value = response.data;
       } else {
         setError(response.message);
@@ -36,7 +36,7 @@ export const useProveedorStore = defineStore('proveedor', () => {
       setLoading(true);
       clearError();
       const response = await ProveedorService.crearProveedor(data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         proveedores.value.push(response.data);
         return { success: true, data: response.data };
       } else {
@@ -56,7 +56,7 @@ export const useProveedorStore = defineStore('proveedor', () => {
       setLoading(true);
       clearError();
       const response = await ProveedorService.actualizarProveedor(id, data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = proveedores.value.findIndex((p) => p.idProveedor === id);
         if (index !== -1) {
           proveedores.value[index] = response.data;
@@ -79,7 +79,7 @@ export const useProveedorStore = defineStore('proveedor', () => {
       setLoading(true);
       clearError();
       const response = await ProveedorService.eliminarProveedor(id);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         proveedores.value = proveedores.value.filter((p) => p.idProveedor !== id);
         return { success: true };
       } else {
@@ -99,7 +99,7 @@ export const useProveedorStore = defineStore('proveedor', () => {
       setLoading(true);
       clearError();
       const response = await ProveedorService.buscarProveedores(busquedaParams.value);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         proveedores.value = response.data;
       } else {
         setError(response.message);

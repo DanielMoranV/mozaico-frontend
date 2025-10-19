@@ -45,7 +45,7 @@ export const usePedidoStore = defineStore("pedido", () => {
       const response = await PedidoService.obtenerTodosLosPedidos();
 
       console.log("Respuesta de fetchPedidos:", response);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         pedidos.value = response.data;
       } else {
         setError(response.message);
@@ -62,7 +62,7 @@ export const usePedidoStore = defineStore("pedido", () => {
       setLoading(true);
       clearError();
       const response = await PedidoService.crearPedido(data);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         pedidos.value.push(response.data);
         return { success: true, data: response.data };
       } else {
@@ -82,7 +82,7 @@ export const usePedidoStore = defineStore("pedido", () => {
       setLoading(true);
       clearError();
       const response = await PedidoService.actualizarPedido(id, data);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         const index = pedidos.value.findIndex((p) => p.idPedido === id);
         if (index !== -1) {
           pedidos.value[index] = response.data;
@@ -105,7 +105,7 @@ export const usePedidoStore = defineStore("pedido", () => {
       setLoading(true);
       clearError();
       const response = await PedidoService.eliminarPedido(id);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         pedidos.value = pedidos.value.filter((p) => p.idPedido !== id);
         return { success: true };
       } else {
@@ -132,16 +132,17 @@ export const usePedidoStore = defineStore("pedido", () => {
       clearError();
       const response = await PedidoService.obtenerPedidoCompleto(idPedido);
 
-      if (response.status === "SUCCESS" && response.data) {
+      if (response.success && response.data) {
         console.log('✅ [pedidoStore] Pedido loaded successfully');
+        const pedido = response.data;
         // Actualizar el estado local si el pedido ya existe
         const index = pedidos.value.findIndex(
-          (p) => p.idPedido === response.data.idPedido
+          (p) => p.idPedido === pedido.idPedido
         );
         if (index !== -1) {
-          pedidos.value[index] = response.data;
+          pedidos.value[index] = pedido;
         } else {
-          pedidos.value.push(response.data);
+          pedidos.value.push(pedido);
         }
         return response.data;
       } else {
@@ -174,12 +175,13 @@ export const usePedidoStore = defineStore("pedido", () => {
       clearError();
       const response = await PedidoService.crearPedidoCompleto(data);
 
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
+        const pedido = response.data;
         const index = pedidos.value.findIndex(
-          (p) => p.idPedido === response.data.idPedido
+          (p) => p.idPedido === pedido.idPedido
         );
         if (index !== -1) {
-          pedidos.value[index] = response.data;
+          pedidos.value[index] = pedido;
         } else {
           pedidos.value.push(response.data);
         }
@@ -210,12 +212,12 @@ export const usePedidoStore = defineStore("pedido", () => {
       console.log('🔍 [pedidoStore] Adding product to existing order:', idPedido, data);
 
       const response = await PedidoService.agregarProductoAPedido(idPedido, data);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         console.log('✅ [pedidoStore] Product added successfully');
 
         // Refresh the order to get updated details and totals
         const updatedPedidoResponse = await PedidoService.obtenerPedidoCompleto(idPedido);
-        if (updatedPedidoResponse.status === "SUCCESS") {
+        if (updatedPedidoResponse.success && updatedPedidoResponse.data) {
           const index = pedidos.value.findIndex((p) => p.idPedido === idPedido);
           if (index !== -1) {
             pedidos.value[index] = updatedPedidoResponse.data;
@@ -249,10 +251,10 @@ export const usePedidoStore = defineStore("pedido", () => {
         idDetallePedido,
         { cantidad: nuevaCantidad }
       );
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         // Refresh the order to get updated details and totals
         const updatedPedidoResponse = await PedidoService.obtenerPedidoPorId(idPedido);
-        if (updatedPedidoResponse.status === "SUCCESS") {
+        if (updatedPedidoResponse.success && updatedPedidoResponse.data) {
           const pedidoIndex = pedidos.value.findIndex(
             (p) => p.idPedido === idPedido
           );
@@ -281,12 +283,12 @@ export const usePedidoStore = defineStore("pedido", () => {
       setLoading(true);
       clearError();
       const response = await PedidoService.eliminarDetallePedido(idDetallePedido);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         // Vuelve a buscar el pedido para obtener los totales actualizados
         const updatedPedidoResponse = await PedidoService.obtenerPedidoPorId(
           idPedido
         );
-        if (updatedPedidoResponse.status === "SUCCESS") {
+        if (updatedPedidoResponse.success && updatedPedidoResponse.data) {
           const pedidoIndex = pedidos.value.findIndex(
             (p) => p.idPedido === idPedido
           );
@@ -320,7 +322,7 @@ export const usePedidoStore = defineStore("pedido", () => {
         metodoPago,
         clienteId
       );
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         const index = pedidos.value.findIndex((p) => p.idPedido === idPedido);
         if (index !== -1) {
           pedidos.value[index] = response.data; // Asumimos que devuelve el pedido actualizado (ej. estado PAGADO)
@@ -343,7 +345,7 @@ export const usePedidoStore = defineStore("pedido", () => {
       setLoading(true);
       clearError();
       const response = await PedidoService.cambiarEstadoPedido(id, nuevoEstado);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         const index = pedidos.value.findIndex((p) => p.idPedido === id);
         if (index !== -1) {
           pedidos.value[index] = response.data;
@@ -369,7 +371,7 @@ export const usePedidoStore = defineStore("pedido", () => {
       clearError();
       const response = await PedidoService.buscarPedidos(busquedaParams.value);
       console.log("Respuesta de buscarPedidos:", response);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         pedidos.value = response.data;
         return { success: true, data: response.data };
       } else {
@@ -393,7 +395,7 @@ export const usePedidoStore = defineStore("pedido", () => {
       setLoading(true);
       clearError();
       const response = await PedidoService.obtenerDetallesPorPedidoId(pedidoId);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         selectedPedidoDetalles.value = response.data;
         return { success: true, data: response.data };
       } else {

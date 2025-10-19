@@ -37,7 +37,7 @@ export const useProductoStore = defineStore("producto", () => {
       setLoading(true);
       clearError();
       const response = await ProductoService.obtenerTodosLosProductos();
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         productos.value = response.data;
       } else {
         setError(response.message);
@@ -63,7 +63,7 @@ export const useProductoStore = defineStore("producto", () => {
       setLoading(true);
       clearError();
       const response = await ProductoService.obtenerProductoPorId(id);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         productoActual.value = response.data;
         return response.data;
       } else {
@@ -92,7 +92,7 @@ export const useProductoStore = defineStore("producto", () => {
       setLoading(true);
       clearError();
       const response = await ProductoService.crearProducto(data);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         productos.value.push(response.data);
         return { success: true, data: response.data };
       } else {
@@ -121,7 +121,7 @@ export const useProductoStore = defineStore("producto", () => {
       setLoading(true);
       clearError();
       const response = await ProductoService.actualizarProducto(id, data);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         const index = productos.value.findIndex((p) => p.idProducto === id);
         if (index !== -1) {
           productos.value[index] = response.data;
@@ -153,7 +153,7 @@ export const useProductoStore = defineStore("producto", () => {
       setLoading(true);
       clearError();
       const response = await ProductoService.eliminarProducto(id);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         productos.value = productos.value.filter((p) => p.idProducto !== id);
         return { success: true };
       } else {
@@ -183,7 +183,7 @@ export const useProductoStore = defineStore("producto", () => {
       clearError();
       const criteriosToUse = criteria || busquedaParams.value;
       const response = await ProductoService.buscarProductos(criteriosToUse);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         productos.value = response.data;
         return { success: true, data: response.data };
       } else {
@@ -212,7 +212,7 @@ export const useProductoStore = defineStore("producto", () => {
       setLoading(true);
       clearError();
       const response = await ProductoService.activarProducto(id);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         const index = productos.value.findIndex((p) => p.idProducto === id);
         if (index !== -1) {
           productos.value[index] = response.data;
@@ -244,7 +244,7 @@ export const useProductoStore = defineStore("producto", () => {
       setLoading(true);
       clearError();
       const response = await ProductoService.desactivarProducto(id);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         const index = productos.value.findIndex((p) => p.idProducto === id);
         if (index !== -1) {
           productos.value[index] = response.data;
@@ -276,7 +276,7 @@ export const useProductoStore = defineStore("producto", () => {
       setLoading(true);
       clearError();
       const response = await ProductoService.uploadProductImage(id, imageFile);
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         const index = productos.value.findIndex((p) => p.idProducto === id);
         if (index !== -1) {
           productos.value[index] = response.data;

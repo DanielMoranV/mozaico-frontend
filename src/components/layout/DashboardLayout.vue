@@ -283,7 +283,6 @@ import { useTheme, useDisplay } from "vuetify";
 import { useRoute } from "vue-router";
 import { useClienteStore } from "@/stores/clienteStore";
 import { useAuth } from "@/stores/authStore";
-import { useConditionalRender } from "@/composables/useConditionalRender";
 import UserMenu from "@/components/auth/UserMenu.vue";
 
 interface MenuItem {
@@ -306,7 +305,6 @@ const clienteStore = useClienteStore();
 
 // Autenticación
 const { user, isAuthenticated } = useAuth();
-const { getMenuItemVisibility } = useConditionalRender();
 
 const isDark = computed(() => theme.current.value.dark);
 const isMobile = computed(() => mobile.value);

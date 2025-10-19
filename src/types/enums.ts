@@ -96,9 +96,12 @@ export const EstadoPago = {
 export type EstadoPago = (typeof EstadoPago)[keyof typeof EstadoPago];
 
 export const EstadoReserva = {
-  CONFIRMADA: 'CONFIRMADA',
-  PENDIENTE: 'PENDIENTE',
-  CANCELADA: 'CANCELADA',
+  PENDIENTE: 'PENDIENTE',        // Reserva creada, esperando confirmación
+  CONFIRMADA: 'CONFIRMADA',      // Reserva confirmada
+  EN_CURSO: 'EN_CURSO',          // Cliente llegó y está ocupando la mesa
+  COMPLETADA: 'COMPLETADA',      // Reserva finalizada exitosamente
+  CANCELADA: 'CANCELADA',        // Reserva cancelada
+  NO_PRESENTADO: 'NO_PRESENTADO' // Cliente no se presentó (no-show)
 } as const;
 
 export type EstadoReserva = (typeof EstadoReserva)[keyof typeof EstadoReserva];

@@ -8,9 +8,8 @@
     items-per-page="10"
     class="elevation-0"
     show-expand
-    :expanded="selectedMenuId ? [selectedMenuId.toString()] : []"
+    v-model:expanded="expandedItems"
     item-value="idMenu"
-    @update:expanded="(expanded) => emit('toggle-expand', expanded.length > 0 ? menus.find(m => m.idMenu === expanded[0]) : null)"
   >
     <template v-slot:item.disponible="{ item }">
       <v-icon :color="item.disponible ? 'success' : 'error'">
@@ -46,22 +45,22 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
+import { ref } from 'vue';
 import type { MenuResponseDTO } from '@/types/menu';
-import MenuProductos from './MenuProductos.vue'; // Import the new component
+import MenuProductos from './MenuProductos.vue';
 
 defineProps<{
   menus: MenuResponseDTO[];
   loading: boolean;
   headers: any[];
-  selectedMenuId: number | null; // New prop
 }>();
 
 const emit = defineEmits([
   'editar-menu',
   'confirmar-eliminar',
-  'toggle-expand', // New emit
 ]);
+
+const expandedItems = ref<string[]>([]);
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return 'N/A';

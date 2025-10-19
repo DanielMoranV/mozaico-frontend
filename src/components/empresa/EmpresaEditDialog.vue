@@ -202,7 +202,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import type { Empresa, EmpresaUpdateDTO, TipoOperacion } from '@/types/empresa';
+import type { Empresa, EmpresaUpdateDTO } from '@/types/empresa';
 
 interface Props {
   modelValue: boolean;

@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import type { Permission } from '../types/auth';
 import { authService } from '../services/authService';
 
@@ -28,14 +28,7 @@ import ProveedoresView from '../views/ProveedoresView.vue';
 import ReservasView from '../views/ReservasView.vue';
 import KitchenView from '../views/KitchenView.vue';
 
-// Interfaz para metadatos de rutas
-interface RouteMeta {
-  requiresAuth?: boolean;
-  permissions?: Permission[];
-  title?: string;
-}
-
-const routes = [
+const routes: RouteRecordRaw[] = [
   // Ruta de login
   {
     path: '/login',
@@ -44,7 +37,7 @@ const routes = [
     meta: {
       requiresAuth: false,
       title: 'Iniciar Sesión'
-    } as RouteMeta
+    }
   },
 
   // Carta Digital Pública (sin autenticación)
@@ -55,7 +48,7 @@ const routes = [
     meta: {
       requiresAuth: false,
       title: 'Carta Digital'
-    } as RouteMeta
+    }
   },
 
   // Redirección del root al dashboard
@@ -72,7 +65,7 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: 'Dashboard'
-    } as RouteMeta
+    }
   },
 
   // Gestión de usuarios - Solo Admin y Super Admin
@@ -84,7 +77,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_USERS'],
       title: 'Gestión de Usuarios'
-    } as RouteMeta
+    }
   },
 
   // Categorías - Admin, Gerente
@@ -96,7 +89,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_INVENTORY', 'ALL_PERMISSIONS'],
       title: 'Categorías'
-    } as RouteMeta
+    }
   },
 
   // Productos - Admin, Gerente
@@ -108,7 +101,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_INVENTORY', 'ALL_PERMISSIONS'],
       title: 'Productos'
-    } as RouteMeta
+    }
   },
 
   // Compras - Admin, Gerente
@@ -120,7 +113,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_INVENTORY', 'ALL_PERMISSIONS'],
       title: 'Compras'
-    } as RouteMeta
+    }
   },
 
   // Métodos de pago - Admin, Gerente, Cajero
@@ -132,7 +125,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_PAYMENTS', 'ALL_PERMISSIONS'],
       title: 'Métodos de Pago'
-    } as RouteMeta
+    }
   },
 
   // Pagos - Admin, Gerente, Cajero
@@ -144,7 +137,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_PAYMENTS', 'ALL_PERMISSIONS'],
       title: 'Pagos'
-    } as RouteMeta
+    }
   },
 
   // Comprobantes - Admin, Gerente, Cajero
@@ -156,7 +149,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_PAYMENTS', 'VIEW_REPORTS', 'ALL_PERMISSIONS'],
       title: 'Comprobantes'
-    } as RouteMeta
+    }
   },
 
   // Proveedores - Admin, Gerente
@@ -168,7 +161,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_INVENTORY', 'ALL_PERMISSIONS'],
       title: 'Proveedores'
-    } as RouteMeta
+    }
   },
 
   // Reservas - Admin, Gerente, Mesero (ver), Admin/Gerente (gestionar)
@@ -180,7 +173,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_RESERVATIONS', 'VIEW_RESERVATIONS', 'ALL_PERMISSIONS'],
       title: 'Reservas'
-    } as RouteMeta
+    }
   },
 
   // Mesas - Admin, Mesero
@@ -192,7 +185,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_TABLES', 'ALL_PERMISSIONS'],
       title: 'Mesas'
-    } as RouteMeta
+    }
   },
 
   // Menú - Admin, Gerente
@@ -204,7 +197,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_INVENTORY', 'ALL_PERMISSIONS'],
       title: 'Menú'
-    } as RouteMeta
+    }
   },
 
   // Pedidos - Todos pueden ver, pero gestionar según permisos
@@ -216,7 +209,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_ORDERS', 'VIEW_ORDERS', 'ALL_PERMISSIONS'],
       title: 'Pedidos'
-    } as RouteMeta
+    }
   },
 
   // POS - Mesero, Cajero, Admin
@@ -228,7 +221,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_ORDERS', 'MANAGE_CASH_REGISTER', 'ALL_PERMISSIONS'],
       title: 'Punto de Venta'
-    } as RouteMeta
+    }
   },
 
   // Cocina (KDS) - Cocinero, Admin
@@ -240,7 +233,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_KITCHEN', 'ALL_PERMISSIONS'],
       title: 'Cocina - KDS'
-    } as RouteMeta
+    }
   },
 
   // Inventario - Admin, Gerente
@@ -252,7 +245,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_INVENTORY', 'ALL_PERMISSIONS'],
       title: 'Inventario'
-    } as RouteMeta
+    }
   },
 
   // Reportes - Admin, Gerente
@@ -264,7 +257,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['VIEW_REPORTS', 'ALL_PERMISSIONS'],
       title: 'Reportes'
-    } as RouteMeta
+    }
   },
 
   // Clientes - Todos los autenticados
@@ -275,7 +268,7 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: 'Clientes'
-    } as RouteMeta
+    }
   },
 
   // Configuración - Admin, Super Admin
@@ -287,7 +280,7 @@ const routes = [
       requiresAuth: true,
       permissions: ['MANAGE_COMPANY', 'ALL_PERMISSIONS'],
       title: 'Configuración'
-    } as RouteMeta
+    }
   },
 
   // Ruta 404 - Página no encontrada
@@ -298,7 +291,7 @@ const routes = [
     meta: {
       requiresAuth: false,
       title: 'Página no encontrada'
-    } as RouteMeta
+    }
   }
 ];
 

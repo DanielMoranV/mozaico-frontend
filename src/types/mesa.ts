@@ -71,3 +71,6 @@ export interface MesaSearchParams {
   searchTerm?: string;
   logic?: 'AND' | 'OR';
 }
+
+// Alias para compatibilidad con la API de reservas
+export type MesaResponseDTO = Mesa;

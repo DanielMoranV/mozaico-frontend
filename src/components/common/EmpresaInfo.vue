@@ -184,7 +184,7 @@ const tipoOperacionColor = computed(() => {
       return 'info';
     case TipoOperacion.BOLETA_MANUAL:
       return 'success';
-    case TipoOperacion.FACTURACION_ELECTRONICA:
+    case TipoOperacion.FACTURA_ELECTRONICA:
       return 'primary';
     case TipoOperacion.MIXTO:
       return 'purple';
@@ -201,7 +201,7 @@ const tipoOperacionTexto = computed(() => {
       return 'Tickets Simples';
     case TipoOperacion.BOLETA_MANUAL:
       return 'Boletas Manuales';
-    case TipoOperacion.FACTURACION_ELECTRONICA:
+    case TipoOperacion.FACTURA_ELECTRONICA:
       return 'Facturación Electrónica';
     case TipoOperacion.MIXTO:
       return 'Operación Mixta';
@@ -218,7 +218,7 @@ const mensajeAlertType = computed(() => {
       return 'info';
     case TipoOperacion.BOLETA_MANUAL:
       return 'success';
-    case TipoOperacion.FACTURACION_ELECTRONICA:
+    case TipoOperacion.FACTURA_ELECTRONICA:
       return 'success';
     default:
       return 'info';
@@ -233,7 +233,7 @@ const mensajeIcon = computed(() => {
       return 'mdi-ticket';
     case TipoOperacion.BOLETA_MANUAL:
       return 'mdi-file-document';
-    case TipoOperacion.FACTURACION_ELECTRONICA:
+    case TipoOperacion.FACTURA_ELECTRONICA:
       return 'mdi-certificate';
     default:
       return 'mdi-information';

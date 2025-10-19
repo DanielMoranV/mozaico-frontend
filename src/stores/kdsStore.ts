@@ -139,7 +139,7 @@ export const useKDSStore = defineStore("kds", () => {
         filtro
       );
 
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         switch (estado) {
           case "PEDIDO":
             detallesPedido.value = response.data;
@@ -185,7 +185,7 @@ export const useKDSStore = defineStore("kds", () => {
       // Cargar el tablero completo con el filtro del usuario
       const response = await KDSService.obtenerTableroCompleto(filtro);
 
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         detallesPedido.value = response.data.pedidos;
         detallesEnPreparacion.value = response.data.enPreparacion;
         detallesListos.value = response.data.listos;
@@ -219,7 +219,7 @@ export const useKDSStore = defineStore("kds", () => {
         nuevoEstado
       );
 
-      if (response.status === "SUCCESS") {
+      if (response.success && response.data) {
         // Actualizar el estado local moviendo el detalle entre listas
         await fetchTableroCompleto();
         return { success: true, data: response.data };

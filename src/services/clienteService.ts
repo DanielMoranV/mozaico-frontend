@@ -22,6 +22,9 @@ export class ClienteService {
       // Decodificar el token para ver su contenido
       try {
         const base64Url = token.split('.')[1];
+        if (!base64Url) {
+          throw new Error('Token inválido');
+        }
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
           return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
@@ -93,5 +96,15 @@ export class ClienteService {
       `${this.BASE_PATH}/${id}/desactivar`
     );
     return response.data;
+  }
+
+  // ============ Métodos helper ============
+
+  /**
+   * Obtener todos los clientes (devuelve solo el data)
+   */
+  static async obtenerTodos(): Promise<ClienteResponseDTO[]> {
+    const response = await this.obtenerTodosLosClientes();
+    return response.data || [];
   }
 }

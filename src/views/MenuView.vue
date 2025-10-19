@@ -32,10 +32,8 @@
           :menus="store.menus"
           :loading="store.loading"
           :headers="headers"
-          :selected-menu-id="selectedMenuId"
           @editar-menu="editarMenu"
           @confirmar-eliminar="confirmarEliminar"
-          @toggle-expand="toggleExpand"
         />
       </v-card-text>
     </v-card>
@@ -93,7 +91,6 @@ const headers = [
 
 const showFilters = ref(false);
 const searchTerm = ref('');
-const selectedMenuId = ref<number | null>(null); // New ref for expanded row
 
 const searchCriteria = reactive<Omit<MenuSearchParams, 'searchTerm'>>({
   nombre: '',
@@ -222,15 +219,6 @@ const eliminarMenuConfirmado = async () => {
   }
   confirmarDialog.value = false;
   menuAEliminar.value = null;
-};
-
-const toggleExpand = async (menu: MenuResponseDTO) => {
-  if (selectedMenuId.value === menu.idMenu) {
-    selectedMenuId.value = null;
-  } else {
-    selectedMenuId.value = menu.idMenu;
-    // No need to fetch details here, as products are already in menu.productos
-  }
 };
 
 const cerrarDialogo = () => {

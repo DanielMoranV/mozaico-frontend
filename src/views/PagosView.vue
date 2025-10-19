@@ -155,7 +155,7 @@ const limpiarBusqueda = async () => {
   });
 
   store.setBusquedaParams({});
-  const resultado = await store.fetchPagos();
+  await store.fetchPagos();
 
   if (store.error) {
     mostrarSnackbar(store.error, 'error');

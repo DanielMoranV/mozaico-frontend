@@ -9,7 +9,6 @@ export function useConditionalRender() {
   const {
     hasPermission,
     hasAnyPermission,
-    hasAllPermissions,
     canPerformAction,
     isSuperAdmin,
     isAdmin,
@@ -50,13 +49,13 @@ export function useConditionalRender() {
         });
       }
       switch (roles) {
-        case 'SUPER_ADMIN': return isSuperAdmin;
-        case 'ADMIN': return isAdmin;
-        case 'GERENTE': return isGerente;
-        case 'CAJERO': return isCajero;
-        case 'MESERO': return isMesero;
-        case 'COCINERO': return isCocinero;
-        default: return computed(() => false);
+        case 'SUPER_ADMIN': return isSuperAdmin.value;
+        case 'ADMIN': return isAdmin.value;
+        case 'GERENTE': return isGerente.value;
+        case 'CAJERO': return isCajero.value;
+        case 'MESERO': return isMesero.value;
+        case 'COCINERO': return isCocinero.value;
+        default: return false;
       }
     });
   }
@@ -120,7 +119,7 @@ export function useConditionalRender() {
         case 'dashboard':
         case 'clientes':
         default:
-          return computed(() => true); // Siempre visible para usuarios autenticados
+          return true; // Siempre visible para usuarios autenticados
       }
     });
   }

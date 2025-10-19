@@ -24,12 +24,12 @@ export function usePermissions() {
   const canUpdateOrderStatus = computed(() => hasPermission('UPDATE_ORDER_STATUS'));
 
   // Computed properties para verificación de roles
-  const isSuperAdmin = computed(() => user?.tipoUsuario === 'SUPER_ADMIN');
-  const isAdmin = computed(() => user?.tipoUsuario === 'ADMIN');
-  const isGerente = computed(() => user?.tipoUsuario === 'GERENTE');
-  const isCajero = computed(() => user?.tipoUsuario === 'CAJERO');
-  const isMesero = computed(() => user?.tipoUsuario === 'MESERO');
-  const isCocinero = computed(() => user?.tipoUsuario === 'COCINERO');
+  const isSuperAdmin = computed(() => user.value?.tipoUsuario === 'SUPER_ADMIN');
+  const isAdmin = computed(() => user.value?.tipoUsuario === 'ADMIN');
+  const isGerente = computed(() => user.value?.tipoUsuario === 'GERENTE');
+  const isCajero = computed(() => user.value?.tipoUsuario === 'CAJERO');
+  const isMesero = computed(() => user.value?.tipoUsuario === 'MESERO');
+  const isCocinero = computed(() => user.value?.tipoUsuario === 'COCINERO');
 
   // Computed properties para grupos de permisos comunes
   const canAccessAdminPanel = computed(() =>
@@ -84,7 +84,7 @@ export function usePermissions() {
   /**
    * Verifica si el usuario puede realizar una acción específica
    */
-  function canPerformAction(action: string, context?: any): boolean {
+  function canPerformAction(action: string, _context?: any): boolean {
     switch (action) {
       case 'create_user':
       case 'edit_user':

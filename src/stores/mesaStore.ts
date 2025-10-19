@@ -40,7 +40,7 @@ export const useMesaStore = defineStore('mesa', () => {
       console.log('🔍 [mesaStore] Fetching mesas with detailed state...');
       const response = await MesaService.obtenerMesasConEstadoDetallado();
 
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const mesasConPedido = response.data.filter(m => m.ultimoPedido);
         console.log('✅ [mesaStore] Loaded', response.data.length, 'mesas,', mesasConPedido.length, 'with active orders');
 
@@ -63,7 +63,7 @@ export const useMesaStore = defineStore('mesa', () => {
       setLoading(true);
       clearError();
       const response = await MesaService.crearMesa(data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         mesas.value.push(response.data);
         return { success: true, data: response.data };
       } else {
@@ -83,7 +83,7 @@ export const useMesaStore = defineStore('mesa', () => {
       setLoading(true);
       clearError();
       const response = await MesaService.actualizarMesa(id, data);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = mesas.value.findIndex((m) => m.idMesa === id);
         if (index !== -1) {
           mesas.value[index] = response.data;
@@ -106,7 +106,7 @@ export const useMesaStore = defineStore('mesa', () => {
       setLoading(true);
       clearError();
       const response = await MesaService.eliminarMesa(id);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         mesas.value = mesas.value.filter((m) => m.idMesa !== id);
         return { success: true };
       } else {
@@ -126,7 +126,7 @@ export const useMesaStore = defineStore('mesa', () => {
       setLoading(true);
       clearError();
       const response = await MesaService.cambiarEstadoMesa(id, nuevoEstado);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         const index = mesas.value.findIndex((m) => m.idMesa === id);
         if (index !== -1) {
           mesas.value[index] = response.data;
@@ -149,7 +149,7 @@ export const useMesaStore = defineStore('mesa', () => {
       setLoading(true);
       clearError();
       const response = await MesaService.buscarMesas(busquedaParams.value);
-      if (response.status === 'SUCCESS') {
+      if (response.success && response.data) {
         mesas.value = response.data;
         return { success: true, data: response.data };
       } else {

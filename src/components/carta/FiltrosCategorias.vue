@@ -90,7 +90,8 @@ const showLeftScroll = ref(false);
 const showRightScroll = ref(false);
 
 function checkScrollIndicators() {
-  const container = chipGroup.value?.$el?.querySelector('.v-slide-group__content');
+  const el = chipGroup.value as any;
+  const container = el?.$el?.querySelector('.v-slide-group__content');
   if (!container) return;
 
   const { scrollLeft, scrollWidth, clientWidth } = container;

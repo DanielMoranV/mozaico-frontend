@@ -1,9 +1,9 @@
 import type { TipoComprobante, EstadoComprobante } from './enums';
-import type { Pago } from './pago';
+import type { PagoResponseDTO } from './pago';
 
 export interface Comprobante {
   idComprobante: number;
-  pago?: Pago;
+  pago?: PagoResponseDTO;
   tipoComprobante: TipoComprobante;
   numeroComprobante: string;
   serieComprobante: string;
