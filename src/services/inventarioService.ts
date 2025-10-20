@@ -12,48 +12,78 @@ export class InventarioService {
   private static readonly BASE_PATH = '/inventario';
 
   static async crearInventario(data: InventarioRequestDTO): Promise<ApiResponse<InventarioResponseDTO>> {
-    const response = await apiClient.post<ApiResponse<InventarioResponseDTO>>(
+    const response = await apiClient.post<any>(
       this.BASE_PATH,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async obtenerTodoElInventario(): Promise<ApiResponse<InventarioResponseDTO[]>> {
-    const response = await apiClient.get<ApiResponse<InventarioResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       this.BASE_PATH
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async obtenerInventarioPorId(id: number): Promise<ApiResponse<InventarioResponseDTO>> {
-    const response = await apiClient.get<ApiResponse<InventarioResponseDTO>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async actualizarInventario(id: number, data: InventarioUpdateDTO): Promise<ApiResponse<InventarioResponseDTO>> {
-    const response = await apiClient.put<ApiResponse<InventarioResponseDTO>>(
+    const response = await apiClient.put<any>(
       `${this.BASE_PATH}/${id}`,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async eliminarInventario(id: number): Promise<ApiResponse<null>> {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async ajustarStock(id: number, data: AjustarStockRequestDTO): Promise<ApiResponse<InventarioResponseDTO>> {
-    const response = await apiClient.patch<ApiResponse<InventarioResponseDTO>>(
+    const response = await apiClient.patch<any>(
       `${this.BASE_PATH}/${id}/ajustar-stock`,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async buscarInventario(criteria: InventarioSearchParams): Promise<ApiResponse<InventarioResponseDTO[]>> {
@@ -66,9 +96,14 @@ export class InventarioService {
       }
     });
 
-    const response = await apiClient.get<ApiResponse<InventarioResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}?${searchParams.toString()}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 }

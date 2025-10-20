@@ -9,15 +9,19 @@
           <v-col cols="12" md="6">
             <v-select
               v-model="form.idCliente"
-              :items="clientes"
-              item-title="nombre"
+              :items="clientesFormateados"
+              item-title="nombreCompleto"
               item-value="idCliente"
               label="Cliente"
               :rules="[rules.required]"
               required
             >
               <template v-slot:item="{ props, item }">
-                <v-list-item v-bind="props" :title="item.raw.nombre + ' ' + (item.raw.apellido || '')"></v-list-item>
+                <v-list-item
+                  v-bind="props"
+                  :title="item.raw.nombreCompleto"
+                  :subtitle="item.raw.telefono || item.raw.email || ''"
+                ></v-list-item>
               </template>
             </v-select>
           </v-col>
@@ -114,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { ReservaService } from '@/services/reservaService';
 import { ClienteService } from '@/services/clienteService';
 import { MesaService } from '@/services/mesaService';
@@ -155,6 +159,29 @@ const isSubmitting = ref(false);
 const isEditing = ref(false);
 const error = ref<string | null>(null);
 const showAlternativas = ref(false);
+
+// Formatear clientes para el select
+const clientesFormateados = computed(() => {
+  return clientes.value.map(cliente => {
+    let nombreCompleto = '';
+
+    // Si es persona jurídica, usar razón social o nombre comercial
+    if (cliente.tipoPersona === 'JURIDICA') {
+      nombreCompleto = cliente.razonSocial || cliente.nombreComercial || cliente.nombre;
+    } else {
+      // Si es persona natural, concatenar nombre y apellido
+      nombreCompleto = cliente.nombre;
+      if (cliente.apellido) {
+        nombreCompleto += ` ${cliente.apellido}`;
+      }
+    }
+
+    return {
+      ...cliente,
+      nombreCompleto
+    };
+  });
+});
 
 const estadosReserva = [
   { text: 'Pendiente', value: EstadoReserva.PENDIENTE },

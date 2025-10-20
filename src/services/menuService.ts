@@ -10,54 +10,89 @@ export class MenuService {
   private static readonly BASE_PATH = '/menus';
 
   static async crearMenu(data: MenuRequestDTO): Promise<ApiResponse<MenuResponseDTO>> {
-    const response = await apiClient.post<ApiResponse<MenuResponseDTO>>(
+    const response = await apiClient.post<any>(
       this.BASE_PATH,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async obtenerTodosLosMenus(): Promise<ApiResponse<MenuResponseDTO[]>> {
-    const response = await apiClient.get<ApiResponse<MenuResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       this.BASE_PATH
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async obtenerMenuPorId(id: number): Promise<ApiResponse<MenuResponseDTO>> {
-    const response = await apiClient.get<ApiResponse<MenuResponseDTO>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async actualizarMenu(id: number, data: MenuRequestDTO): Promise<ApiResponse<MenuResponseDTO>> {
-    const response = await apiClient.put<ApiResponse<MenuResponseDTO>>(
+    const response = await apiClient.put<any>(
       `${this.BASE_PATH}/${id}`,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async eliminarMenu(id: number): Promise<ApiResponse<null>> {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async agregarProductoAMenu(id: number, productoId: number): Promise<ApiResponse<MenuResponseDTO>> {
-    const response = await apiClient.post<ApiResponse<MenuResponseDTO>>(
+    const response = await apiClient.post<any>(
       `${this.BASE_PATH}/${id}/productos/${productoId}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async eliminarProductoDeMenu(id: number, productoId: number): Promise<ApiResponse<null>> {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<any>(
       `${this.BASE_PATH}/${id}/productos/${productoId}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async buscarMenus(criteria: MenuSearchParams): Promise<ApiResponse<MenuResponseDTO[]>> {
@@ -70,9 +105,14 @@ export class MenuService {
       }
     });
 
-    const response = await apiClient.get<ApiResponse<MenuResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}?${searchParams.toString()}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 }

@@ -15,47 +15,72 @@ export class CompraService {
   static async crearCompra(
     data: CompraRequestDTO
   ): Promise<ApiResponse<CompraResponseDTO>> {
-    const response = await apiClient.post<ApiResponse<CompraResponseDTO>>(
+    const response = await apiClient.post<any>(
       this.BASE_PATH,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async obtenerTodasLasCompras(): Promise<
     ApiResponse<CompraResponseDTO[]>
   > {
-    const response = await apiClient.get<ApiResponse<CompraResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       this.BASE_PATH
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async obtenerCompraPorId(
     id: number
   ): Promise<ApiResponse<CompraResponseDTO>> {
-    const response = await apiClient.get<ApiResponse<CompraResponseDTO>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async actualizarCompra(
     id: number,
     data: CompraRequestDTO
   ): Promise<ApiResponse<CompraResponseDTO>> {
-    const response = await apiClient.put<ApiResponse<CompraResponseDTO>>(
+    const response = await apiClient.put<any>(
       `${this.BASE_PATH}/${id}`,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async eliminarCompra(id: number): Promise<ApiResponse<null>> {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async buscarCompras(
@@ -70,30 +95,46 @@ export class CompraService {
       }
     });
 
-    const response = await apiClient.get<ApiResponse<CompraResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}?${searchParams.toString()}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   // Detalles de Compra
   static async obtenerDetallesPorCompraId(
     compraId: number
   ): Promise<ApiResponse<DetalleCompraResponseDTO[]>> {
-    const response = await apiClient.get<
-      ApiResponse<DetalleCompraResponseDTO[]>
-    >(`${this.BASE_PATH}/${compraId}${this.DETALLES_PATH}`);
-    return response.data;
+    const response = await apiClient.get<any>(
+      `${this.BASE_PATH}/${compraId}${this.DETALLES_PATH}`
+    );
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async agregarDetalleACompra(
     compraId: number,
     data: DetalleCompraRequestDTO
   ): Promise<ApiResponse<DetalleCompraResponseDTO>> {
-    const response = await apiClient.post<
-      ApiResponse<DetalleCompraResponseDTO>
-    >(`${this.BASE_PATH}/${compraId}${this.DETALLES_PATH}`, data);
-    return response.data;
+    const response = await apiClient.post<any>(
+      `${this.BASE_PATH}/${compraId}${this.DETALLES_PATH}`,
+      data
+    );
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async actualizarDetalleCompra(
@@ -101,20 +142,30 @@ export class CompraService {
     detalleId: number,
     data: DetalleCompraRequestDTO
   ): Promise<ApiResponse<DetalleCompraResponseDTO>> {
-    const response = await apiClient.put<ApiResponse<DetalleCompraResponseDTO>>(
+    const response = await apiClient.put<any>(
       `${this.BASE_PATH}/${compraId}${this.DETALLES_PATH}/${detalleId}`,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async eliminarDetalleCompra(
     compraId: number,
     detalleId: number
   ): Promise<ApiResponse<null>> {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<any>(
       `${this.BASE_PATH}/${compraId}${this.DETALLES_PATH}/${detalleId}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 }

@@ -10,40 +10,65 @@ export class ProveedorService {
   private static readonly BASE_PATH = '/proveedores';
 
   static async crearProveedor(data: ProveedorRequestDTO): Promise<ApiResponse<ProveedorResponseDTO>> {
-    const response = await apiClient.post<ApiResponse<ProveedorResponseDTO>>(
+    const response = await apiClient.post<any>(
       this.BASE_PATH,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async obtenerTodosLosProveedores(): Promise<ApiResponse<ProveedorResponseDTO[]>> {
-    const response = await apiClient.get<ApiResponse<ProveedorResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       this.BASE_PATH
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async obtenerProveedorPorId(id: number): Promise<ApiResponse<ProveedorResponseDTO>> {
-    const response = await apiClient.get<ApiResponse<ProveedorResponseDTO>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async actualizarProveedor(id: number, data: ProveedorRequestDTO): Promise<ApiResponse<ProveedorResponseDTO>> {
-    const response = await apiClient.put<ApiResponse<ProveedorResponseDTO>>(
+    const response = await apiClient.put<any>(
       `${this.BASE_PATH}/${id}`,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async eliminarProveedor(id: number): Promise<ApiResponse<null>> {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async buscarProveedores(criteria: ProveedorSearchParams): Promise<ApiResponse<ProveedorResponseDTO[]>> {
@@ -56,9 +81,14 @@ export class ProveedorService {
       }
     });
 
-    const response = await apiClient.get<ApiResponse<ProveedorResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}?${searchParams.toString()}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 }

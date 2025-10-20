@@ -25,15 +25,21 @@ export class KDSService {
     estado: EstadoDetallePedido,
     requierePreparacion: boolean = true
   ): Promise<ApiResponse<DetallePedidoResponseDTO[]>> {
-    const response = await apiClient.get<
-      ApiResponse<DetallePedidoResponseDTO[]>
-    >(`${this.BASE_PATH}/detalles`, {
-      params: {
-        estado,
-        requierePreparacion
-      },
-    });
-    return response.data;
+    const response = await apiClient.get<any>(
+      `${this.BASE_PATH}/detalles`,
+      {
+        params: {
+          estado,
+          requierePreparacion
+        },
+      }
+    );
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   /**
@@ -46,12 +52,19 @@ export class KDSService {
     detalleId: number,
     nuevoEstado: EstadoDetallePedido
   ): Promise<ApiResponse<DetallePedidoResponseDTO>> {
-    const response = await apiClient.put<
-      ApiResponse<DetallePedidoResponseDTO>
-    >(`${this.BASE_PATH}/detalles/${detalleId}/estado`, null, {
-      params: { estado: nuevoEstado },
-    });
-    return response.data;
+    const response = await apiClient.put<any>(
+      `${this.BASE_PATH}/detalles/${detalleId}/estado`,
+      null,
+      {
+        params: { estado: nuevoEstado },
+      }
+    );
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   /**

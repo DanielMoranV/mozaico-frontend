@@ -13,40 +13,65 @@ export class ProductoService {
   private static readonly BASE_PATH = '/productos'; // Coincide con /api/v1/productos usando VITE_API_BASE_URL
 
   static async crearProducto(data: ProductoRequestDTO): Promise<ApiResponse<ProductoResponseDTO>> {
-    const response = await apiClient.post<ApiResponse<ProductoResponseDTO>>(
+    const response = await apiClient.post<any>(
       this.BASE_PATH,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async obtenerTodosLosProductos(): Promise<ApiResponse<ProductoResponseDTO[]>> {
-    const response = await apiClient.get<ApiResponse<ProductoResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       this.BASE_PATH
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async obtenerProductoPorId(id: number): Promise<ApiResponse<ProductoResponseDTO>> {
-    const response = await apiClient.get<ApiResponse<ProductoResponseDTO>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async actualizarProducto(id: number, data: ProductoUpdateDTO): Promise<ApiResponse<ProductoResponseDTO>> {
-    const response = await apiClient.put<ApiResponse<ProductoResponseDTO>>(
+    const response = await apiClient.put<any>(
       `${this.BASE_PATH}/${id}`,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async eliminarProducto(id: number): Promise<ApiResponse<null>> {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async buscarProductos(criteria: ProductoSearchCriteria): Promise<ApiResponse<ProductoResponseDTO[]>> {
@@ -59,31 +84,46 @@ export class ProductoService {
       }
     });
 
-    const response = await apiClient.get<ApiResponse<ProductoResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/buscar?${searchParams.toString()}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async activarProducto(id: number): Promise<ApiResponse<ProductoResponseDTO>> {
-    const response = await apiClient.patch<ApiResponse<ProductoResponseDTO>>(
+    const response = await apiClient.patch<any>(
       `${this.BASE_PATH}/${id}/activar`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async desactivarProducto(id: number): Promise<ApiResponse<ProductoResponseDTO>> {
-    const response = await apiClient.patch<ApiResponse<ProductoResponseDTO>>(
+    const response = await apiClient.patch<any>(
       `${this.BASE_PATH}/${id}/desactivar`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async uploadProductImage(id: number, imageFile: File): Promise<ApiResponse<ProductoResponseDTO>> {
     const formData = new FormData();
     formData.append('file', imageFile);
 
-    const response = await apiClient.post<ApiResponse<ProductoResponseDTO>>(
+    const response = await apiClient.post<any>(
       `${this.BASE_PATH}/${id}/image`,
       formData,
       {
@@ -92,6 +132,11 @@ export class ProductoService {
         },
       }
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 }

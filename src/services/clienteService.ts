@@ -40,62 +40,102 @@ export class ClienteService {
       console.error('❌ [ClienteService] No hay token en localStorage');
     }
 
-    const response = await apiClient.post<ApiResponse<ClienteResponseDTO>>(
+    const response = await apiClient.post<any>(
       this.BASE_PATH,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async obtenerTodosLosClientes(): Promise<ApiResponse<ClienteResponseDTO[]>> {
-    const response = await apiClient.get<ApiResponse<ClienteResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       this.BASE_PATH
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async obtenerClientePorId(id: number): Promise<ApiResponse<ClienteResponseDTO>> {
-    const response = await apiClient.get<ApiResponse<ClienteResponseDTO>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async actualizarCliente(id: number, data: ClienteUpdateDTO): Promise<ApiResponse<ClienteResponseDTO>> {
-    const response = await apiClient.put<ApiResponse<ClienteResponseDTO>>(
+    const response = await apiClient.put<any>(
       `${this.BASE_PATH}/${id}`,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async eliminarCliente(id: number): Promise<ApiResponse<null>> {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async buscarClientes(criteria: ClienteSearchCriteria): Promise<ApiResponse<ClienteResponseDTO[]>> {
-    const response = await apiClient.get<ApiResponse<ClienteResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/buscar`,
       { params: criteria }
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async activarCliente(id: number): Promise<ApiResponse<ClienteResponseDTO>> {
-    const response = await apiClient.patch<ApiResponse<ClienteResponseDTO>>(
+    const response = await apiClient.patch<any>(
       `${this.BASE_PATH}/${id}/activar`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async desactivarCliente(id: number): Promise<ApiResponse<ClienteResponseDTO>> {
-    const response = await apiClient.patch<ApiResponse<ClienteResponseDTO>>(
+    const response = await apiClient.patch<any>(
       `${this.BASE_PATH}/${id}/desactivar`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   // ============ Métodos helper ============

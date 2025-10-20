@@ -11,25 +11,40 @@ export class ReportService {
   private static readonly BASE_PATH = '/reports';
 
   static async getSalesSummary(params: ReportSearchParams): Promise<ApiResponse<SalesSummaryResponseDTO>> {
-    const response = await apiClient.get<ApiResponse<SalesSummaryResponseDTO>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/sales-summary`,
       { params }
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async getProductSales(params: ReportSearchParams): Promise<ApiResponse<ProductSalesResponseDTO[]>> {
-    const response = await apiClient.get<ApiResponse<ProductSalesResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/product-sales`,
       { params }
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async getLowStockInventory(): Promise<ApiResponse<LowStockItemResponseDTO[]>> {
-    const response = await apiClient.get<ApiResponse<LowStockItemResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/low-stock-inventory`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 }

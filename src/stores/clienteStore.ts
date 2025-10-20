@@ -18,6 +18,28 @@ export const useClienteStore = defineStore('cliente', () => {
   // Getters
   const totalClientes = computed(() => clientes.value.length);
 
+  const clientesFormateados = computed(() => {
+    return clientes.value.map(cliente => {
+      let nombreCompleto = '';
+
+      // Si es persona jurídica, usar razón social o nombre comercial
+      if (cliente.tipoPersona === 'JURIDICA') {
+        nombreCompleto = cliente.razonSocial || cliente.nombreComercial || cliente.nombre;
+      } else {
+        // Si es persona natural, concatenar nombre y apellido
+        nombreCompleto = cliente.nombre;
+        if (cliente.apellido) {
+          nombreCompleto += ` ${cliente.apellido}`;
+        }
+      }
+
+      return {
+        ...cliente,
+        nombreCompleto
+      };
+    });
+  });
+
   // Actions
   const setLoading = (value: boolean) => {
     loading.value = value;
@@ -185,6 +207,7 @@ export const useClienteStore = defineStore('cliente', () => {
     error,
     // Getters
     totalClientes,
+    clientesFormateados,
     // Actions
     fetchClientes,
     crearCliente,

@@ -8,7 +8,7 @@
             <v-col cols="12" md="6">
               <v-select
                 v-model.number="criteria.idCliente"
-                :items="clienteStore.clientes"
+                :items="clienteStore.clientesFormateados"
                 item-title="nombreCompleto"
                 item-value="idCliente"
                 label="Cliente"

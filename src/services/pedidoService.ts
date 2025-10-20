@@ -19,58 +19,88 @@ export class PedidoService {
   static async obtenerTodosLosPedidos(): Promise<
     ApiResponse<PedidoResponseDTO[]>
   > {
-    const response = await apiClient.get<ApiResponse<PedidoResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       this.BASE_PATH
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async obtenerPedidoPorId(
     id: number
   ): Promise<ApiResponse<PedidoResponseDTO>> {
-    const response = await apiClient.get<ApiResponse<PedidoResponseDTO>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async crearPedido(
     data: PedidoRequestDTO
   ): Promise<ApiResponse<PedidoResponseDTO>> {
-    const response = await apiClient.post<ApiResponse<PedidoResponseDTO>>(
+    const response = await apiClient.post<any>(
       this.BASE_PATH,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async actualizarPedido(
     id: number,
     data: PedidoUpdateDTO
   ): Promise<ApiResponse<PedidoResponseDTO>> {
-    const response = await apiClient.put<ApiResponse<PedidoResponseDTO>>(
+    const response = await apiClient.put<any>(
       `${this.BASE_PATH}/${id}`,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async eliminarPedido(id: number): Promise<ApiResponse<null>> {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async cambiarEstadoPedido(
     id: number,
     nuevoEstado: EstadoPedido
   ): Promise<ApiResponse<PedidoResponseDTO>> {
-    const response = await apiClient.patch<ApiResponse<PedidoResponseDTO>>(
+    const response = await apiClient.patch<any>(
       `${this.BASE_PATH}/${id}/estado`,
       { estado: nuevoEstado }
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async buscarPedidos(
@@ -85,59 +115,90 @@ export class PedidoService {
       }
     });
 
-    const response = await apiClient.get<ApiResponse<PedidoResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/buscar?${searchParams.toString()}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   // Correct endpoints for details management according to documentation
   static async obtenerDetallesPorPedidoId(
     pedidoId: number
   ): Promise<ApiResponse<DetallePedidoResponseDTO[]>> {
-    const response = await apiClient.get<
-      ApiResponse<DetallePedidoResponseDTO[]>
-    >(`/detalles-pedido/pedido/${pedidoId}`);
+    const response = await apiClient.get<any>(
+      `/detalles-pedido/pedido/${pedidoId}`
+    );
     console.log("Detalle de pedido del id ", pedidoId, " :", response);
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async obtenerDetallePorId(
     detalleId: number
   ): Promise<ApiResponse<DetallePedidoResponseDTO>> {
-    const response = await apiClient.get<ApiResponse<DetallePedidoResponseDTO>>(
+    const response = await apiClient.get<any>(
       `/detalles-pedido/${detalleId}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async crearDetallePedido(
     detalle: DetallePedidoRequestDTO
   ): Promise<ApiResponse<DetallePedidoResponseDTO>> {
-    const response = await apiClient.post<
-      ApiResponse<DetallePedidoResponseDTO>
-    >(`/detalles-pedido`, detalle);
-    return response.data;
+    const response = await apiClient.post<any>(
+      `/detalles-pedido`,
+      detalle
+    );
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async actualizarDetallePedido(
     detalleId: number,
     detalle: DetallePedidoUpdateDTO
   ): Promise<ApiResponse<DetallePedidoResponseDTO>> {
-    const response = await apiClient.put<ApiResponse<DetallePedidoResponseDTO>>(
+    const response = await apiClient.put<any>(
       `/detalles-pedido/${detalleId}`,
       detalle
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async eliminarDetallePedido(
     detalleId: number
   ): Promise<ApiResponse<null>> {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<any>(
       `/detalles-pedido/${detalleId}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   // Métodos actualizados para la funcionalidad POS usando endpoints correctos
@@ -146,10 +207,15 @@ export class PedidoService {
   static async obtenerPedidoCompleto(
     idPedido: number
   ): Promise<ApiResponse<PedidoResponseDTO>> {
-    const response = await apiClient.get<ApiResponse<PedidoResponseDTO>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/${idPedido}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   // Usar el nuevo endpoint POST /api/v1/pedidos/completo
@@ -164,11 +230,16 @@ export class PedidoService {
       detalles: DetallePedidoRequestDTO[];
     }
   ): Promise<ApiResponse<PedidoResponseDTO>> {
-    const response = await apiClient.post<ApiResponse<PedidoResponseDTO>>(
+    const response = await apiClient.post<any>(
       `${this.BASE_PATH}/completo`,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   // Nuevo endpoint para agregar productos a pedido existente
@@ -180,11 +251,16 @@ export class PedidoService {
       observaciones?: string;
     }
   ): Promise<ApiResponse<DetallePedidoResponseDTO>> {
-    const response = await apiClient.post<ApiResponse<DetallePedidoResponseDTO>>(
+    const response = await apiClient.post<any>(
       `${this.BASE_PATH}/${idPedido}/productos`,
       data
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async actualizarPedidoConDetalles(
@@ -192,11 +268,16 @@ export class PedidoService {
     pedidoData: PedidoRequestDTO,
     detallesData: DetallePedidoRequestDTO[]
   ): Promise<ApiResponse<PedidoResponseDTO>> {
-    const response = await apiClient.put<ApiResponse<PedidoResponseDTO>>(
+    const response = await apiClient.put<any>(
       `${this.BASE_PATH}/${idPedido}/con-detalles`,
       { pedido: pedidoData, detalles: detallesData }
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   static async finalizarPedido(
@@ -204,10 +285,15 @@ export class PedidoService {
     metodoPago: string,
     clienteId?: number
   ): Promise<ApiResponse<PedidoResponseDTO>> {
-    const response = await apiClient.post<ApiResponse<PedidoResponseDTO>>(
+    const response = await apiClient.post<any>(
       `${this.BASE_PATH}/${idPedido}/finalizar`,
       { metodoPago, clienteId }
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 }

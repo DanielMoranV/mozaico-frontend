@@ -191,8 +191,8 @@
               <v-card-text class="pa-2">
                 <v-autocomplete
                   v-model="selectedClienteId"
-                  :items="clienteStore.clientes"
-                  :item-title="(item: any) => `${item.nombre} ${item.apellido}`"
+                  :items="clienteStore.clientesFormateados"
+                  item-title="nombreCompleto"
                   item-value="idCliente"
                   label="Cliente (opcional)"
                   prepend-inner-icon="mdi-account"
@@ -421,8 +421,8 @@
 
                   <v-autocomplete
                     v-model="selectedClienteId"
-                    :items="clienteStore.clientes"
-                    :item-title="(item: any) => `${item.nombre} ${item.apellido}`"
+                    :items="clienteStore.clientesFormateados"
+                    item-title="nombreCompleto"
                     item-value="idCliente"
                     label="Buscar cliente"
                     placeholder="Escribe para buscar..."
@@ -437,7 +437,7 @@
                     <template v-slot:item="{ props, item }">
                       <v-list-item
                         v-bind="props"
-                        :title="`${item.raw.nombre} ${item.raw.apellido || ''}`"
+                        :title="item.raw.nombreCompleto"
                         :subtitle="getClienteSubtitle(item.raw)"
                       >
                         <template v-slot:prepend>

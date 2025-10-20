@@ -14,10 +14,15 @@ export class ComprobanteService {
     try {
       console.log('📋 Obteniendo todos los comprobantes');
 
-      const response = await apiClient.get<ApiResponse<ComprobanteListItem[]>>(this.BASE_URL);
+      const response = await apiClient.get<any>(this.BASE_URL);
 
       console.log('✅ Comprobantes obtenidos exitosamente');
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al obtener comprobantes:', error);
 
@@ -105,12 +110,17 @@ export class ComprobanteService {
     try {
       console.log('🔍 Obteniendo comprobante por pago:', idPago);
 
-      const response = await apiClient.get<ApiResponse<ComprobanteDTO>>(
+      const response = await apiClient.get<any>(
         `${this.BASE_URL}/pago/${idPago}`
       );
 
       console.log('✅ Comprobante obtenido exitosamente');
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al obtener comprobante:', error);
 
@@ -133,12 +143,17 @@ export class ComprobanteService {
     try {
       console.log('🖨️ Reimprimiendo comprobante:', idComprobante);
 
-      const response = await apiClient.post<ApiResponse<ComprobanteDTO>>(
+      const response = await apiClient.post<any>(
         `${this.BASE_URL}/${idComprobante}/reimprimir`
       );
 
       console.log('✅ Comprobante reimpreso exitosamente');
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al reimprimir comprobante:', error);
 
@@ -161,7 +176,7 @@ export class ComprobanteService {
     try {
       console.log('❌ Anulando comprobante:', idComprobante, 'Motivo:', motivo);
 
-      const response = await apiClient.post<ApiResponse<ComprobanteDTO>>(
+      const response = await apiClient.post<any>(
         `${this.BASE_URL}/${idComprobante}/anular`,
         null,
         {
@@ -170,7 +185,12 @@ export class ComprobanteService {
       );
 
       console.log('✅ Comprobante anulado exitosamente');
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al anular comprobante:', error);
 

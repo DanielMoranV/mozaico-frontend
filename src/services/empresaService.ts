@@ -17,9 +17,14 @@ export class EmpresaService {
   static async getEmpresa(): Promise<ApiResponse<Empresa>> {
     try {
       console.log('🏢 Obteniendo información de empresa');
-      const response = await apiClient.get<ApiResponse<Empresa>>(this.BASE_URL);
+      const response = await apiClient.get<any>(this.BASE_URL);
       console.log('✅ Empresa obtenida:', response.data);
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al obtener empresa:', error);
       throw error;
@@ -34,9 +39,14 @@ export class EmpresaService {
   static async updateEmpresa(data: EmpresaUpdateDTO): Promise<ApiResponse<Empresa>> {
     try {
       console.log('📝 Actualizando empresa:', data);
-      const response = await apiClient.put<ApiResponse<Empresa>>(this.BASE_URL, data);
+      const response = await apiClient.put<any>(this.BASE_URL, data);
       console.log('✅ Empresa actualizada:', response.data);
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al actualizar empresa:', error);
       throw error;
@@ -54,7 +64,7 @@ export class EmpresaService {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await apiClient.put<ApiResponse<Empresa>>(
+      const response = await apiClient.put<any>(
         `${this.BASE_URL}/logo`,
         formData,
         {
@@ -64,7 +74,12 @@ export class EmpresaService {
         }
       );
       console.log('✅ Logo actualizado:', response.data);
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al actualizar logo:', error);
       throw error;
@@ -79,7 +94,7 @@ export class EmpresaService {
   static async cambiarEstado(activa: boolean): Promise<ApiResponse<Empresa>> {
     try {
       console.log(`🔄 Cambiando estado de empresa a: ${activa ? 'ACTIVA' : 'INACTIVA'}`);
-      const response = await apiClient.patch<ApiResponse<Empresa>>(
+      const response = await apiClient.patch<any>(
         `${this.BASE_URL}/estado`,
         null,
         {
@@ -87,7 +102,12 @@ export class EmpresaService {
         }
       );
       console.log('✅ Estado actualizado:', response.data);
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al cambiar estado:', error);
       throw error;
@@ -102,11 +122,16 @@ export class EmpresaService {
   static async getEstadisticas(): Promise<ApiResponse<EmpresaEstadisticas>> {
     try {
       console.log('📊 Obteniendo estadísticas de empresa');
-      const response = await apiClient.get<ApiResponse<EmpresaEstadisticas>>(
+      const response = await apiClient.get<any>(
         `${this.BASE_URL}/estadisticas`
       );
       console.log('✅ Estadísticas obtenidas:', response.data);
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al obtener estadísticas:', error);
       throw error;
@@ -126,12 +151,17 @@ export class EmpresaService {
   static async cambiarSlug(nuevoSlug: string): Promise<ApiResponse<Empresa>> {
     try {
       console.log('🔗 Cambiando slug a:', nuevoSlug);
-      const response = await apiClient.put<ApiResponse<Empresa>>(
+      const response = await apiClient.put<any>(
         `${this.BASE_URL}/slug`,
         { slug: nuevoSlug }  // Enviar en el body como objeto
       );
       console.log('✅ Slug actualizado:', response.data);
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al cambiar slug:', error);
       throw error;

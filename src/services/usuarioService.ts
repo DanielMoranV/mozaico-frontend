@@ -13,29 +13,44 @@ export class UsuarioService {
   static async crearUsuario(
     usuario: UsuarioRequestDTO
   ): Promise<ApiResponse<UsuarioResponseDTO>> {
-    const response = await apiClient.post<ApiResponse<UsuarioResponseDTO>>(
+    const response = await apiClient.post<any>(
       this.BASE_PATH,
       usuario
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   // Obtener todos los usuarios
   static async obtenerUsuarios(): Promise<ApiResponse<UsuarioResponseDTO[]>> {
-    const response = await apiClient.get<ApiResponse<UsuarioResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       this.BASE_PATH
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   // Obtener usuario por ID
   static async obtenerUsuarioPorId(
     id: number
   ): Promise<ApiResponse<UsuarioResponseDTO>> {
-    const response = await apiClient.get<ApiResponse<UsuarioResponseDTO>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   // Actualizar usuario
@@ -43,19 +58,29 @@ export class UsuarioService {
     id: number,
     usuario: UsuarioRequestDTO
   ): Promise<ApiResponse<UsuarioResponseDTO>> {
-    const response = await apiClient.put<ApiResponse<UsuarioResponseDTO>>(
+    const response = await apiClient.put<any>(
       `${this.BASE_PATH}/${id}`,
       usuario
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   // Eliminar usuario
   static async eliminarUsuario(id: number): Promise<ApiResponse<null>> {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<any>(
       `${this.BASE_PATH}/${id}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   // Búsqueda avanzada
@@ -70,31 +95,46 @@ export class UsuarioService {
       }
     });
 
-    const response = await apiClient.get<ApiResponse<UsuarioResponseDTO[]>>(
+    const response = await apiClient.get<any>(
       `${this.BASE_PATH}/buscar?${searchParams.toString()}`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   // Activar usuario
   static async activarUsuario(
     id: number
   ): Promise<ApiResponse<UsuarioResponseDTO>> {
-    const response = await apiClient.patch<ApiResponse<UsuarioResponseDTO>>(
+    const response = await apiClient.patch<any>(
       `${this.BASE_PATH}/${id}/activar`
     );
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 
   // Desactivar usuario
   static async desactivarUsuario(
     id: number
   ): Promise<ApiResponse<UsuarioResponseDTO>> {
-    const response = await apiClient.patch<ApiResponse<UsuarioResponseDTO>>(
+    const response = await apiClient.patch<any>(
       `${this.BASE_PATH}/${id}/desactivar`
     );
 
     console.log("Usuario desactivado:", response);
-    return response.data;
+    const backendResponse = response.data;
+    return {
+      success: backendResponse.status === 'SUCCESS',
+      message: backendResponse.message,
+      data: backendResponse.data
+    };
   }
 }

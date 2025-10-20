@@ -19,13 +19,18 @@ export class PagoService {
     try {
       console.log('💳 Creando pago:', pagoData);
 
-      const response = await apiClient.post<ApiResponse<PagoResponseDTO>>(
+      const response = await apiClient.post<any>(
         this.BASE_URL,
         pagoData
       );
 
       console.log('✅ Pago creado exitosamente:', response.data);
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al crear pago:', error);
 
@@ -48,8 +53,13 @@ export class PagoService {
    */
   static async getMetodosPago(): Promise<ApiResponse<MetodoPagoResponseDTO[]>> {
     try {
-      const response = await apiClient.get<ApiResponse<MetodoPagoResponseDTO[]>>('/metodos-pago');
-      return response.data;
+      const response = await apiClient.get<any>('/metodos-pago');
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al obtener métodos de pago:', error);
 
@@ -72,13 +82,18 @@ export class PagoService {
     try {
       console.log('💳 Creando pago completo:', pagoData);
 
-      const response = await apiClient.post<ApiResponse<PagoCompletoResponseDTO>>(
+      const response = await apiClient.post<any>(
         `${this.BASE_URL}/completo`,
         pagoData
       );
 
       console.log('✅ Pago completo creado exitosamente:', response.data);
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al crear pago completo:', error);
 
@@ -101,8 +116,13 @@ export class PagoService {
    */
   static async getTodosPagos(): Promise<ApiResponse<PagoResponseDTO[]>> {
     try {
-      const response = await apiClient.get<ApiResponse<PagoResponseDTO[]>>(this.BASE_URL);
-      return response.data;
+      const response = await apiClient.get<any>(this.BASE_URL);
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al obtener todos los pagos:', error);
 
@@ -123,8 +143,13 @@ export class PagoService {
    */
   static async getPagoPorId(idPago: number): Promise<ApiResponse<PagoResponseDTO>> {
     try {
-      const response = await apiClient.get<ApiResponse<PagoResponseDTO>>(`${this.BASE_URL}/${idPago}`);
-      return response.data;
+      const response = await apiClient.get<any>(`${this.BASE_URL}/${idPago}`);
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al obtener pago por ID:', error);
 
@@ -147,13 +172,18 @@ export class PagoService {
     try {
       console.log('🔄 Actualizando pago:', idPago, pagoData);
 
-      const response = await apiClient.put<ApiResponse<PagoResponseDTO>>(
+      const response = await apiClient.put<any>(
         `${this.BASE_URL}/${idPago}`,
         pagoData
       );
 
       console.log('✅ Pago actualizado exitosamente:', response.data);
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al actualizar pago:', error);
 
@@ -176,10 +206,15 @@ export class PagoService {
     try {
       console.log('🗑️ Eliminando pago:', idPago);
 
-      const response = await apiClient.delete<ApiResponse<null>>(`${this.BASE_URL}/${idPago}`);
+      const response = await apiClient.delete<any>(`${this.BASE_URL}/${idPago}`);
 
       console.log('✅ Pago eliminado exitosamente');
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al eliminar pago:', error);
 
@@ -202,12 +237,17 @@ export class PagoService {
     try {
       console.log('🔄 Cambiando estado de pago:', idPago, 'a', nuevoEstado);
 
-      const response = await apiClient.patch<ApiResponse<PagoResponseDTO>>(
+      const response = await apiClient.patch<any>(
         `${this.BASE_URL}/${idPago}/estado?nuevoEstado=${nuevoEstado}`
       );
 
       console.log('✅ Estado de pago cambiado exitosamente');
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al cambiar estado de pago:', error);
 
@@ -238,12 +278,17 @@ export class PagoService {
           return acc;
         }, {} as any);
 
-      const response = await apiClient.get<ApiResponse<PagoResponseDTO[]>>(`${this.BASE_URL}/buscar`, {
+      const response = await apiClient.get<any>(`${this.BASE_URL}/buscar`, {
         params: filteredParams
       });
 
       console.log(`✅ Encontrados ${response.data.data?.length || 0} pagos`);
-      return response.data;
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al buscar pagos:', error);
 
@@ -263,8 +308,13 @@ export class PagoService {
    */
   static async getPagosPorPedido(idPedido: number): Promise<ApiResponse<PagoResponseDTO[]>> {
     try {
-      const response = await apiClient.get<ApiResponse<PagoResponseDTO[]>>(`${this.BASE_URL}/pedido/${idPedido}`);
-      return response.data;
+      const response = await apiClient.get<any>(`${this.BASE_URL}/pedido/${idPedido}`);
+      const backendResponse = response.data;
+      return {
+        success: backendResponse.status === 'SUCCESS',
+        message: backendResponse.message,
+        data: backendResponse.data
+      };
     } catch (error: any) {
       console.error('❌ Error al obtener pagos del pedido:', error);
 
