@@ -12,6 +12,7 @@ import type {
   DetallePedidoRequestDTO,
   DetallePedidoResponseDTO,
 } from "@/types/detallePedido";
+import { useMesaStore } from "./mesaStore";
 
 export const usePedidoStore = defineStore("pedido", () => {
   // State
@@ -104,9 +105,42 @@ export const usePedidoStore = defineStore("pedido", () => {
     try {
       setLoading(true);
       clearError();
+
+      // Buscar el pedido antes de eliminarlo para obtener la mesa asociada
+      const pedidoAEliminar = pedidos.value.find((p) => p.idPedido === id);
+      const idMesa = pedidoAEliminar?.mesa?.idMesa;
+
       const response = await PedidoService.eliminarPedido(id);
       if (response.success && response.data) {
+        // Eliminar pedido del estado local
         pedidos.value = pedidos.value.filter((p) => p.idPedido !== id);
+
+        // Si el pedido tenía mesa asignada, verificar si debe liberarse
+        if (idMesa) {
+          console.log(`🔍 [pedidoStore] Verificando estado de mesa ${idMesa} después de eliminar pedido`);
+
+          // Verificar si quedan pedidos activos en esta mesa
+          const pedidosActivosEnMesa = pedidos.value.filter(
+            (p) => p.mesa?.idMesa === idMesa &&
+                   p.estado !== 'PAGADO' &&
+                   p.estado !== 'CANCELADO'
+          );
+
+          console.log(`📊 [pedidoStore] Pedidos activos restantes en mesa ${idMesa}:`, pedidosActivosEnMesa.length);
+
+          // Si no quedan pedidos activos, liberar la mesa
+          if (pedidosActivosEnMesa.length === 0) {
+            console.log(`✅ [pedidoStore] Liberando mesa ${idMesa} - sin pedidos activos`);
+            const mesaStore = useMesaStore();
+
+            // Cambiar estado de la mesa a DISPONIBLE
+            await mesaStore.cambiarEstadoMesa(idMesa, 'DISPONIBLE');
+            console.log(`✅ [pedidoStore] Mesa ${idMesa} marcada como DISPONIBLE`);
+          } else {
+            console.log(`ℹ️ [pedidoStore] Mesa ${idMesa} mantiene estado - aún tiene ${pedidosActivosEnMesa.length} pedido(s) activo(s)`);
+          }
+        }
+
         return { success: true };
       } else {
         setError(response.message);
@@ -344,12 +378,45 @@ export const usePedidoStore = defineStore("pedido", () => {
     try {
       setLoading(true);
       clearError();
+
+      // Obtener el pedido antes del cambio de estado para conocer la mesa
+      const pedidoAntes = pedidos.value.find((p) => p.idPedido === id);
+      const idMesa = pedidoAntes?.mesa?.idMesa;
+
       const response = await PedidoService.cambiarEstadoPedido(id, nuevoEstado);
       if (response.success && response.data) {
         const index = pedidos.value.findIndex((p) => p.idPedido === id);
         if (index !== -1) {
           pedidos.value[index] = response.data;
         }
+
+        // Si se cambió a PAGADO o CANCELADO, verificar si debe liberarse la mesa
+        if ((nuevoEstado === 'PAGADO' || nuevoEstado === 'CANCELADO') && idMesa) {
+          console.log(`🔍 [pedidoStore] Pedido ${id} marcado como ${nuevoEstado}, verificando mesa ${idMesa}`);
+
+          // Verificar si quedan pedidos activos en esta mesa
+          const pedidosActivosEnMesa = pedidos.value.filter(
+            (p) => p.mesa?.idMesa === idMesa &&
+                   p.idPedido !== id && // Excluir el pedido actual
+                   p.estado !== 'PAGADO' &&
+                   p.estado !== 'CANCELADO'
+          );
+
+          console.log(`📊 [pedidoStore] Pedidos activos restantes en mesa ${idMesa}:`, pedidosActivosEnMesa.length);
+
+          // Si no quedan pedidos activos, liberar la mesa
+          if (pedidosActivosEnMesa.length === 0) {
+            console.log(`✅ [pedidoStore] Liberando mesa ${idMesa} - sin pedidos activos`);
+            const mesaStore = useMesaStore();
+
+            // Cambiar estado de la mesa a DISPONIBLE
+            await mesaStore.cambiarEstadoMesa(idMesa, 'DISPONIBLE');
+            console.log(`✅ [pedidoStore] Mesa ${idMesa} marcada como DISPONIBLE`);
+          } else {
+            console.log(`ℹ️ [pedidoStore] Mesa ${idMesa} mantiene estado - aún tiene ${pedidosActivosEnMesa.length} pedido(s) activo(s)`);
+          }
+        }
+
         return { success: true, data: response.data };
       } else {
         setError(response.message);

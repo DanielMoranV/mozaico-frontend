@@ -45,17 +45,17 @@
 - **Prioridad:** ✅ COMPLETADA
 
 #### 1.3 Fix: Mesas Huérfanas al Eliminar Pedido
-- **Estado:** 🐛 Bug detectado
+- **Estado:** ✅ COMPLETADO
 - **Archivos afectados:**
-  - `src/stores/pedidoStore.ts`
-  - `src/stores/mesaStore.ts`
-  - `src/services/pedidoService.ts`
+  - `src/stores/pedidoStore.ts` ✅
 - **Tareas:**
-  - [ ] Interceptar eliminación de pedido
-  - [ ] Actualizar estado de mesa a DISPONIBLE si era el último pedido
-  - [ ] Agregar validación de pedidos activos antes de cambiar estado de mesa
-  - [ ] Refrescar lista de mesas en POS después de eliminar pedido
-- **Prioridad:** 🔴 CRÍTICA
+  - [x] Interceptar eliminación de pedido
+  - [x] Actualizar estado de mesa a DISPONIBLE si era el último pedido
+  - [x] Agregar validación de pedidos activos antes de cambiar estado de mesa
+  - [x] Liberar mesa automáticamente al marcar pedido como PAGADO o CANCELADO
+  - [x] Logging detallado para debug
+  - [x] Refrescar lista de mesas en POS después de eliminar pedido (ya existía)
+- **Prioridad:** ✅ COMPLETADA
 
 ---
 
