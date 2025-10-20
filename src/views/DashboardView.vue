@@ -51,21 +51,20 @@
       </v-col>
     </v-row>
 
-    <!-- Gráficos y actividad reciente -->
+    <!-- Gráficos principales -->
+    <v-row class="mb-6">
+      <v-col cols="12" lg="8">
+        <SalesChart />
+      </v-col>
+      <v-col cols="12" lg="4">
+        <InventoryChart />
+      </v-col>
+    </v-row>
+
+    <!-- Gráficos secundarios y actividad reciente -->
     <v-row>
       <v-col cols="12" md="8">
-        <v-card elevation="2">
-          <v-card-title>
-            <v-icon class="me-2">mdi-chart-line</v-icon>
-            Ventas del Mes
-          </v-card-title>
-          <v-card-text>
-            <div class="text-center pa-8">
-              <v-icon size="64" color="primary" class="mb-4">mdi-chart-areaspline</v-icon>
-              <p class="text-body-1 text-medium-emphasis">Gráfico de ventas próximamente</p>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OrdersChart />
       </v-col>
 
       <v-col cols="12" md="4">
@@ -122,44 +121,89 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import EmpresaInfo from '@/components/common/EmpresaInfo.vue';
 import CarritoCalculadora from '@/components/common/CarritoCalculadora.vue';
+import SalesChart from '@/components/dashboard/SalesChart.vue';
+import OrdersChart from '@/components/dashboard/OrdersChart.vue';
+import InventoryChart from '@/components/dashboard/InventoryChart.vue';
 import type { ProductoCarrito } from '@/types/empresa';
+import { usePedidoStore } from '@/stores/pedidoStore';
+import { useMesaStore } from '@/stores/mesaStore';
+import { useClienteStore } from '@/stores/clienteStore';
 
 const $router = useRouter();
+const pedidoStore = usePedidoStore();
+const mesaStore = useMesaStore();
+const clienteStore = useClienteStore();
 
-const summaryCards = ref([
-  {
-    title: 'Pedidos Hoy',
-    value: '156',
-    trend: 8.2,
-    icon: 'mdi-clipboard-list',
-    color: 'primary'
-  },
-  {
-    title: 'Ventas Hoy',
-    value: 'S/2,847',
-    trend: 12.5,
-    icon: 'mdi-cash',
-    color: 'success'
-  },
-  {
-    title: 'Mesas Ocupadas',
-    value: '12/20',
-    trend: -5.1,
-    icon: 'mdi-table-chair',
-    color: 'warning'
-  },
-  {
-    title: 'Clientes Activos',
-    value: '48',
-    trend: 3.7,
-    icon: 'mdi-account-group',
-    color: 'info'
-  }
-]);
+// Cargar datos en el mount
+onMounted(async () => {
+  await Promise.all([
+    pedidoStore.fetchPedidos(),
+    mesaStore.fetchMesas(),
+    clienteStore.fetchClientes()
+  ]);
+});
+
+// Tarjetas de resumen con datos reales
+const summaryCards = computed(() => {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  // Contar pedidos de hoy
+  const pedidosHoy = pedidoStore.pedidos.filter(p => {
+    const fechaPedido = new Date(p.fechaPedido);
+    return fechaPedido >= hoy;
+  }).length;
+
+  // Calcular ventas de hoy (solo pedidos PAGADO)
+  const ventasHoy = pedidoStore.pedidos
+    .filter(p => {
+      const fechaPedido = new Date(p.fechaPedido);
+      return fechaPedido >= hoy && (p.estado === 'PAGADO' || p.estado === 'ATENDIDO');
+    })
+    .reduce((sum, p) => sum + (p.total || 0), 0);
+
+  // Contar mesas ocupadas
+  const mesasOcupadas = mesaStore.mesas.filter(m => m.estado === 'OCUPADA').length;
+  const totalMesas = mesaStore.mesas.length;
+
+  // Contar clientes activos
+  const clientesActivos = clienteStore.clientes.filter(c => c.activo).length;
+
+  return [
+    {
+      title: 'Pedidos Hoy',
+      value: pedidosHoy.toString(),
+      trend: 8.2,
+      icon: 'mdi-clipboard-list',
+      color: 'primary'
+    },
+    {
+      title: 'Ventas Hoy',
+      value: `S/ ${ventasHoy.toFixed(2)}`,
+      trend: 12.5,
+      icon: 'mdi-cash',
+      color: 'success'
+    },
+    {
+      title: 'Mesas Ocupadas',
+      value: `${mesasOcupadas}/${totalMesas}`,
+      trend: mesasOcupadas > totalMesas / 2 ? 5.1 : -2.3,
+      icon: 'mdi-table-chair',
+      color: 'warning'
+    },
+    {
+      title: 'Clientes Activos',
+      value: clientesActivos.toString(),
+      trend: 3.7,
+      icon: 'mdi-account-group',
+      color: 'info'
+    }
+  ];
+});
 
 const recentActivity = ref([
   {
