@@ -86,6 +86,21 @@
           {{ error }}
         </v-alert>
 
+        <!-- Botón para verificar disponibilidad -->
+        <v-row>
+          <v-col cols="12">
+            <v-btn
+              color="info"
+              variant="outlined"
+              prepend-icon="mdi-calendar-search"
+              :disabled="!form.fechaHoraReserva || !form.numeroPersonas"
+              @click="verificarDisponibilidad"
+            >
+              Verificar Disponibilidad
+            </v-btn>
+          </v-col>
+        </v-row>
+
         <!-- Sugerencias de mesas alternativas -->
         <v-alert v-if="showAlternativas && mesasAlternativas.length > 0" type="info" class="mt-4">
           <div class="mb-2"><strong>Mesas alternativas disponibles:</strong></div>
@@ -94,9 +109,19 @@
             :key="mesa.idMesa"
             class="ma-1"
             @click="seleccionarMesaAlternativa(mesa.idMesa)"
+            clickable
           >
             Mesa {{ mesa.numeroMesa }} (Capacidad: {{ mesa.capacidad }})
+            <template v-if="mesa.ubicacion">
+              - {{ mesa.ubicacion }}
+            </template>
           </v-chip>
+        </v-alert>
+
+        <!-- Mensaje de disponibilidad confirmada -->
+        <v-alert v-if="disponibilidadConfirmada" type="success" class="mt-4">
+          <v-icon class="mr-2">mdi-check-circle</v-icon>
+          Mesa {{ form.idMesa }} disponible para {{ form.numeroPersonas }} personas
         </v-alert>
       </v-form>
     </v-card-text>
@@ -159,6 +184,7 @@ const isSubmitting = ref(false);
 const isEditing = ref(false);
 const error = ref<string | null>(null);
 const showAlternativas = ref(false);
+const disponibilidadConfirmada = ref(false);
 
 // Formatear clientes para el select
 const clientesFormateados = computed(() => {
@@ -284,6 +310,44 @@ async function submitForm() {
   }
 }
 
+async function verificarDisponibilidad() {
+  try {
+    error.value = null;
+    disponibilidadConfirmada.value = false;
+    showAlternativas.value = false;
+
+    const disponibilidad = await ReservaService.consultarDisponibilidad({
+      fechaHora: form.value.fechaHoraReserva,
+      numeroPersonas: form.value.numeroPersonas,
+    });
+
+    if (disponibilidad.totalDisponibles > 0) {
+      mesasAlternativas.value = disponibilidad.mesasDisponibles;
+
+      // Si la mesa seleccionada está en la lista de disponibles, confirmar
+      const mesaDisponible = disponibilidad.mesasDisponibles.find(
+        m => m.idMesa === form.value.idMesa
+      );
+
+      if (mesaDisponible) {
+        disponibilidadConfirmada.value = true;
+      } else if (form.value.idMesa) {
+        // La mesa seleccionada NO está disponible, mostrar alternativas
+        showAlternativas.value = true;
+        error.value = `Mesa ${form.value.idMesa} no disponible para esa fecha/hora. Selecciona una mesa alternativa:`;
+      } else {
+        // No hay mesa seleccionada, mostrar todas las disponibles
+        showAlternativas.value = true;
+      }
+    } else {
+      error.value = 'No hay mesas disponibles para la fecha, hora y número de personas especificados.';
+    }
+  } catch (err) {
+    console.error('Error al verificar disponibilidad:', err);
+    error.value = 'Error al verificar disponibilidad de mesas';
+  }
+}
+
 async function buscarMesasAlternativas() {
   try {
     const disponibilidad = await ReservaService.consultarDisponibilidad({
@@ -299,8 +363,15 @@ async function buscarMesasAlternativas() {
 function seleccionarMesaAlternativa(idMesa: number) {
   form.value.idMesa = idMesa;
   showAlternativas.value = false;
+  disponibilidadConfirmada.value = true;
   error.value = null;
 }
+
+// Watch para resetear validación cuando cambia la fecha/hora o número de personas
+watch([() => form.value.fechaHoraReserva, () => form.value.numeroPersonas], () => {
+  disponibilidadConfirmada.value = false;
+  showAlternativas.value = false;
+});
 
 // Watch para actualizar mesa preseleccionada
 watch(() => props.mesaPreseleccionada, (newVal) => {

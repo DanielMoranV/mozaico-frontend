@@ -63,6 +63,45 @@
                 :rules="[reglasValidacion.requerido]"
               ></v-select>
             </v-col>
+
+            <!-- Botón para verificar disponibilidad -->
+            <v-col cols="12">
+              <v-btn
+                color="info"
+                variant="outlined"
+                prepend-icon="mdi-calendar-search"
+                size="small"
+                :disabled="!form.fechaHoraReserva || !form.numeroPersonas"
+                @click="verificarDisponibilidad"
+              >
+                Verificar Disponibilidad
+              </v-btn>
+            </v-col>
+
+            <!-- Mensaje de disponibilidad confirmada -->
+            <v-col cols="12" v-if="disponibilidadConfirmada">
+              <v-alert type="success" density="compact">
+                <v-icon class="mr-2">mdi-check-circle</v-icon>
+                Mesa disponible
+              </v-alert>
+            </v-col>
+
+            <!-- Mesas alternativas -->
+            <v-col cols="12" v-if="showAlternativas && mesasAlternativas.length > 0">
+              <v-alert type="info" density="compact">
+                <div class="mb-2"><strong>Mesas alternativas:</strong></div>
+                <v-chip
+                  v-for="mesa in mesasAlternativas"
+                  :key="mesa.idMesa"
+                  class="ma-1"
+                  size="small"
+                  @click="seleccionarMesaAlternativa(mesa.idMesa)"
+                  clickable
+                >
+                  Mesa {{ mesa.numeroMesa }} ({{ mesa.capacidad }} pers.)
+                </v-chip>
+              </v-alert>
+            </v-col>
           </v-row>
         </v-container>
       </v-card-text>
@@ -76,11 +115,12 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, computed, onMounted } from 'vue';
+import { defineProps, defineEmits, computed, onMounted, ref, watch } from 'vue';
 import { EstadoReserva } from '@/types/enums';
 import type { ReservaRequestDTO } from '@/types/reserva';
 import { useClienteStore } from '@/stores/clienteStore';
 import { useMesaStore } from '@/stores/mesaStore';
+import { ReservaService } from '@/services/reservaService';
 
 const props = defineProps<{
   mostrar: boolean;
@@ -106,6 +146,53 @@ const estadosReservaItems = computed(() =>
     value: estado,
   }))
 );
+
+// Estado para validación de disponibilidad
+const disponibilidadConfirmada = ref(false);
+const showAlternativas = ref(false);
+const mesasAlternativas = ref<any[]>([]);
+
+// Función para verificar disponibilidad
+async function verificarDisponibilidad() {
+  try {
+    disponibilidadConfirmada.value = false;
+    showAlternativas.value = false;
+
+    const disponibilidad = await ReservaService.consultarDisponibilidad({
+      fechaHora: form.value.fechaHoraReserva,
+      numeroPersonas: form.value.numeroPersonas,
+    });
+
+    if (disponibilidad.totalDisponibles > 0) {
+      mesasAlternativas.value = disponibilidad.mesasDisponibles;
+
+      // Verificar si la mesa actual está disponible
+      const mesaDisponible = disponibilidad.mesasDisponibles.find(
+        m => m.idMesa === form.value.idMesa
+      );
+
+      if (mesaDisponible) {
+        disponibilidadConfirmada.value = true;
+      } else {
+        showAlternativas.value = true;
+      }
+    }
+  } catch (err) {
+    console.error('Error al verificar disponibilidad:', err);
+  }
+}
+
+function seleccionarMesaAlternativa(idMesa: number) {
+  form.value.idMesa = idMesa;
+  showAlternativas.value = false;
+  disponibilidadConfirmada.value = true;
+}
+
+// Watch para resetear validación cuando cambian datos críticos
+watch([() => form.value.fechaHoraReserva, () => form.value.numeroPersonas], () => {
+  disponibilidadConfirmada.value = false;
+  showAlternativas.value = false;
+});
 
 onMounted(() => {
   clienteStore.fetchClientes();

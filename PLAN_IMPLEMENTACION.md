@@ -12,19 +12,22 @@
 **Duración estimada:** 2-3 semanas
 
 #### 1.1 Validación de Disponibilidad de Mesas en Reservas
-- **Estado:** ❌ No implementado
+- **Estado:** ✅ COMPLETADO
 - **Archivos afectados:**
-  - `src/components/reservas/ReservaEditDialog.vue`
-  - `src/components/reservas/CrearReservaForm.vue`
-  - `src/components/reservas/DisponibilidadMesas.vue` (existe, pero no se usa)
-  - `src/services/reservaService.ts`
+  - `src/components/reservas/ReservaEditDialog.vue` ✅
+  - `src/components/reservas/CrearReservaForm.vue` ✅
+  - `src/components/reservas/DisponibilidadMesas.vue` (ya existía)
 - **Tareas:**
-  - [ ] Integrar componente DisponibilidadMesas en CrearReservaForm
-  - [ ] Validar disponibilidad antes de crear/editar reserva
-  - [ ] Mostrar mesas alternativas cuando hay conflicto
-  - [ ] Prevenir solapamiento de reservas
-  - [ ] Agregar indicador visual de disponibilidad por horario
-- **Prioridad:** 🔴 CRÍTICA
+  - [x] Integrar validación de disponibilidad en CrearReservaForm
+  - [x] Integrar validación de disponibilidad en ReservaEditDialog
+  - [x] Botón "Verificar Disponibilidad" en ambos formularios
+  - [x] Validar disponibilidad antes de crear/editar reserva
+  - [x] Mostrar mesas alternativas cuando hay conflicto
+  - [x] Prevenir solapamiento de reservas (validación backend)
+  - [x] Indicadores visuales: alerta de éxito cuando mesa está disponible
+  - [x] Auto-resetear validación al cambiar fecha/hora o número de personas
+  - [x] Chips clickeables para seleccionar mesas alternativas
+- **Prioridad:** ✅ COMPLETADA
 
 #### 1.2 Gráficos en Dashboard
 - **Estado:** ✅ COMPLETADO
