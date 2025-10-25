@@ -53,14 +53,14 @@
     >
       <!-- User Profile Section -->
       <div :class="isMobile ? 'pa-3' : 'pa-4'" class="user-profile-section">
-        <v-card v-if="!rail || isMobile" flat color="#2C3E50" :class="isMobile ? 'pa-2' : 'pa-3'" class="rounded-lg" dark>
+        <v-card v-if="!rail || isMobile" flat color="#f5f7fa" :class="isMobile ? 'pa-2' : 'pa-3'" class="rounded-lg user-profile-card">
           <div class="d-flex align-center">
-            <v-avatar class="me-3" color="white" :size="isMobile ? '36' : '40'">
-              <v-icon color="#2C3E50">mdi-account</v-icon>
+            <v-avatar class="me-3" color="#2C3E50" :size="isMobile ? '36' : '40'">
+              <v-icon color="white">mdi-account</v-icon>
             </v-avatar>
             <div class="flex-grow-1">
-              <div :class="isMobile ? 'text-body-2' : 'text-subtitle2'" class="font-weight-bold">{{ user?.nombre || 'Usuario' }}</div>
-              <div v-if="!isMobile" class="text-caption text-white-70">{{ user?.email || '' }}</div>
+              <div :class="isMobile ? 'text-body-2' : 'text-subtitle2'" class="font-weight-bold user-name">{{ user?.nombre || 'Usuario' }}</div>
+              <div v-if="!isMobile" class="text-caption user-email">{{ user?.email || '' }}</div>
             </div>
             <v-chip v-if="!isMobile" size="x-small" color="#6B8E5C" variant="flat">
               <v-icon start size="12">mdi-circle</v-icon>
@@ -604,19 +604,28 @@ onMounted(async () => {
 .user-profile-section {
   background: linear-gradient(
     145deg,
-    rgba(44, 62, 80, 0.05) 0%,
-    rgba(212, 160, 62, 0.05) 100%
+    rgba(44, 62, 80, 0.03) 0%,
+    rgba(212, 160, 62, 0.03) 100%
   );
 }
 
-.user-profile-section .v-card {
-  box-shadow: 0 4px 12px rgba(44, 62, 80, 0.12) !important;
+.user-profile-card {
+  border: 1px solid rgba(44, 62, 80, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(44, 62, 80, 0.08) !important;
   transition: all 0.3s ease;
 }
 
-.user-profile-section .v-card:hover {
+.user-profile-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(44, 62, 80, 0.18) !important;
+  box-shadow: 0 6px 16px rgba(44, 62, 80, 0.12) !important;
+}
+
+.user-name {
+  color: #2C3E50 !important;
+}
+
+.user-email {
+  color: rgba(44, 62, 80, 0.7) !important;
 }
 
 /* Navigation Items */
