@@ -1,12 +1,12 @@
 <template>
   <v-app>
     <!-- Header -->
-    <v-app-bar :elevation="2" scroll-behavior="elevate" color="white" height="70">
+    <v-app-bar :elevation="2" scroll-behavior="elevate" color="white" :height="isMobile ? 64 : 70">
       <v-container class="d-flex align-center pa-0">
         <v-img
           src="/public/mozaico_horizontal.png"
-          max-height="45"
-          max-width="200"
+          :max-height="isMobile ? 35 : 45"
+          :max-width="isMobile ? 160 : 200"
           contain
           class="cursor-pointer"
           @click="scrollToTop"
@@ -14,105 +14,185 @@
 
         <v-spacer />
 
-        <v-btn
+        <!-- Desktop Navigation -->
+        <template v-if="!isMobile">
+          <v-btn
+            v-for="link in navLinks"
+            :key="link.href"
+            :href="link.href"
+            variant="text"
+          >
+            {{ link.text }}
+          </v-btn>
+
+          <v-btn
+            v-if="isAuthenticated"
+            color="primary"
+            variant="flat"
+            rounded="pill"
+            class="ml-4"
+            to="/dashboard"
+          >
+            Ir al Dashboard
+          </v-btn>
+
+          <template v-else>
+            <v-btn
+              color="primary"
+              variant="outlined"
+              rounded="pill"
+              class="ml-4 mr-2"
+              to="/login"
+            >
+              Iniciar Sesión
+            </v-btn>
+
+            <v-btn
+              color="#C85A4A"
+              variant="flat"
+              rounded="pill"
+              class="ml-2 beta-button"
+              @click="scrollToSection('beta')"
+            >
+              Únete a la Beta
+            </v-btn>
+          </template>
+        </template>
+
+        <!-- Mobile Menu Button -->
+        <v-app-bar-nav-icon
+          v-if="isMobile"
+          @click="drawer = !drawer"
+          class="ml-2"
+        />
+      </v-container>
+    </v-app-bar>
+
+    <!-- Mobile Navigation Drawer -->
+    <v-navigation-drawer
+      v-model="drawer"
+      location="right"
+      temporary
+      width="280"
+    >
+      <v-list nav class="py-4">
+        <v-list-item
           v-for="link in navLinks"
           :key="link.href"
           :href="link.href"
-          variant="text"
-          class="d-none d-md-flex"
+          @click="drawer = false"
         >
-          {{ link.text }}
-        </v-btn>
+          <v-list-item-title class="text-body-1 font-weight-medium">
+            {{ link.text }}
+          </v-list-item-title>
+        </v-list-item>
 
-        <v-btn
-          v-if="isAuthenticated"
-          color="primary"
-          variant="flat"
-          rounded="pill"
-          class="ml-4"
-          to="/dashboard"
-        >
-          Ir al Dashboard
-        </v-btn>
+        <v-divider class="my-4" />
 
-        <v-btn
-          v-else
-          color="primary"
-          variant="outlined"
-          rounded="pill"
-          class="ml-4 mr-2"
-          to="/login"
-        >
-          Iniciar Sesión
-        </v-btn>
+        <v-list-item v-if="isAuthenticated">
+          <v-btn
+            color="primary"
+            variant="flat"
+            rounded="pill"
+            block
+            to="/dashboard"
+            size="large"
+          >
+            Ir al Dashboard
+          </v-btn>
+        </v-list-item>
 
-        <v-btn
-          v-if="!isAuthenticated"
-          color="#C85A4A"
-          variant="flat"
-          rounded="pill"
-          class="ml-2 beta-button"
-          @click="scrollToSection('beta')"
-        >
-          Únete a la Beta
-        </v-btn>
-      </v-container>
-    </v-app-bar>
+        <template v-else>
+          <v-list-item>
+            <v-btn
+              color="primary"
+              variant="outlined"
+              rounded="pill"
+              block
+              to="/login"
+              size="large"
+              class="mb-3"
+            >
+              Iniciar Sesión
+            </v-btn>
+          </v-list-item>
+
+          <v-list-item>
+            <v-btn
+              color="#C85A4A"
+              variant="flat"
+              rounded="pill"
+              block
+              size="large"
+              @click="scrollToSection('beta'); drawer = false"
+            >
+              Únete a la Beta
+            </v-btn>
+          </v-list-item>
+        </template>
+      </v-list>
+    </v-navigation-drawer>
 
     <v-main>
       <!-- Hero Section -->
       <section class="hero-section">
         <v-container>
-          <v-row align="center" class="py-16">
-            <v-col cols="12" md="6" class="text-center text-md-left">
+          <v-row align="center" :class="isMobile ? 'py-8' : 'py-16'">
+            <v-col cols="12" md="6" class="text-center text-md-left" :order="isMobile ? 2 : 1">
               <v-chip
                 color="#C85A4A"
                 variant="flat"
-                class="mb-6 beta-badge"
-                size="small"
+                :class="isMobile ? 'mb-4' : 'mb-6'"
+                class="beta-badge"
+                :size="isMobile ? 'x-small' : 'small'"
               >
                 BETA DISPONIBLE
               </v-chip>
 
-              <h1 class="hero-title mb-6">
+              <h1 :class="['hero-title', isMobile ? 'mb-4' : 'mb-6']">
                 Gestiona tu restaurante desde un solo lugar
               </h1>
 
-              <p class="hero-subtitle mb-8">
+              <p :class="['hero-subtitle', isMobile ? 'mb-6' : 'mb-8']">
                 La solución completa para llevar tu restaurante al siguiente nivel.
                 POS, cocina, inventario, reservas y análisis en tiempo real.
               </p>
 
-              <div class="d-flex flex-wrap ga-4 justify-center justify-md-start">
+              <div class="d-flex flex-column flex-sm-row flex-wrap ga-3 ga-sm-4 justify-center justify-md-start">
                 <v-btn
                   color="#D4A03E"
-                  size="x-large"
+                  :size="isMobile ? 'large' : 'x-large'"
                   variant="flat"
                   rounded="pill"
                   @click="scrollToSection('beta')"
-                  class="px-8 hero-cta-primary"
+                  :class="isMobile ? 'px-6' : 'px-8'"
+                  class="hero-cta-primary"
+                  block
                 >
                   Solicitar acceso Beta
                 </v-btn>
 
                 <v-btn
                   color="white"
-                  size="x-large"
+                  :size="isMobile ? 'large' : 'x-large'"
                   variant="outlined"
                   rounded="pill"
                   @click="scrollToSection('funcionalidades')"
-                  class="px-8 hero-cta-secondary"
+                  :class="isMobile ? 'px-6' : 'px-8'"
+                  class="hero-cta-secondary"
+                  block
                 >
                   Conocer más
                 </v-btn>
               </div>
             </v-col>
 
-            <v-col cols="12" md="6" class="text-center">
+            <v-col cols="12" md="6" class="text-center" :order="isMobile ? 1 : 2">
               <v-img
                 src="/public/logo_mozaico.png"
-                max-width="400"
+                :max-width="isMobile ? 250 : 400"
                 class="mx-auto floating-logo"
+                :class="isMobile ? 'mb-6' : ''"
               />
             </v-col>
           </v-row>
@@ -120,13 +200,13 @@
       </section>
 
       <!-- Features Section -->
-      <section id="funcionalidades" class="py-16">
+      <section id="funcionalidades" :class="isMobile ? 'py-10' : 'py-16'">
         <v-container>
-          <div class="text-center mb-12">
+          <div :class="['text-center', isMobile ? 'mb-8' : 'mb-12']">
             <h2 class="section-title mb-4">
               Todo lo que necesitas en una sola plataforma
             </h2>
-            <p class="section-subtitle">
+            <p class="section-subtitle px-4">
               Diseñado específicamente para las necesidades de tu restaurante
             </p>
           </div>
@@ -158,13 +238,13 @@
       </section>
 
       <!-- Modules Section -->
-      <section id="modulos" class="py-16 bg-grey-lighten-4">
+      <section id="modulos" :class="['bg-grey-lighten-4', isMobile ? 'py-10' : 'py-16']">
         <v-container>
-          <div class="text-center mb-12">
+          <div :class="['text-center', isMobile ? 'mb-8' : 'mb-12']">
             <h2 class="section-title mb-4">
               Módulos Completos de Gestión
             </h2>
-            <p class="section-subtitle">
+            <p class="section-subtitle px-4">
               Cada aspecto de tu restaurante bajo control
             </p>
           </div>
@@ -194,13 +274,13 @@
       </section>
 
       <!-- Tech Stack Section -->
-      <section id="tecnologia" class="py-16">
+      <section id="tecnologia" :class="isMobile ? 'py-10' : 'py-16'">
         <v-container>
-          <div class="text-center mb-12">
+          <div :class="['text-center', isMobile ? 'mb-8' : 'mb-12']">
             <h2 class="section-title mb-4">
               Tecnología de Vanguardia
             </h2>
-            <p class="section-subtitle">
+            <p class="section-subtitle px-4">
               Construido con las herramientas más modernas y confiables
             </p>
           </div>
@@ -281,19 +361,19 @@
       </section>
 
       <!-- CTA Section -->
-      <section id="beta" class="cta-section py-16">
+      <section id="beta" :class="['cta-section', isMobile ? 'py-10' : 'py-16']">
         <v-container>
           <v-row justify="center">
             <v-col cols="12" md="8" lg="6" class="text-center">
-              <h2 class="cta-title mb-6">
+              <h2 :class="['cta-title', isMobile ? 'mb-4 px-4' : 'mb-6']">
                 Únete a la Beta de Mozaico
               </h2>
-              <p class="cta-subtitle mb-8">
+              <p :class="['cta-subtitle', isMobile ? 'mb-6 px-4' : 'mb-8']">
                 Sé de los primeros en probar la plataforma que transformará tu restaurante
               </p>
 
-              <v-form @submit.prevent="solicitarAcceso" class="mb-8">
-                <v-row justify="center" no-gutters>
+              <v-form @submit.prevent="solicitarAcceso" :class="isMobile ? 'mb-6 px-2' : 'mb-8'">
+                <v-row justify="center" :no-gutters="!isMobile">
                   <v-col cols="12" sm="8" md="7">
                     <v-text-field
                       v-model="email"
@@ -303,6 +383,7 @@
                       rounded="pill"
                       hide-details
                       class="cta-input"
+                      :density="isMobile ? 'comfortable' : 'default'"
                       required
                     />
                   </v-col>
@@ -310,10 +391,12 @@
                     <v-btn
                       type="submit"
                       color="#2C3E50"
-                      size="x-large"
+                      :size="isMobile ? 'large' : 'x-large'"
                       variant="flat"
                       rounded="pill"
-                      class="px-8 cta-submit-btn"
+                      :class="isMobile ? 'px-6' : 'px-8'"
+                      class="cta-submit-btn"
+                      :block="isMobile"
                     >
                       Solicitar Acceso
                     </v-btn>
@@ -321,7 +404,7 @@
                 </v-row>
               </v-form>
 
-              <div class="cta-benefits">
+              <div :class="['cta-benefits', isMobile ? 'px-4' : '']">
                 <p class="mb-2">✅ Acceso anticipado gratis</p>
                 <p class="mb-2">✅ Soporte directo del equipo</p>
                 <p>✅ Influye en el desarrollo del producto</p>
@@ -332,18 +415,18 @@
       </section>
 
       <!-- Footer -->
-      <v-footer class="bg-grey-darken-4 text-center py-8">
+      <v-footer :class="['bg-grey-darken-4 text-center', isMobile ? 'py-6' : 'py-8']">
         <v-container>
           <v-img
             src="/public/mozaico_horizontal.png"
-            max-width="200"
-            class="mx-auto mb-6"
+            :max-width="isMobile ? 160 : 200"
+            :class="['mx-auto', isMobile ? 'mb-4' : 'mb-6']"
             style="opacity: 0.9"
           />
-          <p class="text-grey-lighten-1 mb-2">
+          <p :class="['text-grey-lighten-1', isMobile ? 'mb-1 text-caption' : 'mb-2']">
             &copy; 2025 Mozaico. Software de Gestión para Restaurantes.
           </p>
-          <p class="text-grey-lighten-1" style="font-size: 0.9rem;">
+          <p class="text-grey-lighten-1" :style="{ fontSize: isMobile ? '0.8rem' : '0.9rem' }">
             Transformando la administración de restaurantes con tecnología moderna.
           </p>
         </v-container>
@@ -363,11 +446,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { authService } from '../services/authService';
 
 // Check authentication
 const isAuthenticated = computed(() => authService.isAuthenticated());
+
+// Mobile detection
+const isMobile = ref(false);
+const drawer = ref(false);
+
+const checkMobile = () => {
+  isMobile.value = window.innerWidth < 960;
+};
+
+onMounted(() => {
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile);
+});
 
 // Navigation
 const navLinks = [
@@ -481,6 +581,21 @@ const solicitarAcceso = () => {
   align-items: center;
   position: relative;
   overflow: hidden;
+  padding: 2rem 0;
+}
+
+@media (max-width: 959px) {
+  .hero-section {
+    min-height: 500px;
+    padding: 1.5rem 0;
+  }
+}
+
+@media (max-width: 599px) {
+  .hero-section {
+    min-height: auto;
+    padding: 2rem 0 3rem;
+  }
 }
 
 .hero-section::before {
@@ -728,5 +843,171 @@ const solicitarAcceso = () => {
 
 .cursor-pointer:hover {
   transform: scale(1.02);
+}
+
+/* Mobile Optimizations */
+@media (max-width: 959px) {
+  .hero-title {
+    font-size: 2rem;
+    line-height: 1.3;
+  }
+
+  .hero-subtitle {
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+    padding: 0 1rem;
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
+    padding: 0 0.5rem;
+  }
+
+  .feature-card {
+    margin-bottom: 1rem;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .feature-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.75rem;
+  }
+
+  .feature-title {
+    font-size: 1.3rem;
+  }
+
+  .feature-description {
+    font-size: 0.95rem;
+  }
+
+  .module-card {
+    margin-bottom: 0.75rem;
+  }
+
+  .module-title {
+    font-size: 1.1rem;
+  }
+
+  .module-description {
+    font-size: 0.9rem;
+  }
+
+  .tech-chip {
+    font-size: 0.85rem;
+    margin: 0.25rem;
+  }
+
+  .cta-title {
+    font-size: 1.75rem;
+  }
+
+  .cta-subtitle {
+    font-size: 1.05rem;
+  }
+
+  .cta-benefits {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 599px) {
+  .hero-title {
+    font-size: 1.75rem;
+    padding: 0 1rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+    padding: 0 0.5rem;
+  }
+
+  .beta-badge {
+    font-size: 0.65rem !important;
+    letter-spacing: 0.3px;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .section-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .feature-card {
+    padding: 1.5rem !important;
+  }
+
+  .feature-icon {
+    width: 55px;
+    height: 55px;
+    font-size: 1.5rem;
+    margin-bottom: 1rem !important;
+  }
+
+  .feature-title {
+    font-size: 1.2rem;
+  }
+
+  .feature-description {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .module-card {
+    padding: 1.25rem !important;
+  }
+
+  .tech-logos {
+    gap: 0.75rem !important;
+  }
+
+  .tech-chip {
+    font-size: 0.8rem;
+  }
+
+  .cta-title {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  .cta-subtitle {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .floating-logo {
+    animation: none;
+  }
+}
+
+/* Improve touch targets on mobile */
+@media (max-width: 959px) and (hover: none) {
+  .feature-card:hover {
+    transform: none;
+  }
+
+  .module-card:hover {
+    transform: none;
+  }
+
+  .tech-chip:hover {
+    transform: none;
+  }
+
+  .hero-cta-primary:hover,
+  .hero-cta-secondary:hover,
+  .cta-submit-btn:hover {
+    transform: none;
+  }
 }
 </style>
