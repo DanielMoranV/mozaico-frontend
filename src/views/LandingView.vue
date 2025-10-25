@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <!-- Header -->
-    <v-app-bar :elevation="2" scroll-behavior="elevate" color="white" :height="isMobile ? 64 : 70">
+    <v-app-bar :elevation="2" scroll-behavior="elevate" color="#f5f7fa" :height="isMobile ? 64 : 70" class="landing-header">
       <v-container class="d-flex align-center pa-0">
         <v-img
           src="/mozaico_horizontal.png"
@@ -173,7 +173,7 @@
                 </v-btn>
 
                 <v-btn
-                  color="white"
+                  color="#2C3E50"
                   :size="isMobile ? 'large' : 'x-large'"
                   variant="outlined"
                   rounded="pill"
@@ -415,18 +415,17 @@
       </section>
 
       <!-- Footer -->
-      <v-footer :class="['bg-grey-darken-4 text-center', isMobile ? 'py-6' : 'py-8']">
+      <v-footer :class="['landing-footer text-center', isMobile ? 'py-6' : 'py-8']">
         <v-container>
           <v-img
             src="/mozaico_horizontal.png"
             :max-width="isMobile ? 160 : 200"
             :class="['mx-auto', isMobile ? 'mb-4' : 'mb-6']"
-            style="opacity: 0.9"
           />
-          <p :class="['text-grey-lighten-1', isMobile ? 'mb-1 text-caption' : 'mb-2']">
+          <p :class="['footer-text', isMobile ? 'mb-1 text-caption' : 'mb-2']">
             &copy; 2025 Mozaico. Software de Gestión para Restaurantes.
           </p>
-          <p class="text-grey-lighten-1" :style="{ fontSize: isMobile ? '0.8rem' : '0.9rem' }">
+          <p class="footer-text" :style="{ fontSize: isMobile ? '0.8rem' : '0.9rem' }">
             Transformando la administración de restaurantes con tecnología moderna.
           </p>
         </v-container>
@@ -574,8 +573,8 @@ const solicitarAcceso = () => {
 <style scoped>
 /* Hero Section */
 .hero-section {
-  background: linear-gradient(135deg, #2C3E50 0%, #3d566e 50%, #506680 100%);
-  color: white;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #dce3eb 100%);
+  color: #2C3E50;
   min-height: 650px;
   display: flex;
   align-items: center;
@@ -606,10 +605,10 @@ const solicitarAcceso = () => {
   right: 0;
   bottom: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(44, 62, 80, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(44, 62, 80, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .beta-badge {
@@ -648,11 +647,12 @@ const solicitarAcceso = () => {
   border-width: 2px !important;
   font-weight: 700 !important;
   backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.05) !important;
+  background: transparent !important;
+  color: #2C3E50 !important;
 }
 
 .hero-cta-secondary:hover {
-  background: rgba(255, 255, 255, 0.15) !important;
+  background: rgba(44, 62, 80, 0.08) !important;
   transform: translateY(-3px);
 }
 
@@ -660,15 +660,15 @@ const solicitarAcceso = () => {
   font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 800;
   line-height: 1.2;
-  color: #ffffff;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  color: #2C3E50;
+  letter-spacing: -0.5px;
 }
 
 .hero-subtitle {
   font-size: clamp(1.1rem, 2vw, 1.3rem);
-  color: #e8edf2;
+  color: rgba(44, 62, 80, 0.8);
   font-weight: 400;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
+  line-height: 1.6;
 }
 
 .floating-logo {
@@ -1009,5 +1009,21 @@ const solicitarAcceso = () => {
   .cta-submit-btn:hover {
     transform: none;
   }
+}
+
+/* Landing Header */
+.landing-header {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%) !important;
+  border-bottom: 1px solid rgba(44, 62, 80, 0.08) !important;
+}
+
+/* Landing Footer */
+.landing-footer {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%) !important;
+  border-top: 1px solid rgba(44, 62, 80, 0.08);
+}
+
+.footer-text {
+  color: rgba(44, 62, 80, 0.8) !important;
 }
 </style>
