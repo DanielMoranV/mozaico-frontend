@@ -5,7 +5,8 @@ import { authService } from '../services/authService';
 // Vistas de autenticación
 import LoginView from '../views/LoginView.vue';
 
-// Vista pública
+// Vistas públicas
+import LandingView from '../views/LandingView.vue';
 import CartaDigitalView from '../views/CartaDigitalView.vue';
 
 // Vistas principales
@@ -29,6 +30,17 @@ import ReservasView from '../views/ReservasView.vue';
 import KitchenView from '../views/KitchenView.vue';
 
 const routes: RouteRecordRaw[] = [
+  // Landing Page - Página principal pública
+  {
+    path: '/',
+    name: 'Landing',
+    component: LandingView,
+    meta: {
+      requiresAuth: false,
+      title: 'Mozaico - Software de Gestión para Restaurantes'
+    }
+  },
+
   // Ruta de login
   {
     path: '/login',
@@ -49,12 +61,6 @@ const routes: RouteRecordRaw[] = [
       requiresAuth: false,
       title: 'Carta Digital'
     }
-  },
-
-  // Redirección del root al dashboard
-  {
-    path: '/',
-    redirect: '/dashboard'
   },
 
   // Dashboard - Acceso para todos los usuarios autenticados
@@ -309,6 +315,7 @@ router.beforeEach((to, _from, next) => {
   // Si la ruta no requiere autenticación, permitir acceso
   if (!requiresAuth) {
     // Si está autenticado y va al login, redireccionar al dashboard
+    // Permitir ver la landing page incluso si está autenticado
     if (to.name === 'Login' && isAuthenticated) {
       next('/dashboard');
       return;

@@ -43,10 +43,10 @@ import DashboardLayout from './components/layout/DashboardLayout.vue';
 const router = useRouter();
 const route = useRoute();
 
-// Check if current route is public (Carta Digital)
+// Check if current route is public (Landing, Login, Carta Digital)
 const isPublicRoute = computed(() => {
-  const publicRoutes = ['/carta'];
-  return publicRoutes.some(r => route.path.startsWith(r));
+  // Exact match for root and login, startsWith for carta (dynamic slug)
+  return route.path === '/' || route.path === '/login' || route.path.startsWith('/carta/');
 });
 
 // Auth store
