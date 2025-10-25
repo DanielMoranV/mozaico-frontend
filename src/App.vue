@@ -78,20 +78,17 @@ watch(() => isAuthenticated.value, async (newValue, oldValue) => {
 
   const currentPath = router.currentRoute.value.path;
 
-  // Skip redirects for public routes
-  if (isPublicRoute.value) {
-    console.log('✅ Public route - no redirect needed');
-    return;
-  }
-
-  if (!newValue && currentPath !== '/login') {
+  // Handle authentication state changes
+  if (!newValue && currentPath !== '/login' && currentPath !== '/') {
+    // User lost authentication and is not on login or landing
     console.log('🔄 AUTH LOST - Redirecting to login');
     router.push('/login');
   } else if (newValue && currentPath === '/login') {
+    // User gained authentication and is on login page
     console.log('🔄 AUTH GAINED - Redirecting to dashboard');
     router.push('/dashboard');
   } else {
-    console.log('✅ No redirect needed');
+    console.log('✅ No redirect needed - currentPath:', currentPath, 'authenticated:', newValue);
   }
 }, { immediate: false });
 

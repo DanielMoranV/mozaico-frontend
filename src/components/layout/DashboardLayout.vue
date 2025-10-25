@@ -3,25 +3,26 @@
     <!-- App Bar -->
     <v-app-bar
       app
-      color="primary"
-      dark
+      color="#f5f7fa"
       elevation="0"
       :height="isMobile ? '56' : '64'"
       class="app-bar-modern"
     >
       <v-btn icon @click="toggleDrawer" class="me-3" variant="text">
-        <v-icon>mdi-menu</v-icon>
+        <v-icon color="#2C3E50">mdi-menu</v-icon>
       </v-btn>
 
       <div class="d-flex align-center">
-        <v-avatar size="32" class="me-3" color="white">
-          <v-icon color="primary">mdi-silverware-fork-knife</v-icon>
-        </v-avatar>
+        <img
+          src="/logo_mozaico.png"
+          alt="Mozaico"
+          class="app-bar-logo me-3"
+        />
         <div>
-          <v-app-bar-title class="text-h6 font-weight-bold"
+          <v-app-bar-title class="text-h6 font-weight-bold app-bar-title"
             >Mozaico</v-app-bar-title
           >
-          <div v-if="!isMobile" class="text-caption text-white-70">Gestión de Restaurante</div>
+          <div v-if="!isMobile" class="text-caption app-bar-subtitle">Gestión de Restaurante</div>
         </div>
       </div>
 
@@ -31,7 +32,7 @@
       <div class="d-flex align-center gap-2">
         <!-- Theme Toggle -->
         <v-btn icon variant="text" @click="toggleTheme">
-          <v-icon>{{ isDark ? 'mdi-white-balance-sunny' : 'mdi-moon-waning-crescent' }}</v-icon>
+          <v-icon color="#2C3E50">{{ isDark ? 'mdi-white-balance-sunny' : 'mdi-moon-waning-crescent' }}</v-icon>
         </v-btn>
 
         <!-- User Menu -->
@@ -52,16 +53,16 @@
     >
       <!-- User Profile Section -->
       <div :class="isMobile ? 'pa-3' : 'pa-4'" class="user-profile-section">
-        <v-card v-if="!rail || isMobile" flat color="primary" :class="isMobile ? 'pa-2' : 'pa-3'" class="rounded-lg" dark>
+        <v-card v-if="!rail || isMobile" flat color="#2C3E50" :class="isMobile ? 'pa-2' : 'pa-3'" class="rounded-lg" dark>
           <div class="d-flex align-center">
             <v-avatar class="me-3" color="white" :size="isMobile ? '36' : '40'">
-              <v-icon color="primary">mdi-account</v-icon>
+              <v-icon color="#2C3E50">mdi-account</v-icon>
             </v-avatar>
             <div class="flex-grow-1">
               <div :class="isMobile ? 'text-body-2' : 'text-subtitle2'" class="font-weight-bold">{{ user?.nombre || 'Usuario' }}</div>
               <div v-if="!isMobile" class="text-caption text-white-70">{{ user?.email || '' }}</div>
             </div>
-            <v-chip v-if="!isMobile" size="x-small" color="success" variant="flat">
+            <v-chip v-if="!isMobile" size="x-small" color="#6B8E5C" variant="flat">
               <v-icon start size="12">mdi-circle</v-icon>
               Online
             </v-chip>
@@ -69,7 +70,7 @@
         </v-card>
 
         <div v-else class="d-flex justify-center">
-          <v-avatar color="primary" size="40">
+          <v-avatar color="#2C3E50" size="40">
             <v-icon color="white">mdi-account</v-icon>
           </v-avatar>
         </div>
@@ -106,7 +107,7 @@
                     v-bind="{ ...props, ...tooltipProps }"
                     :prepend-icon="item.icon"
                     :title="item.title"
-                    color="primary"
+                    color="#2C3E50"
                     rounded="lg"
                     :class="[
                       'mb-1 nav-item nav-group-header',
@@ -143,7 +144,7 @@
                     :to="subItem.to"
                     :prepend-icon="subItem.icon"
                     :title="subItem.title"
-                    color="primary"
+                    color="#2C3E50"
                     rounded="lg"
                     class="mb-1 ms-4 nav-sub-item"
                   >
@@ -175,7 +176,7 @@
                 :to="item.to"
                 :prepend-icon="item.icon"
                 :title="item.title"
-                color="primary"
+                color="#2C3E50"
                 rounded="lg"
                 :class="[
                   'mb-1 nav-item',
@@ -207,7 +208,7 @@
             block
             @click="rail = !rail"
             :icon="rail"
-            color="primary"
+            color="#2C3E50"
             variant="tonal"
             class="rail-toggle-btn"
           >
@@ -230,7 +231,7 @@
       <v-fab
         v-if="isMobile"
         icon="mdi-menu"
-        color="primary"
+        color="#D4A03E"
         size="large"
         class="floating-menu-btn"
         @click="toggleDrawer"
@@ -247,7 +248,7 @@
         <div class="d-flex align-center">
           <v-chip
             size="small"
-            color="success"
+            color="#6B8E5C"
             variant="flat"
             prepend-icon="mdi-wifi"
             class="me-2 status-chip"
@@ -257,7 +258,7 @@
           </v-chip>
           <v-chip
             size="small"
-            color="info"
+            color="#2C3E50"
             variant="outlined"
             class="me-2"
           >
@@ -265,7 +266,7 @@
           </v-chip>
           <v-chip
             size="small"
-            color="primary"
+            color="#D4A03E"
             variant="text"
             prepend-icon="mdi-account-outline"
           >
@@ -548,8 +549,47 @@ onMounted(async () => {
 <style scoped>
 /* App Bar Moderna */
 .app-bar-modern {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%) !important;
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(44, 62, 80, 0.08);
+  box-shadow: 0 2px 12px rgba(44, 62, 80, 0.06) !important;
+}
+
+.app-bar-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    linear-gradient(rgba(44, 62, 80, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(44, 62, 80, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.app-bar-title {
+  color: #2C3E50 !important;
+  letter-spacing: -0.5px;
+}
+
+.app-bar-subtitle {
+  color: rgba(44, 62, 80, 0.7) !important;
+}
+
+.app-bar-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease;
+}
+
+.app-bar-logo:hover {
+  transform: scale(1.05);
 }
 
 .gap-2 {
@@ -564,9 +604,19 @@ onMounted(async () => {
 .user-profile-section {
   background: linear-gradient(
     145deg,
-    rgba(var(--v-theme-primary), 0.05) 0%,
-    rgba(var(--v-theme-secondary), 0.05) 100%
+    rgba(44, 62, 80, 0.05) 0%,
+    rgba(212, 160, 62, 0.05) 100%
   );
+}
+
+.user-profile-section .v-card {
+  box-shadow: 0 4px 12px rgba(44, 62, 80, 0.12) !important;
+  transition: all 0.3s ease;
+}
+
+.user-profile-section .v-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(44, 62, 80, 0.18) !important;
 }
 
 /* Navigation Items */
@@ -584,18 +634,18 @@ onMounted(async () => {
 }
 
 .priority-high .v-list-item__prepend .v-icon {
-  color: rgb(var(--v-theme-primary)) !important;
+  color: #2C3E50 !important;
 }
 
 .nav-item-important {
-  background: rgba(var(--v-theme-primary), 0.04) !important;
-  border: 1px solid rgba(var(--v-theme-primary), 0.12);
+  background: rgba(44, 62, 80, 0.04) !important;
+  border: 1px solid rgba(44, 62, 80, 0.12);
 }
 
 .nav-item-important:hover {
-  background: rgba(var(--v-theme-primary), 0.08) !important;
+  background: rgba(44, 62, 80, 0.08) !important;
   transform: translateX(6px);
-  box-shadow: 0 4px 12px rgba(var(--v-theme-primary), 0.15);
+  box-shadow: 0 4px 12px rgba(44, 62, 80, 0.15);
 }
 
 /* Group headers */
@@ -634,7 +684,7 @@ onMounted(async () => {
   transform: translateY(-50%);
   width: 2px;
   height: 16px;
-  background: rgb(var(--v-theme-primary));
+  background: #2C3E50;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -797,6 +847,11 @@ onMounted(async () => {
     height: 60px !important;
   }
 
+  .app-bar-logo {
+    width: 36px;
+    height: 36px;
+  }
+
   /* Ajustar tamaño de avatar */
   .user-profile-section .v-avatar {
     width: 36px !important;
@@ -812,6 +867,11 @@ onMounted(async () => {
   /* App bar más compacto en móviles */
   .app-bar-modern {
     height: 56px !important;
+  }
+
+  .app-bar-logo {
+    width: 32px;
+    height: 32px;
   }
 
   .app-bar-modern .v-toolbar__content {
@@ -865,6 +925,11 @@ onMounted(async () => {
     margin-right: 8px !important;
   }
 
+  .app-bar-logo {
+    width: 28px;
+    height: 28px;
+  }
+
   .app-bar-modern .v-avatar {
     width: 28px !important;
     height: 28px !important;
@@ -890,11 +955,11 @@ onMounted(async () => {
 
 /* Active states */
 .v-list-item--active {
-  background: rgba(var(--v-theme-primary), 0.12) !important;
-  color: rgb(var(--v-theme-primary));
+  background: rgba(44, 62, 80, 0.12) !important;
+  color: #2C3E50;
 }
 
 .v-list-item--active .v-icon {
-  color: rgb(var(--v-theme-primary)) !important;
+  color: #2C3E50 !important;
 }
 </style>

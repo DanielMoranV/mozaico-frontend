@@ -3,11 +3,52 @@
     <!-- Header del Dashboard -->
     <v-row class="mb-6">
       <v-col cols="12">
-        <div class="d-flex align-center mb-4">
-          <v-icon size="32" class="me-3" color="primary">mdi-view-dashboard</v-icon>
-          <h1 class="text-h4 font-weight-bold">Dashboard</h1>
-        </div>
-        <p class="text-h6 text-medium-emphasis">Bienvenido al panel de control de Mozaico</p>
+        <v-card class="dashboard-header" elevation="0">
+          <v-card-text class="pa-6">
+            <v-row align="center">
+              <v-col cols="12" md="auto">
+                <div class="d-flex align-center">
+                  <img
+                    src="/logo_mozaico.png"
+                    alt="Mozaico Logo"
+                    class="dashboard-logo me-4"
+                  />
+                  <div>
+                    <h1 class="text-h4 font-weight-bold mb-1 dashboard-title">
+                      Panel de Control
+                    </h1>
+                    <p class="text-subtitle-1 text-medium-emphasis mb-0">
+                      Bienvenido a Mozaico
+                    </p>
+                  </div>
+                </div>
+              </v-col>
+              <v-spacer class="d-none d-md-block" />
+              <v-col cols="12" md="auto">
+                <div class="d-flex align-center ga-2">
+                  <v-chip
+                    color="#6B8E5C"
+                    variant="flat"
+                    size="small"
+                    class="font-weight-medium"
+                  >
+                    <v-icon start size="small">mdi-clock-outline</v-icon>
+                    {{ currentTime }}
+                  </v-chip>
+                  <v-chip
+                    color="#D4A03E"
+                    variant="flat"
+                    size="small"
+                    class="font-weight-medium"
+                  >
+                    <v-icon start size="small">mdi-calendar-today</v-icon>
+                    {{ currentDate }}
+                  </v-chip>
+                </div>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
 
@@ -121,7 +162,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import EmpresaInfo from '@/components/common/EmpresaInfo.vue';
 import CarritoCalculadora from '@/components/common/CarritoCalculadora.vue';
@@ -138,13 +179,40 @@ const pedidoStore = usePedidoStore();
 const mesaStore = useMesaStore();
 const clienteStore = useClienteStore();
 
+// Hora y fecha actual
+const currentTime = ref('');
+const currentDate = ref('');
+let timeInterval: number;
+
+const updateTime = () => {
+  const now = new Date();
+  currentTime.value = now.toLocaleTimeString('es-PE', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  currentDate.value = now.toLocaleDateString('es-PE', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  });
+};
+
 // Cargar datos en el mount
 onMounted(async () => {
+  updateTime();
+  timeInterval = window.setInterval(updateTime, 1000);
+
   await Promise.all([
     pedidoStore.fetchPedidos(),
     mesaStore.fetchMesas(),
     clienteStore.fetchClientes()
   ]);
+});
+
+onUnmounted(() => {
+  if (timeInterval) {
+    clearInterval(timeInterval);
+  }
 });
 
 // Tarjetas de resumen con datos reales
@@ -179,28 +247,28 @@ const summaryCards = computed(() => {
       value: pedidosHoy.toString(),
       trend: 8.2,
       icon: 'mdi-clipboard-list',
-      color: 'primary'
+      color: '#2C3E50'
     },
     {
       title: 'Ventas Hoy',
       value: `S/ ${ventasHoy.toFixed(2)}`,
       trend: 12.5,
       icon: 'mdi-cash',
-      color: 'success'
+      color: '#6B8E5C'
     },
     {
       title: 'Mesas Ocupadas',
       value: `${mesasOcupadas}/${totalMesas}`,
       trend: mesasOcupadas > totalMesas / 2 ? 5.1 : -2.3,
       icon: 'mdi-table-chair',
-      color: 'warning'
+      color: '#D4A03E'
     },
     {
       title: 'Clientes Activos',
       value: clientesActivos.toString(),
       trend: 3.7,
       icon: 'mdi-account-group',
-      color: 'info'
+      color: '#C85A4A'
     }
   ];
 });
@@ -211,35 +279,35 @@ const recentActivity = ref([
     title: 'Nuevo pedido - Mesa 5',
     time: 'Hace 2 minutos',
     icon: 'mdi-plus-circle',
-    color: 'success'
+    color: '#6B8E5C'
   },
   {
     id: 2,
     title: 'Pago procesado - S/45.80',
     time: 'Hace 5 minutos',
     icon: 'mdi-credit-card',
-    color: 'primary'
+    color: '#2C3E50'
   },
   {
     id: 3,
     title: 'Mesa 3 liberada',
     time: 'Hace 8 minutos',
     icon: 'mdi-check-circle',
-    color: 'info'
+    color: '#D4A03E'
   },
   {
     id: 4,
     title: 'Stock bajo: Tomates',
     time: 'Hace 15 minutos',
     icon: 'mdi-alert-circle',
-    color: 'warning'
+    color: '#C85A4A'
   },
   {
     id: 5,
     title: 'Nueva reserva para mañana',
     time: 'Hace 30 minutos',
     icon: 'mdi-calendar-plus',
-    color: 'secondary'
+    color: '#2C3E50'
   }
 ]);
 
@@ -280,28 +348,28 @@ const quickActions = ref([
     title: 'Nuevo Pedido',
     description: 'Crear un nuevo pedido',
     icon: 'mdi-plus-circle',
-    color: 'primary',
+    color: '#2C3E50',
     to: '/pedidos'
   },
   {
     title: 'Ver Mesas',
     description: 'Estado de las mesas',
     icon: 'mdi-table-chair',
-    color: 'success',
+    color: '#6B8E5C',
     to: '/mesas'
   },
   {
     title: 'Inventario',
     description: 'Gestionar stock',
     icon: 'mdi-package-variant',
-    color: 'warning',
+    color: '#D4A03E',
     to: '/inventario'
   },
   {
     title: 'Reportes',
     description: 'Ver estadísticas',
     icon: 'mdi-chart-bar',
-    color: 'info',
+    color: '#C85A4A',
     to: '/reportes'
   }
 ]);
@@ -314,5 +382,93 @@ const quickActions = ref([
 
 .h-100 {
   height: 100%;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(44, 62, 80, 0.08);
+  box-shadow: 0 2px 12px rgba(44, 62, 80, 0.06);
+}
+
+.dashboard-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.dashboard-title {
+  color: #2C3E50;
+  letter-spacing: -0.5px;
+}
+
+/* Summary Cards */
+:deep(.v-card) {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+:deep(.v-card:hover) {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(44, 62, 80, 0.12);
+}
+
+/* Quick Actions Cards */
+:deep(.cursor-pointer.v-card) {
+  border: 1px solid rgba(44, 62, 80, 0.08);
+}
+
+:deep(.cursor-pointer.v-card:hover) {
+  border-color: rgba(44, 62, 80, 0.15);
+  transform: translateY(-6px);
+}
+
+/* Activity Icons */
+:deep(.v-list-item) {
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+:deep(.v-list-item:hover) {
+  background-color: rgba(44, 62, 80, 0.03);
+}
+
+/* Chips personalizados */
+:deep(.v-chip) {
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* Responsive */
+@media (max-width: 959px) {
+  .dashboard-header {
+    padding: 1rem !important;
+  }
+
+  .dashboard-logo {
+    width: 60px;
+    height: 60px;
+  }
+
+  .dashboard-title {
+    font-size: 1.75rem !important;
+  }
+}
+
+@media (max-width: 599px) {
+  :deep(.v-card-text) {
+    padding: 1rem !important;
+  }
+
+  .dashboard-logo {
+    width: 50px;
+    height: 50px;
+  }
+
+  .dashboard-title {
+    font-size: 1.5rem !important;
+  }
 }
 </style>

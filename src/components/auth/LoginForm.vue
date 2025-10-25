@@ -1,14 +1,13 @@
 <template>
-  <v-card class="mx-auto" max-width="400" elevation="8">
-    <v-card-title class="text-center bg-primary text-white pa-6">
+  <v-card class="mx-auto login-card" max-width="420" elevation="12">
+    <v-card-title class="text-center card-header pa-4">
       <div class="d-flex flex-column align-center">
-        <v-icon size="48" class="mb-2">mdi-restaurant</v-icon>
-        <span class="text-h5">Mozaico</span>
-        <span class="text-subtitle-2 opacity-80">Sistema de Gestión</span>
+        <span class="text-h6 font-weight-bold text-white">Iniciar Sesión</span>
+        <span class="text-caption text-white-70 mt-1">Ingresa tus credenciales</span>
       </div>
     </v-card-title>
 
-    <v-card-text class="pa-6">
+    <v-card-text class="pa-5">
       <v-form ref="formRef" v-model="valid" @submit.prevent="handleLogin">
         <v-text-field
           v-model="credentials.username"
@@ -17,7 +16,8 @@
           :rules="usernameRules"
           :error-messages="fieldErrors.username"
           variant="outlined"
-          class="mb-3"
+          density="comfortable"
+          class="mb-2"
           :disabled="isLoading"
           @input="onUsernameInput"
           required
@@ -33,7 +33,8 @@
           :rules="passwordRules"
           :error-messages="fieldErrors.password"
           variant="outlined"
-          class="mb-4"
+          density="comfortable"
+          class="mb-3"
           :disabled="isLoading"
           @input="onPasswordInput"
           required
@@ -42,8 +43,9 @@
         <v-alert
           v-if="error"
           type="error"
-          variant="outlined"
-          class="mb-4"
+          variant="tonal"
+          density="compact"
+          class="mb-3"
           closable
           @click:close="clearError"
         >
@@ -52,15 +54,15 @@
 
         <v-btn
           type="submit"
-          color="primary"
+          color="#D4A03E"
           size="large"
           block
           :loading="isLoading"
           :disabled="!valid || isLoading"
-          class="mb-3"
+          class="mb-2 login-button"
           @click="debugFormState"
         >
-          <v-icon left>mdi-login</v-icon>
+          <v-icon start>mdi-login</v-icon>
           Iniciar Sesión
         </v-btn>
 
@@ -72,7 +74,7 @@
       </v-form>
     </v-card-text>
 
-    <v-card-actions class="pa-6 pt-0">
+    <v-card-actions class="pa-4 pt-0">
       <v-spacer />
       <div class="text-caption text-medium-emphasis">
         Mozaico v1.0 &copy; {{ new Date().getFullYear() }}
@@ -218,12 +220,153 @@ watch([() => valid.value, () => isLoading.value], ([newValid, newLoading], [oldV
 </script>
 
 <style scoped>
-/* Estilos adicionales si son necesarios */
-.v-card {
-  border-radius: 16px;
+.login-card {
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 15px 50px rgba(44, 62, 80, 0.15), 0 5px 15px rgba(44, 62, 80, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
-.v-card-title {
-  border-radius: 16px 16px 0 0;
+.card-header {
+  background: linear-gradient(135deg, #2C3E50 0%, #3d566e 100%);
+  border-radius: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.5;
+}
+
+.text-white {
+  color: white !important;
+  position: relative;
+  z-index: 1;
+}
+
+.text-white-70 {
+  color: rgba(255, 255, 255, 0.8) !important;
+  position: relative;
+  z-index: 1;
+}
+
+.login-button {
+  background: linear-gradient(135deg, #D4A03E 0%, #C9953B 100%) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 25px rgba(212, 160, 62, 0.35) !important;
+  transition: all 0.3s ease !important;
+}
+
+.login-button:hover:not(:disabled) {
+  box-shadow: 0 12px 35px rgba(212, 160, 62, 0.45) !important;
+  transform: translateY(-2px);
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+}
+
+/* Input field focus color */
+:deep(.v-field--focused) {
+  border-color: #D4A03E !important;
+}
+
+:deep(.v-field--focused .v-label) {
+  color: #D4A03E !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 959px) {
+  .login-card {
+    margin: 0 1rem;
+  }
+
+  .card-header {
+    padding: 1rem !important;
+  }
+
+  :deep(.v-card-text) {
+    padding: 1rem !important;
+  }
+
+  :deep(.v-card-actions) {
+    padding: 0.75rem 1rem !important;
+  }
+}
+
+@media (max-width: 599px) {
+  .login-card {
+    margin: 0 0.5rem;
+  }
+
+  .card-header {
+    padding: 0.75rem !important;
+  }
+
+  :deep(.v-card-text) {
+    padding: 0.75rem !important;
+  }
+
+  :deep(.v-card-actions) {
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  :deep(.v-field) {
+    font-size: 0.9rem;
+  }
+
+  .login-button {
+    font-size: 0.95rem !important;
+  }
+}
+
+/* Height-based responsive */
+@media (max-height: 700px) {
+  .card-header {
+    padding: 0.75rem !important;
+  }
+
+  :deep(.v-card-text) {
+    padding: 1rem !important;
+  }
+
+  :deep(.v-card-actions) {
+    padding: 0.5rem 1rem !important;
+  }
+
+  :deep(.v-field) {
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+@media (max-height: 600px) {
+  .card-header span:first-child {
+    font-size: 1rem !important;
+  }
+
+  .card-header span:last-child {
+    display: none;
+  }
+
+  :deep(.v-card-text) {
+    padding: 0.75rem !important;
+  }
+
+  :deep(.v-card-actions) {
+    display: none;
+  }
 }
 </style>
