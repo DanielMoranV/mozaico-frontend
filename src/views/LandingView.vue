@@ -4,7 +4,7 @@
     <v-app-bar :elevation="2" scroll-behavior="elevate" color="white" :height="isMobile ? 64 : 70">
       <v-container class="d-flex align-center pa-0">
         <v-img
-          src="/public/mozaico_horizontal.png"
+          src="/mozaico_horizontal.png"
           :max-height="isMobile ? 35 : 45"
           :max-width="isMobile ? 160 : 200"
           contain
@@ -189,7 +189,7 @@
 
             <v-col cols="12" md="6" class="text-center" :order="isMobile ? 1 : 2">
               <v-img
-                src="/public/logo_mozaico.png"
+                src="/logo_mozaico.png"
                 :max-width="isMobile ? 250 : 400"
                 class="mx-auto floating-logo"
                 :class="isMobile ? 'mb-6' : ''"
@@ -418,7 +418,7 @@
       <v-footer :class="['bg-grey-darken-4 text-center', isMobile ? 'py-6' : 'py-8']">
         <v-container>
           <v-img
-            src="/public/mozaico_horizontal.png"
+            src="/mozaico_horizontal.png"
             :max-width="isMobile ? 160 : 200"
             :class="['mx-auto', isMobile ? 'mb-4' : 'mb-6']"
             style="opacity: 0.9"
