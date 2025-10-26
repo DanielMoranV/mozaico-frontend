@@ -457,13 +457,6 @@ const menuItems = computed((): MenuItem[] => [
         badge: clienteStore.totalClientes.toString(),
         badgeColor: "info",
       },
-      {
-        title: "Programa de Fidelización",
-        icon: "mdi-heart-outline",
-        to: "/fidelizacion",
-        badge: "NEW",
-        badgeColor: "success",
-      },
     ],
   },
   // Finanzas y reportes
@@ -515,19 +508,9 @@ const menuItems = computed((): MenuItem[] => [
         badgeColor: "info",
       },
       {
-        title: "Roles y Permisos",
-        icon: "mdi-account-key-outline",
-        to: "/roles",
-      },
-      {
         title: "Configuración General",
         icon: "mdi-cog-outline",
         to: "/configuracion",
-      },
-      {
-        title: "Logs del Sistema",
-        icon: "mdi-text-box-outline",
-        to: "/logs",
       },
     ],
   },
